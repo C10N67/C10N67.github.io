@@ -435,7 +435,7 @@ code { font-family: var(--mono); font-size: 0.86em; background: var(--surface-2)
 	display: grid; place-items: center; width: 52px; height: 52px; border-radius: 12px;
 	background: var(--surface-2); border: 1px solid var(--border);
 }
-.brand-logo svg { width: 30px; height: 30px; fill: var(--brand); stroke: none; }
+.brand-logo svg { width: 30px; height: 30px; }
 
 .card-featured.has-cover { display: grid; grid-template-columns: 170px 1fr; gap: 28px; align-items: start; }
 .card-body { display: flex; flex-direction: column; min-width: 0; height: 100%; }
