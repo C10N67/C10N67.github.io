@@ -19,7 +19,7 @@
 	<link rel="preconnect" href="https://fonts.googleapis.com" />
 	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 	<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
-	<link rel="stylesheet" href="css/style.css?v=d2bd2ca9" />
+	<link rel="stylesheet" href="css/style.css?v=f2b682f3" />
 	<script>document.documentElement.classList.add('js');</script>
 </head>
 <body>
@@ -57,7 +57,10 @@
 	<main id="main">
 
 		<!-- Hero -->
-		<section class="hero container" id="top">
+		<section class="hero-wrap" id="top">
+			<canvas class="hero-sky" aria-hidden="true"></canvas>
+			<p class="sky-label" aria-hidden="true"></p>
+			<div class="hero container">
 			<div class="hero-text">
 				<p class="prompt"><span class="accent">~/daniel</span> $ whoami<span class="cursor" aria-hidden="true"></span></p>
 				<h1>Daniel Carballo Reyes</h1>
@@ -93,28 +96,8 @@
 			</div>
 
 			<!-- Diagrama 5G Core: SBI + interfaces N2/N3/N4 -->
-			<figure class="hero-visual sky" role="img" aria-label="Animación: una figura mira un cielo estrellado en el que las estrellas giran y forman constelaciones reales y logos de Kubernetes, Helm, Prometheus, Grafana, Proxmox y Debian">
-				<canvas aria-hidden="true"></canvas>
-				<svg class="sky-ground" viewBox="0 0 400 360" preserveAspectRatio="xMidYMax meet" aria-hidden="true">
-					<defs>
-						<linearGradient id="horizon" x1="0" y1="0" x2="0" y2="1">
-							<stop offset="0" stop-color="#22d3ee" stop-opacity="0" />
-							<stop offset="1" stop-color="#22d3ee" stop-opacity=".12" />
-						</linearGradient>
-					</defs>
-					<rect x="0" y="230" width="400" height="90" fill="url(#horizon)" />
-					<path class="hill" d="M0 318 C 70 292, 150 296, 230 318 S 360 330, 400 312 L 400 360 L 0 360 Z" />
-					<g class="stargazer" transform="translate(81 302) scale(1.45) translate(-81 -302)">
-						<line x1="76" y1="302" x2="79" y2="279" />
-						<line x1="87" y1="302" x2="82" y2="279" />
-						<line class="torso" x1="80.5" y1="281" x2="83.5" y2="254" />
-						<polyline points="83,259 95,246 103,228" />
-						<polyline points="80.5,259 75,275" />
-						<circle cx="87.5" cy="240" r="8.5" />
-					</g>
-				</svg>
-				<p class="sky-label" aria-hidden="true"></p>
-			</figure>
+			<div class="hero-sky-anchor" role="img" aria-label="Cielo animado: las estrellas giran y forman constelaciones reales y logos de Kubernetes, Helm, Prometheus, Grafana, Proxmox y Debian"></div>
+			</div>
 		</section>
 
 		<!-- Sobre mí -->
@@ -514,12 +497,12 @@
 
 	<footer class="site-footer">
 		<div class="container footer-inner">
-			<p>© <span id="year">2026</span> Daniel Carballo Reyes · <a class="version mono" href="https://github.com/C10N67/C10N67.github.io/commits/main" target="_blank" rel="noopener" title="Historial de cambios / Changelog">v1.11.0</a></p>
+			<p>© <span id="year">2026</span> Daniel Carballo Reyes · <a class="version mono" href="https://github.com/C10N67/C10N67.github.io/commits/main" target="_blank" rel="noopener" title="Historial de cambios / Changelog">v1.12.0</a></p>
 			<p class="muted mono">kubectl get pods -n 5gc · <span class="ok">Running</span></p>
 		</div>
 	</footer>
 
 	<script src="js/main.js?v=a9d79513"></script>
-	<script src="js/sky.js?v=3924a37b"></script>
+	<script src="js/sky.js?v=132017c3"></script>
 </body>
 </html>

@@ -1,12 +1,14 @@
 /* Cielo animado de la portada: las estrellas giran lentamente y se recolocan
    alternando constelaciones reales y logos del stack (Simple Icons, CC0). */
 (function () {
-	var fig = document.querySelector('.sky');
-	if (!fig) return;
-	var canvas = fig.querySelector('canvas');
-	var label = fig.querySelector('.sky-label');
+	var wrap = document.querySelector('.hero-wrap');
+	if (!wrap) return;
+	var canvas = wrap.querySelector('.hero-sky');
+	var label = wrap.querySelector('.sky-label');
+	var anchor = wrap.querySelector('.hero-sky-anchor');
 	var ctx = canvas.getContext('2d');
-	var reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+	var lightMq = window.matchMedia ? window.matchMedia('(prefers-color-scheme: light)') : { matches: false };
+	function starColor() { return lightMq.matches ? '#1e3a8a' : '#cfe6ff'; }
 
 	// Coordenadas normalizadas (0..1, y hacia abajo) y aristas de cada constelación
 	var CONSTELLATIONS = [
@@ -92,14 +94,16 @@
 	});
 	var longest = Math.max(CONSTELLATIONS.length, logoShapes.length);
 	for (var i = 0; i < longest; i++) {
-		if (CONSTELLATIONS[i]) shapes.push(Object.assign({ kind: 'const', color: '#cfe6ff' }, CONSTELLATIONS[i]));
+		if (CONSTELLATIONS[i]) shapes.push(Object.assign({ kind: 'const', color: null }, CONSTELLATIONS[i]));
 		if (logoShapes[i]) shapes.push(logoShapes[i]);
 	}
 
 	// Estrellas: posición en coordenadas del cielo (unidad = tamaño de la figura, centro = 0)
 	function rand(a, b) { return a + Math.random() * (b - a); }
+	// Radio (en unidades del cielo) que cubre todo el lienzo aunque gire
+	var skyRadius = 1.3;
 	function randomSkyPoint() {
-		var r = 1.25 * Math.sqrt(Math.random()), t = Math.random() * Math.PI * 2;
+		var r = skyRadius * Math.sqrt(Math.random()), t = Math.random() * Math.PI * 2;
 		return [r * Math.cos(t), r * Math.sin(t)];
 	}
 	var stars = [];
@@ -110,33 +114,49 @@
 			tw: rand(0, Math.PI * 2), tws: rand(.8, 2.2) });
 	}
 
-	var W = 0, H = 0, DPR = 1, S = 1, CX = 0, CY = 0;
+	var W = 0, H = 0, DPR = 1, S = 1, CX = 0, CY = 0, mobile = false;
 	function resize() {
 		var r = canvas.getBoundingClientRect();
 		DPR = Math.min(window.devicePixelRatio || 1, 2);
 		W = r.width; H = r.height;
 		canvas.width = Math.round(W * DPR);
 		canvas.height = Math.round(H * DPR);
-		S = Math.min(W, H) * 0.6;
-		CX = W * 0.57;
-		CY = H * 0.39;
+		var a = anchor && anchor.offsetParent ? anchor.getBoundingClientRect() : null;
+		mobile = !a || a.width < 40;
+		if (mobile) {
+			// En móvil las figuras quedan de fondo, detrás del texto
+			S = Math.min(W * 0.92, H * 0.6);
+			CX = W * 0.5;
+			CY = H * 0.42;
+		} else {
+			// En escritorio se forman en la columna derecha, junto al texto
+			S = Math.min(a.width, a.height) * 0.86;
+			CX = a.left - r.left + a.width / 2;
+			CY = a.top - r.top + a.height * 0.46;
+		}
+		skyRadius = Math.hypot(Math.max(CX, W - CX), Math.max(CY, H - CY)) / S + 0.1;
+		if (label) {
+			label.style.left = CX + 'px';
+			label.style.top = (CY + S * 0.58) + 'px';
+		}
 	}
 
 	// Sprites de brillo precalculados por color
 	var sprites = {};
 	function sprite(color) {
-		if (sprites[color]) return sprites[color];
+		var key = color + (lightMq.matches ? 'L' : 'D');
+		if (sprites[key]) return sprites[key];
 		var c = document.createElement('canvas');
 		c.width = c.height = 64;
 		var g = c.getContext('2d');
 		var grad = g.createRadialGradient(32, 32, 0, 32, 32, 32);
-		grad.addColorStop(0, '#ffffff');
+		grad.addColorStop(0, lightMq.matches ? color : '#ffffff');
 		grad.addColorStop(0.18, color);
 		grad.addColorStop(0.45, hexA(color, 0.25));
 		grad.addColorStop(1, hexA(color, 0));
 		g.fillStyle = grad;
 		g.fillRect(0, 0, 64, 64);
-		return (sprites[color] = c);
+		return (sprites[key] = c);
 	}
 	function hexA(hex, a) {
 		var n = parseInt(hex.slice(1), 16);
@@ -230,7 +250,7 @@
 		}
 		if (lineA > 0 && shape) {
 			ctx.lineWidth = shape.kind === 'logo' ? 1.1 : 1;
-			ctx.strokeStyle = hexA(shape.color, (shape.kind === 'logo' ? 0.55 : 0.45) * lineA);
+			ctx.strokeStyle = hexA(shape.color || starColor(), (shape.kind === 'logo' ? 0.55 : 0.45) * lineA * (mobile ? 0.7 : 1));
 			ctx.beginPath();
 			for (var e = 0; e < shape.edges.length; e++) {
 				var p = toScreen(stars[shape.edges[e][0]]), q = toScreen(stars[shape.edges[e][1]]);
@@ -242,14 +262,15 @@
 
 		// Estrellas
 		var t = now / 1000;
-		var base = sprite('#cfe6ff');
-		var tint = shape ? sprite(shape.color) : base;
+		var base = sprite(starColor());
+		var tint = shape && shape.color ? sprite(shape.color) : base;
+		var dim = mobile ? 0.75 : 1;
 		for (var i = 0; i < stars.length; i++) {
 			var st = stars[i];
 			var pos = toScreen(st);
 			if (pos[0] < -10 || pos[0] > W + 10 || pos[1] < -10 || pos[1] > H + 10) continue;
 			var twinkle = 0.7 + 0.3 * Math.sin(t * st.tws + st.tw);
-			var alpha = (0.35 + 0.65 * st.lit) * twinkle;
+			var alpha = (0.35 + 0.65 * st.lit * dim) * twinkle;
 			var size = st.size * (2.6 + 2.4 * st.lit);
 			ctx.globalAlpha = alpha;
 			ctx.drawImage(st.lit > 0.5 ? tint : base, pos[0] - size, pos[1] - size, size * 2, size * 2);
@@ -265,7 +286,7 @@
 		raf = requestAnimationFrame(frame);
 	}
 	function start() {
-		if (running || reduceMotion || !visible) return;
+		if (running || !visible) return;
 		running = true;
 		lastT = 0;
 		raf = requestAnimationFrame(frame);
@@ -286,25 +307,11 @@
 		b.addEventListener('click', function () { if (current >= 0) setLabel(shapes[current]); });
 	});
 
-	if (reduceMotion) {
-		// Sin animación: Osa Mayor fija con sus líneas
-		var t0 = performance.now();
-		goTo(0, t0 - (MORPH + 1) * 1000);
-		for (var j = 0; j < stars.length; j++) {
-			var st = stars[j];
-			st.x = st.tx; st.y = st.ty; st.size = st.tsize; st.lit = st.tlit;
-			st.fx = st.tx; st.fy = st.ty; st.fsize = st.tsize; st.flit = st.tlit;
-		}
-		lastT = t0;
-		draw(t0, MORPH + 1);
-		return;
-	}
-
 	if ('IntersectionObserver' in window) {
 		new IntersectionObserver(function (entries) {
 			visible = entries[0].isIntersecting;
 			visible ? start() : stop();
-		}).observe(fig);
+		}).observe(wrap);
 	}
 	document.addEventListener('visibilitychange', function () {
 		document.hidden ? stop() : start();
