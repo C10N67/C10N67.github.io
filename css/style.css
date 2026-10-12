@@ -423,9 +423,19 @@ code { font-family: var(--mono); font-size: 0.86em; background: var(--surface-2)
 
 /* Imágenes de proyectos y experiencia */
 .card { overflow: hidden; }
-.card-media { margin: -24px -24px 20px; aspect-ratio: 16 / 9; overflow: hidden; border-bottom: 1px solid var(--border); }
-.card-media img { display: block; width: 100%; height: 100%; object-fit: cover; object-position: center 88%; transition: transform .4s ease; }
-.card:hover .card-media img { transform: scale(1.03); }
+.card-top-media { align-items: flex-start; }
+.card-thumb {
+	display: block; width: 104px; height: 104px; border-radius: 12px; object-fit: contain;
+	border: 1px solid var(--border); box-shadow: var(--shadow); transition: transform .3s ease;
+}
+.card:hover .card-thumb { transform: rotate(-2deg) scale(1.04); }
+
+.brand-logos { display: flex; gap: 8px; }
+.brand-logo {
+	display: grid; place-items: center; width: 52px; height: 52px; border-radius: 12px;
+	background: var(--surface-2); border: 1px solid var(--border);
+}
+.brand-logo svg { width: 30px; height: 30px; fill: var(--brand); stroke: none; }
 
 .card-featured.has-cover { display: grid; grid-template-columns: 170px 1fr; gap: 28px; align-items: start; }
 .card-body { display: flex; flex-direction: column; min-width: 0; height: 100%; }
