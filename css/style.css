@@ -421,6 +421,34 @@ code { font-family: var(--mono); font-size: 0.86em; background: var(--surface-2)
 .small { font-size: 0.85rem; }
 .nav-back { color: var(--accent) !important; }
 
+/* Imágenes de proyectos y experiencia */
+.card { overflow: hidden; }
+.card-media { margin: -24px -24px 20px; aspect-ratio: 16 / 9; overflow: hidden; border-bottom: 1px solid var(--border); }
+.card-media img { display: block; width: 100%; height: 100%; object-fit: cover; object-position: center 88%; transition: transform .4s ease; }
+.card:hover .card-media img { transform: scale(1.03); }
+
+.card-featured.has-cover { display: grid; grid-template-columns: 170px 1fr; gap: 28px; align-items: start; }
+.card-body { display: flex; flex-direction: column; min-width: 0; height: 100%; }
+.card-cover, .case-cover {
+	display: block; border-radius: 6px; overflow: hidden; background: #fff;
+	box-shadow: 0 12px 30px -10px rgba(0, 0, 0, .55); transition: transform .2s ease;
+}
+.card-cover img, .case-cover img { display: block; width: 100%; height: auto; }
+.card-cover:hover, .case-cover:hover { transform: translateY(-3px) rotate(-1deg); }
+@media (max-width: 600px) {
+	.card-featured.has-cover { grid-template-columns: 1fr; gap: 18px; }
+	.card-featured.has-cover .card-cover { width: 120px; }
+}
+
+.org-logo { display: block; height: 38px; width: auto; border-radius: 8px; background: #fff; }
+
+.case-hero-grid { display: grid; grid-template-columns: 1fr 240px; gap: 48px; align-items: center; }
+.case-hero-text { min-width: 0; }
+@media (max-width: 860px) {
+	.case-hero-grid { grid-template-columns: 1fr; gap: 0; }
+	.case-cover { width: 160px; margin-bottom: 32px; }
+}
+
 .card-link { display: inline-flex; align-items: center; gap: 6px; margin-top: 16px; font-weight: 600; font-size: 0.92rem; }
 .card-link::after { content: "→"; transition: transform .15s; }
 .card-link:hover { text-decoration: none; }
