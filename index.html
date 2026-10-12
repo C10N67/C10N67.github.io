@@ -19,7 +19,7 @@
 	<link rel="preconnect" href="https://fonts.googleapis.com" />
 	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 	<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
-	<link rel="stylesheet" href="css/style.css?v=4c7be5c8" />
+	<link rel="stylesheet" href="css/style.css?v=b836686c" />
 	<script>document.documentElement.classList.add('js');</script>
 </head>
 <body>
@@ -327,17 +327,18 @@
 						<span class="card-kicker">Homelab</span>
 						<h3><span lang="es">Clúster Kubernetes en casa</span><span lang="en">Home Kubernetes cluster</span></h3>
 						<p lang="es">
-							Mi propio clúster en un homelab para experimentar con virtualización, redes y orquestación de contenedores, y
-							para practicar de cara a la CKA.
+							Un portátil reciclado con Proxmox dividido en dos nodos Debian, OsaMayor y OsaMenor, con Kubernetes montado
+							con kubeadm. Mi laboratorio para practicar de cara a la CKA.
 						</p>
 						<p lang="en">
-							My own cluster in a homelab to experiment with virtualization, networking and container orchestration, and to
-							practise for the CKA.
+							A recycled laptop running Proxmox, split into two Debian nodes, OsaMayor and OsaMenor, with Kubernetes built
+							using kubeadm. My lab for CKA practice.
 						</p>
 					</div>
 					<ul class="tags">
-						<li>Kubernetes</li><li>Proxmox</li><li>Linux</li><li>Docker</li>
+						<li>Kubernetes</li><li>kubeadm</li><li>Proxmox</li><li>Debian</li>
 					</ul>
+					<a class="card-link" href="homelab.html"><span lang="es">Ver el homelab</span><span lang="en">Explore the homelab</span></a>
 				</article>
 
 				<article class="card">
@@ -353,11 +354,11 @@
 						<span class="card-kicker"><span lang="es">Observabilidad</span><span lang="en">Observability</span></span>
 						<h3><span lang="es">Monitorización del clúster</span><span lang="en">Cluster monitoring</span></h3>
 						<p lang="es">
-							Stack de Prometheus + Grafana para seguir el estado de los pods y las incidencias de las NFs, tanto en el TFG como
-							en el soporte a producción.
+							Stack de Prometheus + Grafana para seguir el estado de nodos y pods, tanto en mi homelab como en el soporte a
+							producción en Datatronics.
 						</p>
 						<p lang="en">
-							Prometheus + Grafana stack to follow pod health and NF incidents, both in my thesis and in production support.
+							Prometheus + Grafana stack to follow node and pod health, both in my homelab and in production support at Datatronics.
 						</p>
 					</div>
 					<ul class="tags">
@@ -538,7 +539,7 @@
 
 	<footer class="site-footer">
 		<div class="container footer-inner">
-			<p>© <span id="year">2026</span> Daniel Carballo Reyes · <a class="version mono" href="https://github.com/C10N67/C10N67.github.io/commits/main" target="_blank" rel="noopener" title="Historial de cambios / Changelog">v1.9.0</a></p>
+			<p>© <span id="year">2026</span> Daniel Carballo Reyes · <a class="version mono" href="https://github.com/C10N67/C10N67.github.io/commits/main" target="_blank" rel="noopener" title="Historial de cambios / Changelog">v1.10.0</a></p>
 			<p class="muted mono">kubectl get pods -n 5gc · <span class="ok">Running</span></p>
 		</div>
 	</footer>

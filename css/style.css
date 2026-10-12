@@ -558,6 +558,46 @@ code { font-family: var(--mono); font-size: 0.86em; background: var(--surface-2)
 .case-cta .hero-actions { margin: 18px 0 14px; }
 .case-cta .small { margin: 0; }
 
+/* ==========================================================================
+   Homelab (homelab.html)
+   ========================================================================== */
+
+.case-art { margin: 0; border-radius: 18px; overflow: hidden; border: 1px solid var(--border); box-shadow: var(--shadow); }
+.case-art img { display: block; width: 100%; height: auto; }
+@media (max-width: 860px) { .case-art { width: 180px; margin-bottom: 32px; } }
+
+.diagram .k8s-box { fill: none; stroke: var(--accent); stroke-dasharray: 6 5; opacity: .7; }
+.diagram .t-k8s { fill: var(--accent); stroke: none; font: 600 12px var(--mono); }
+.diagram .vm > rect:first-child { fill: var(--surface-2); stroke: var(--accent-2); }
+.diagram .t-title { fill: var(--text); stroke: none; font: 700 14px var(--mono); }
+.diagram .t-sub { fill: var(--text-muted); stroke: none; font: 500 11px var(--mono); }
+.diagram .bar-bg { fill: var(--bg); stroke: none; }
+.diagram .bar-fill { fill: #f59e0b; stroke: none; }
+.diagram .pod rect { fill: var(--accent-soft); stroke: var(--accent); }
+.diagram .pod text { fill: var(--text); stroke: none; font: 600 12px var(--mono); text-anchor: middle; }
+.diagram .future rect { fill: none; stroke: var(--text-muted); stroke-dasharray: 5 5; }
+.diagram .future-link { stroke: var(--text-muted); stroke-dasharray: 4 5; opacity: .8; }
+
+.build-steps { margin-top: 24px; }
+.steps { counter-reset: step; display: grid; gap: 12px; }
+.steps li { counter-increment: step; position: relative; padding-left: 38px; color: var(--text-muted); font-size: 0.95rem; }
+.steps li::before {
+	content: counter(step); position: absolute; left: 0; top: 0;
+	width: 26px; height: 26px; border-radius: 50%; display: grid; place-items: center;
+	font: 700 0.75rem var(--mono); color: var(--accent); background: var(--accent-soft);
+}
+
+.res-list { display: grid; gap: 14px; }
+.res-list li { display: grid; grid-template-columns: 52px 1fr auto; gap: 12px; align-items: center; font-size: 0.9rem; }
+.res-list .muted { font-size: 0.82rem; font-family: var(--mono); }
+.meter-hot span { background: linear-gradient(90deg, #f59e0b, #ef4444); }
+
+.shot { margin: 0; }
+.shot img { display: block; width: 100%; height: auto; border-radius: 14px; border: 1px solid var(--border); box-shadow: var(--shadow); }
+.shot figcaption { margin-top: 10px; font-size: 0.85rem; color: var(--text-muted); }
+
+.star-card h3 { font-family: var(--mono); color: var(--accent); margin-top: 8px; }
+
 /* Print: clean, light, everything visible */
 @media print {
 	.site-header, .hero-visual, .hero-actions, .skip-link { display: none !important; }
