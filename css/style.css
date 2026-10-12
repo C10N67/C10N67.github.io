@@ -433,6 +433,7 @@ code { font-family: var(--mono); font-size: 0.86em; background: var(--surface-2)
 .card-flow .card-kicker { display: block; margin-bottom: 14px; }
 .card-thumb-float { float: right; margin: 0 0 12px 18px; }
 .card-flow p { margin-bottom: 0; }
+.brand-logos-float { float: right; margin: 0 0 12px 18px; }
 .card:hover .card-thumb { transform: rotate(-2deg) scale(1.04); }
 
 .brand-logos { display: flex; gap: 8px; }
