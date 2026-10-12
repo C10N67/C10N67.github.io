@@ -260,7 +260,7 @@
 
 			<div class="incident-featured">
 				<div class="incident-head">
-					<span class="incident-tag"><span lang="es">Solución aplicada</span><span lang="en">Fix applied</span></span>
+					<span class="incident-tag"><span lang="es">Resuelto</span><span lang="en">Resolved</span></span>
 					<h3><span lang="es">Prometheus y Grafana sufrían OOMKilled</span><span lang="en">Prometheus and Grafana were getting OOMKilled</span></h3>
 				</div>
 				<div class="incident-grid">
@@ -275,9 +275,12 @@
 					<div>
 						<h4><span lang="es">Solución</span><span lang="en">Fix</span></h4>
 						<p lang="es">He añadido una <strong>Raspberry Pi 4</strong> como tercer nodo, fuera del portátil, y he llevado a ella todo el stack de observabilidad: <strong>Prometheus y Grafana se ejecutan ahora en la Raspberry</strong>, con su propia memoria, y las dos VMs dejan de cargar con lo que más RAM consumía. Además, el clúster mezcla ya un nodo <strong>arm64</strong> con los dos x86, lo que obliga a trabajar con imágenes multiarquitectura.</p>
+						<p lang="es">El resultado se ve en el propio Prometheus: el contador de OOM kills del kernel que expone Node Exporter, <code>node_vmstat_oom_kill</code>, está a <strong>0</strong>.</p>
 						<p lang="en">I added a <strong>Raspberry Pi 4</strong> as a third node, outside the laptop, and moved the whole observability stack onto it: <strong>Prometheus and Grafana now run on the Pi</strong>, with their own memory, so the two VMs no longer carry the hungriest workload. The cluster now also mixes an <strong>arm64</strong> node with the two x86 ones, which means working with multi-arch images.</p>
-<pre class="term"><code><span class="p">$</span> kubectl get pods -A -o wide | grep -E 'prom|graf'
-<span class="c" lang="es"># columna NODE: la Raspberry Pi 4</span><span class="c" lang="en"># NODE column: the Raspberry Pi 4</span></code></pre>
+						<p lang="en">The result shows up in Prometheus itself: the kernel OOM kill counter exposed by Node Exporter, <code>node_vmstat_oom_kill</code>, sits at <strong>0</strong>.</p>
+<pre class="term"><code><span class="c" lang="es"># PromQL · contador de OOM kills (Node Exporter)</span><span class="c" lang="en"># PromQL · OOM kill counter (Node Exporter)</span>
+<span class="p">&gt;</span> node_vmstat_oom_kill
+<span class="ok">0</span></code></pre>
 					</div>
 				</div>
 			</div>
@@ -348,7 +351,7 @@
 
 	<footer class="site-footer">
 		<div class="container footer-inner">
-			<p>© <span id="year">2026</span> Daniel Carballo Reyes · <a class="version mono" href="https://github.com/C10N67/C10N67.github.io/commits/main" target="_blank" rel="noopener" title="Historial de cambios / Changelog">v1.14.0</a></p>
+			<p>© <span id="year">2026</span> Daniel Carballo Reyes · <a class="version mono" href="https://github.com/C10N67/C10N67.github.io/commits/main" target="_blank" rel="noopener" title="Historial de cambios / Changelog">v1.14.1</a></p>
 			<p class="muted mono">kubectl get nodes · <span class="ok">Ready</span></p>
 		</div>
 	</footer>
