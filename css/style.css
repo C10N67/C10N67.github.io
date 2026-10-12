@@ -5,9 +5,10 @@
 :root {
 	--bg: #0b1120;
 	--bg-alt: #0f172a;
-	--surface: #111a2e;
-	--surface-2: #16213a;
-	--border: #1f2b45;
+	--surface: rgba(17, 26, 46, 0.78);
+	--surface-2: rgba(22, 33, 58, 0.85);
+	--border: rgba(51, 65, 99, 0.6);
+	--veil: rgba(8, 12, 24, 0.7);
 	--text: #e2e8f0;
 	--text-muted: #94a3b8;
 	--accent: #22d3ee;
@@ -26,9 +27,10 @@
 	:root {
 		--bg: #f8fafc;
 		--bg-alt: #f1f5f9;
-		--surface: #ffffff;
-		--surface-2: #f1f5f9;
-		--border: #e2e8f0;
+		--surface: rgba(255, 255, 255, 0.86);
+		--surface-2: rgba(241, 245, 249, 0.9);
+		--border: rgba(203, 213, 225, 0.8);
+		--veil: rgba(248, 250, 252, 0.85);
 		--text: #0f172a;
 		--text-muted: #475569;
 		--accent: #0891b2;
@@ -43,7 +45,20 @@
 
 *, *::before, *::after { box-sizing: border-box; }
 
-html { scroll-behavior: smooth; scroll-padding-top: 80px; }
+html { scroll-behavior: smooth; scroll-padding-top: 80px; background: var(--bg); }
+
+/* Fondo espacial fijo: la imagen es pequeña, así que se difumina un poco y se cubre con un velo para mantener la legibilidad */
+body::before,
+body::after { content: ""; position: fixed; pointer-events: none; }
+body::before {
+	inset: -24px; z-index: -2;
+	background: url("../images/space-bg.jpg") center / cover no-repeat;
+	filter: blur(3px) saturate(1.15);
+}
+body::after {
+	inset: 0; z-index: -1;
+	background: radial-gradient(1200px 600px at 85% -10%, var(--accent-soft), transparent 60%), var(--veil);
+}
 
 body {
 	margin: 0;
@@ -51,9 +66,7 @@ body {
 	font-size: 16px;
 	line-height: 1.65;
 	color: var(--text);
-	background:
-		radial-gradient(1200px 600px at 85% -10%, var(--accent-soft), transparent 60%),
-		var(--bg);
+	background: transparent;
 	-webkit-font-smoothing: antialiased;
 }
 
@@ -503,5 +516,6 @@ code { font-family: var(--mono); font-size: 0.86em; background: var(--surface-2)
 @media print {
 	.site-header, .hero-visual, .hero-actions, .skip-link { display: none !important; }
 	body { background: #fff; color: #000; }
+	body::before, body::after { display: none; }
 	.reveal { opacity: 1 !important; transform: none !important; }
 }
