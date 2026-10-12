@@ -1,0 +1,492 @@
+<!DOCTYPE html>
+<html lang="es" data-lang="es">
+<head>
+	<meta charset="utf-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1" />
+	<title>TFG · Núcleo 5G como CNFs en Kubernetes · Daniel Carballo Reyes</title>
+	<meta name="description" content="Caso de estudio del TFG de Daniel Carballo Reyes: despliegue de una red 5G Standalone completa (5GC + RAN) de OpenAirInterface sobre Kubernetes con Multus CNI y rfsimulator." />
+	<meta name="author" content="Daniel Carballo Reyes" />
+	<meta property="og:title" content="Orquestación de Funciones de Red 5G como CNFs en Kubernetes" />
+	<meta property="og:description" content="Red 5G SA end-to-end con OpenAirInterface, Kubernetes, Helm y Multus: arquitectura, incidencias resueltas y resultados." />
+	<meta property="og:url" content="https://c10n67.github.io/tfg.html" />
+	<meta property="og:type" content="article" />
+	<meta name="theme-color" content="#0b1120" />
+	<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230b1120'/%3E%3Ctext x='50%25' y='54%25' text-anchor='middle' dominant-baseline='middle' font-family='monospace' font-weight='700' font-size='28' fill='%2322d3ee'%3EDC%3C/text%3E%3C/svg%3E" />
+	<link rel="preconnect" href="https://fonts.googleapis.com" />
+	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+	<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
+	<link rel="stylesheet" href="css/style.css" />
+	<script>document.documentElement.classList.add('js');</script>
+</head>
+<body>
+
+	<a class="skip-link" href="#main">Saltar al contenido</a>
+
+	<header class="site-header">
+		<nav class="nav container" aria-label="Principal">
+			<a href="index.html" class="logo" aria-label="Volver al portfolio">
+				<span class="logo-mark">DC</span>
+				<span class="logo-text">daniel<span class="accent">.carballo</span></span>
+			</a>
+
+			<button class="nav-toggle" aria-expanded="false" aria-controls="nav-links">
+				<span class="sr-only">Menú</span>
+				<span class="bar"></span><span class="bar"></span><span class="bar"></span>
+			</button>
+
+			<ul class="nav-links" id="nav-links">
+				<li><a href="#arquitectura"><span lang="es">Arquitectura</span><span lang="en">Architecture</span></a></li>
+				<li><a href="#incidencias"><span lang="es">Incidencias</span><span lang="en">Troubleshooting</span></a></li>
+				<li><a href="#resultados"><span lang="es">Resultados</span><span lang="en">Results</span></a></li>
+				<li><a href="#objetivos"><span lang="es">Objetivos</span><span lang="en">Goals</span></a></li>
+				<li><a href="index.html#proyectos" class="nav-back">← Portfolio</a></li>
+				<li class="lang-switch" role="group" aria-label="Idioma / Language">
+					<button type="button" data-set-lang="es" aria-pressed="true">ES</button>
+					<button type="button" data-set-lang="en" aria-pressed="false">EN</button>
+				</li>
+			</ul>
+		</nav>
+	</header>
+
+	<main id="main">
+
+		<!-- Cabecera del caso de estudio -->
+		<section class="case-hero container" id="top">
+			<p class="prompt">
+				<a href="index.html#proyectos" class="crumb">~/proyectos</a> $ cat tfg.md<span class="cursor" aria-hidden="true"></span>
+			</p>
+			<p class="case-kicker">
+				<span lang="es">Trabajo de Fin de Grado · UC3M · Septiembre 2026</span>
+				<span lang="en">Bachelor's Thesis · UC3M · September 2026</span>
+			</p>
+			<h1>
+				<span lang="es">Orquestación de Funciones de Red 5G como CNFs en Kubernetes</span>
+				<span lang="en">Orchestrating 5G Network Functions as CNFs on Kubernetes</span>
+			</h1>
+			<p class="tagline">
+				<span lang="es">Despliegue de una red <strong>5G Standalone completa</strong> (núcleo 5GC + RAN) de OpenAirInterface sobre un clúster de Kubernetes, con la segmentación de interfaces del 3GPP implementada con Multus y un UE que acaba cursando tráfico real de extremo a extremo.</span>
+				<span lang="en">Deployment of a <strong>complete 5G Standalone network</strong> (5GC core + RAN) from OpenAirInterface on a Kubernetes cluster, with 3GPP interface segmentation built using Multus and a UE that ends up carrying real end-to-end traffic.</span>
+			</p>
+
+			<div class="hero-actions">
+				<a class="btn btn-primary" href="files/TFG_Daniel_Carballo_Reyes.pdf" target="_blank" rel="noopener">
+					<svg aria-hidden="true" viewBox="0 0 24 24"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5M9 13h6M9 17h6"/></svg>
+					<span lang="es">Leer la memoria (PDF)</span><span lang="en">Read the thesis (PDF, Spanish)</span>
+				</a>
+				<a class="btn btn-ghost" href="index.html#contacto">
+					<span lang="es">Hablemos</span><span lang="en">Get in touch</span>
+				</a>
+			</div>
+
+			<dl class="case-meta">
+				<div><dt><span lang="es">Autor</span><span lang="en">Author</span></dt><dd>Daniel Carballo Reyes</dd></div>
+				<div><dt>Tutor</dt><dd>Daniel Díaz Sánchez</dd></div>
+				<div><dt><span lang="es">Centro</span><span lang="en">School</span></dt><dd>EPS Leganés · UC3M</dd></div>
+				<div><dt><span lang="es">Dedicación</span><span lang="en">Effort</span></dt><dd><span lang="es">~300 h · 4 meses</span><span lang="en">~300 h · 4 months</span></dd></div>
+			</dl>
+
+			<ul class="stats">
+				<li><span class="stat-n">8</span><span class="stat-l"><span lang="es">Pods del 5GC en Running y registrados en el NRF</span><span lang="en">5GC pods Running and registered with the NRF</span></span></li>
+				<li><span class="stat-n">4</span><span class="stat-l"><span lang="es">Interfaces 3GPP con Multus: N2, N3, N4, N6</span><span lang="en">3GPP interfaces via Multus: N2, N3, N4, N6</span></span></li>
+				<li><span class="stat-n">7</span><span class="stat-l"><span lang="es">Incidencias diagnosticadas hasta la causa raíz</span><span lang="en">Issues diagnosed down to root cause</span></span></li>
+				<li><span class="stat-n">0&nbsp;%</span><span class="stat-l"><span lang="es">Pérdida en el ping UE → UPF e Internet</span><span lang="en">Packet loss on UE → UPF and Internet ping</span></span></li>
+			</ul>
+		</section>
+
+		<!-- Contexto -->
+		<section class="section container reveal" id="contexto">
+			<header class="section-head">
+				<span class="section-index">01</span>
+				<h2><span lang="es">Contexto y alcance</span><span lang="en">Context &amp; scope</span></h2>
+			</header>
+
+			<div class="about">
+				<div class="about-text">
+					<p lang="es">
+						Durante mis prácticas en Datatronics, dando soporte a redes 5G en producción, vi de primera mano cómo las
+						telecomunicaciones están adoptando paradigmas <strong>cloud-native</strong>. Quise entender a fondo qué implica
+						desplegar una red móvil sobre una plataforma de orquestación de contenedores, y de ahí salió este TFG.
+					</p>
+					<p lang="es">
+						El objetivo: <strong>diseñar, desplegar y documentar una red 5G SA funcionalmente completa</strong> —núcleo y
+						acceso radio— sobre un clúster de Kubernetes de un único nodo, con componentes de código abierto de
+						OpenAirInterface distribuidos con Helm. Como no había hardware SDR disponible (y un USRP es caro y exigía
+						acceso al nodo físico), el enlace radio se sustituye por <strong>rfsimulator</strong>, que mantiene intacta
+						toda la pila de protocolos por encima.
+					</p>
+					<p lang="en">
+						During my internship at Datatronics, supporting production 5G networks, I saw first-hand how telecoms is
+						moving to <strong>cloud-native</strong> paradigms. I wanted to deeply understand what it takes to run a mobile
+						network on a container orchestration platform, and that became this thesis.
+					</p>
+					<p lang="en">
+						The goal: <strong>design, deploy and document a functionally complete 5G SA network</strong> —core and radio
+						access— on a single-node Kubernetes cluster, using OpenAirInterface open-source components packaged with Helm.
+						With no SDR hardware available (a USRP is expensive and needed physical node access), the radio link is replaced
+						by <strong>rfsimulator</strong>, which keeps the whole protocol stack above it untouched.
+					</p>
+				</div>
+
+				<div class="panel">
+					<h3 class="panel-title"><span lang="es">Entorno</span><span lang="en">Environment</span></h3>
+					<ol class="stack-layers">
+						<li><span class="layer-k">NFs</span><span>OAI 5GC · gNB · nr-UE <span class="muted">(Helm)</span></span></li>
+						<li><span class="layer-k">CNI</span><span>Multus (thick) + macvlan</span></li>
+						<li><span class="layer-k">k8s</span><span><span lang="es">Minikube, un nodo</span><span lang="en">Minikube, single node</span></span></li>
+						<li><span class="layer-k">runtime</span><span>Docker</span></li>
+						<li><span class="layer-k">OS</span><span>Debian · <span lang="es">kernel RT</span><span lang="en">RT kernel</span></span></li>
+						<li><span class="layer-k">VM</span><span>Proxmox · 18 vCPU · 32 GiB</span></li>
+					</ol>
+					<p class="panel-note muted">
+						<span lang="es">Fuera de alcance: rendimiento, alta disponibilidad, multinodo, O-RAN desagregado y network slicing.</span>
+						<span lang="en">Out of scope: performance, high availability, multi-node, disaggregated O-RAN and network slicing.</span>
+					</p>
+				</div>
+			</div>
+		</section>
+
+		<!-- Arquitectura -->
+		<section class="section container reveal" id="arquitectura">
+			<header class="section-head">
+				<span class="section-index">02</span>
+				<h2><span lang="es">Arquitectura</span><span lang="en">Architecture</span></h2>
+			</header>
+
+			<p class="section-lead">
+				<span lang="es">Siguiendo el modelo de referencia del 3GPP, cada plano de comunicación tiene su propia interfaz: el SBI (HTTP/2) circula por la red por defecto del clúster, mientras que N2, N3, N4 y N6 se crean como interfaces <strong>macvlan</strong> independientes mediante <code>NetworkAttachmentDefinition</code> de Multus con IP estática.</span>
+				<span lang="en">Following the 3GPP reference model, each communication plane gets its own interface: the SBI (HTTP/2) runs over the cluster's default network, while N2, N3, N4 and N6 are separate <strong>macvlan</strong> interfaces created from Multus <code>NetworkAttachmentDefinition</code>s with static IPs.</span>
+			</p>
+
+			<figure class="arch diagram">
+				<svg viewBox="0 0 800 470" role="img" aria-labelledby="arch-title">
+					<title id="arch-title">Arquitectura del despliegue: 5GC de OAI, gNB y nr-UE en Minikube con interfaces Multus N2, N3, N4 y N6</title>
+
+					<rect class="cluster" x="10" y="10" width="680" height="410" rx="16" />
+					<text class="cluster-label" x="26" y="34">minikube · Debian RT VM (Proxmox)</text>
+
+					<!-- SBI -->
+					<line class="bus" x1="250" y1="112" x2="676" y2="112" />
+					<text class="iface" x="590" y="128">SBI · HTTP/2</text>
+					<line class="link" x1="298" y1="84" x2="298" y2="112" />
+					<line class="link" x1="408" y1="84" x2="408" y2="112" />
+					<line class="link" x1="518" y1="84" x2="518" y2="112" />
+					<line class="link" x1="628" y1="84" x2="628" y2="112" />
+					<line class="link" x1="348" y1="112" x2="348" y2="146" />
+					<line class="link" x1="568" y1="112" x2="568" y2="146" />
+
+					<!-- Multus N-interfaces -->
+					<path class="link n" d="M170 214 C 230 214, 260 170, 300 168" />
+					<text class="iface iface-n" x="186" y="158">N2 · NGAP/SCTP</text>
+
+					<path class="link n flow" d="M170 236 C 300 250, 400 344, 520 344" />
+					<text class="iface iface-n" x="300" y="314">N3 · GTP-U</text>
+
+					<line class="link n" x1="568" y1="186" x2="568" y2="322" />
+					<text class="iface iface-n" x="578" y="262">N4 · PFCP</text>
+
+					<line class="link n flow" x1="616" y1="344" x2="712" y2="344" />
+					<text class="iface iface-n" x="650" y="336">N6</text>
+
+					<!-- rfsim -->
+					<line class="link radio" x1="115" y1="246" x2="115" y2="324" />
+					<text class="iface" x="124" y="290">rfsim · TCP</text>
+
+					<!-- NFs del 5GC -->
+					<g class="nf"><rect x="250" y="44" width="96" height="40" rx="9"/><text x="298" y="69">NRF</text></g>
+					<g class="nf"><rect x="360" y="44" width="96" height="40" rx="9"/><text x="408" y="69">AUSF</text></g>
+					<g class="nf"><rect x="470" y="44" width="96" height="40" rx="9"/><text x="518" y="69">UDM</text></g>
+					<g class="nf"><rect x="580" y="44" width="96" height="40" rx="9"/><text x="628" y="69">UDR</text></g>
+					<g class="nf"><rect x="300" y="146" width="96" height="40" rx="9"/><text x="348" y="171">AMF</text></g>
+					<g class="nf"><rect x="520" y="146" width="96" height="40" rx="9"/><text x="568" y="171">SMF</text></g>
+					<g class="nf nf-hot"><rect x="520" y="322" width="96" height="44" rx="9"/><text x="568" y="349">UPF</text></g>
+
+					<!-- RAN -->
+					<g class="nf nf-ran"><rect x="60" y="202" width="110" height="44" rx="9"/><text x="115" y="229">gNB</text></g>
+					<g class="nf nf-ran"><rect x="60" y="324" width="110" height="44" rx="22"/><text x="115" y="351">nr-UE</text></g>
+
+					<!-- DN -->
+					<g class="nf nf-dn"><rect x="712" y="322" width="78" height="44" rx="22"/><text x="751" y="349">DN</text></g>
+
+					<!-- IPs -->
+					<text class="ip" x="300" y="204">n2 172.21.6.95 :38412</text>
+					<text class="ip" x="452" y="386">n3 172.21.8.95</text>
+					<text class="ip" x="452" y="400">n4 192.168.24.2</text>
+					<text class="ip" x="452" y="414">n6 192.168.22.2</text>
+					<text class="ip" x="40" y="390">oaitun_ue1 12.1.1.100/24</text>
+					<text class="ip" x="712" y="386">8.8.8.8</text>
+
+					<!-- Leyenda -->
+					<line class="bus" x1="20" y1="450" x2="56" y2="450" />
+					<text class="legend" x="64" y="454">SBI · eth0</text>
+					<line class="link n" x1="170" y1="450" x2="206" y2="450" />
+					<text class="legend" x="214" y="454">Multus macvlan (NAD)</text>
+					<line class="link radio" x1="400" y1="450" x2="436" y2="450" />
+					<text class="legend" x="444" y="454">rfsimulator</text>
+				</svg>
+				<figcaption>
+					<span lang="es">IPs reales del despliegue. Además, una base de datos MySQL da persistencia al UDR.</span>
+					<span lang="en">Actual IPs from the deployment. A MySQL database also backs the UDR.</span>
+				</figcaption>
+			</figure>
+		</section>
+
+		<!-- Incidencias -->
+		<section class="section container reveal" id="incidencias">
+			<header class="section-head">
+				<span class="section-index">03</span>
+				<h2><span lang="es">Incidencias resueltas</span><span lang="en">Problems solved</span></h2>
+			</header>
+
+			<p class="section-lead">
+				<span lang="es">La parte más valiosa del trabajo: muchos de estos fallos eran <strong>silenciosos</strong>. Los fui resolviendo capa a capa, verificando cada interfaz y cada socket antes de subir al siguiente nivel de la pila.</span>
+				<span lang="en">The most valuable part of the work: many of these failures were <strong>silent</strong>. I worked through them layer by layer, checking each interface and socket before moving up the stack.</span>
+			</p>
+
+			<div class="incident-featured">
+				<div class="incident-head">
+					<span class="incident-tag"><span lang="es">La más laboriosa</span><span lang="en">The hardest one</span></span>
+					<h3><span lang="es">Saturación del buffer del socket rfsimulator</span><span lang="en">rfsimulator socket buffer saturation</span></h3>
+				</div>
+				<div class="incident-grid">
+					<div>
+						<h4><span lang="es">Síntoma</span><span lang="en">Symptom</span></h4>
+						<p lang="es">El gNB registraba en bucle <code>write() failed, errno(11)</code> (EAGAIN). Las estadísticas radio no mostraban errores, pero el plano de usuario no funcionaba y el SRB1 se quedaba congelado con un contador de bytes constante.</p>
+						<p lang="en">The gNB kept logging <code>write() failed, errno(11)</code> (EAGAIN). Radio stats showed no errors, yet the user plane was dead and SRB1 froze at a constant byte count.</p>
+						<h4><span lang="es">Diagnóstico</span><span lang="en">Diagnosis</span></h4>
+						<p lang="es">Esa contradicción era la pista: la banda base decodificaba bien lo que llegaba, pero llegaban <em>menos muestras</em> de las necesarias. El fallo no estaba en la capa física, sino en el transporte TCP que sustituye al enlace aéreo: el <strong>jitter del hipervisor</strong> sobre vCPUs compartidas saturaba el buffer de envío del kernel. Sin acceso al nodo Proxmox no había CPU pinning posible.</p>
+						<p lang="en">That contradiction was the clue: baseband decoded everything it received, but <em>fewer samples</em> than needed were arriving. The fault wasn't in the PHY but in the TCP transport replacing the air link: <strong>hypervisor jitter</strong> on shared vCPUs was filling the kernel send buffer. With no access to the Proxmox node, CPU pinning was off the table.</p>
+						<p class="muted small" lang="es">Probado sin éxito: menos hilos (<code>parallel_config</code>), muestreo a 3/4 (<code>-E</code>) y menos ancho de banda.</p>
+						<p class="muted small" lang="en">Tried without success: fewer threads (<code>parallel_config</code>), 3/4 sampling (<code>-E</code>) and a narrower carrier.</p>
+					</div>
+					<div>
+						<h4><span lang="es">Solución</span><span lang="en">Fix</span></h4>
+						<p lang="es">Ampliar los buffers de socket del kernel (de 212&nbsp;kB por defecto a 64&nbsp;MB máx. / 16&nbsp;MB inicial), en la VM y dentro del contenedor de Minikube. El jitter sigue existiendo, pero ya no se traduce en pérdida de muestras.</p>
+						<p lang="en">Enlarge the kernel socket buffers (from the 212&nbsp;kB default to 64&nbsp;MB max / 16&nbsp;MB default), both on the VM and inside the Minikube container. Jitter still exists, but no longer turns into lost samples.</p>
+<pre class="term"><code><span class="c"># Debian VM + Minikube</span>
+echo 67108864 &gt; /proc/sys/net/core/wmem_max
+echo 67108864 &gt; /proc/sys/net/core/rmem_max
+echo 16777216 &gt; /proc/sys/net/core/wmem_default
+echo 16777216 &gt; /proc/sys/net/core/rmem_default</code></pre>
+						<p class="muted small" lang="es">Complementado con kernel RT y <code>intel_pstate=disable processor.max_cstate=1 idle=poll</code> en GRUB.</p>
+						<p class="muted small" lang="en">Backed up by an RT kernel and <code>intel_pstate=disable processor.max_cstate=1 idle=poll</code> in GRUB.</p>
+					</div>
+				</div>
+			</div>
+
+			<ol class="incidents">
+				<li class="incident">
+					<span class="incident-n">01</span>
+					<h3><span lang="es">IPs estáticas duplicadas en los NAD</span><span lang="en">Duplicate static IPs in the NADs</span></h3>
+					<p lang="es"><strong>Síntoma:</strong> la interfaz N2 nunca aparecía en el Pod del gNB, sin ningún error de Multus. <strong>Causa:</strong> <code>oai-amf-n2</code> y <code>oai-gnb-n2</code> venían con la misma IP. <strong>Solución:</strong> verificar la unicidad de IPs de cada NAD y reasignarlas en el <code>values.yaml</code>.</p>
+					<p lang="en"><strong>Symptom:</strong> the N2 interface never showed up in the gNB pod, with no Multus error. <strong>Cause:</strong> <code>oai-amf-n2</code> and <code>oai-gnb-n2</code> shipped with the same IP. <strong>Fix:</strong> check IP uniqueness across NADs and reassign them in <code>values.yaml</code>.</p>
+				</li>
+				<li class="incident">
+					<span class="incident-n">02</span>
+					<h3><span lang="es">Socket SCTP del AMF en la interfaz equivocada</span><span lang="en">AMF SCTP socket on the wrong interface</span></h3>
+					<p lang="es"><strong>Síntoma:</strong> la asociación SCTP gNB–AMF no se establecía. <strong>Diagnóstico:</strong> <code>/proc/net/sctp/eps</code> mostraba el AMF escuchando en <code>eth0</code>, porque OAI enlaza a la primera interfaz disponible. <strong>Solución:</strong> fijar <code>interface_name: n2</code> (puerto 38412) en el <code>config.yaml</code> del AMF.</p>
+					<p lang="en"><strong>Symptom:</strong> the gNB–AMF SCTP association never came up. <strong>Diagnosis:</strong> <code>/proc/net/sctp/eps</code> showed the AMF listening on <code>eth0</code>, since OAI binds to the first available interface. <strong>Fix:</strong> set <code>interface_name: n2</code> (port 38412) in the AMF's <code>config.yaml</code>.</p>
+				</li>
+				<li class="incident">
+					<span class="incident-n">03</span>
+					<h3><span lang="es">El gNB apuntaba al ClusterIP del AMF</span><span lang="en">gNB pointed at the AMF's ClusterIP</span></h3>
+					<p lang="es"><strong>Causa:</strong> el gNB usaba la IP del Service de Kubernetes, pero N2 es un plano aislado con Multus que no pasa por el Service. <strong>Solución:</strong> apuntar <code>amfhost</code> a la IP macvlan N2 del AMF. Tras esto, el registro NGAP se completó.</p>
+					<p lang="en"><strong>Cause:</strong> the gNB used the Kubernetes Service IP, but N2 is an isolated Multus plane that doesn't go through the Service. <strong>Fix:</strong> point <code>amfhost</code> at the AMF's N2 macvlan IP. NGAP registration then completed.</p>
+				</li>
+				<li class="incident">
+					<span class="incident-n">04</span>
+					<h3><span lang="es">rfsimulator: dos clientes, ningún servidor</span><span lang="en">rfsimulator: two clients, no server</span></h3>
+					<p lang="es"><strong>Causa:</strong> gNB y UE arrancaban en modo cliente, así que la conexión no llegaba a producirse, sin dar error. <strong>Solución:</strong> <code>serveraddr = "server"</code> en el gNB y <code>rfSimServer</code> del UE apuntando a la IP del gNB. Verificado con <code>st = 01</code> en <code>/proc/net/tcp</code>.</p>
+					<p lang="en"><strong>Cause:</strong> both gNB and UE started as clients, so the connection silently never happened. <strong>Fix:</strong> <code>serveraddr = "server"</code> on the gNB and the UE's <code>rfSimServer</code> pointing at the gNB IP. Verified via <code>st = 01</code> in <code>/proc/net/tcp</code>.</p>
+				</li>
+				<li class="incident">
+					<span class="incident-n">05</span>
+					<h3><span lang="es">PCF ausente en el establecimiento de la sesión PDU</span><span lang="en">Missing PCF during PDU session setup</span></h3>
+					<p lang="es"><strong>Síntoma:</strong> <code>PCF SM Policy Association Creation was not successful</code>. <strong>Solución:</strong> en lugar de desplegar una PCF innecesaria para el alcance, activar <code>use_local_pcc_rules: yes</code> en el SMF.</p>
+					<p lang="en"><strong>Symptom:</strong> <code>PCF SM Policy Association Creation was not successful</code>. <strong>Fix:</strong> rather than deploying a PCF that was out of scope, enable <code>use_local_pcc_rules: yes</code> on the SMF.</p>
+				</li>
+				<li class="incident">
+					<span class="incident-n">06</span>
+					<h3><span lang="es">Orden de arranque y reconexión</span><span lang="en">Startup order and reconnection</span></h3>
+					<p lang="es"><strong>Causa:</strong> el nr-UE no reconstruye la conexión si el gNB se reinicia, y Kubernetes no garantiza orden entre Deployments. <strong>Solución:</strong> procedimiento fijo: MySQL → UDR/NRF → resto del 5GC → gNB → nr-UE, reiniciando en ese orden.</p>
+					<p lang="en"><strong>Cause:</strong> the nr-UE won't rebuild its link if the gNB restarts, and Kubernetes doesn't order Deployments. <strong>Fix:</strong> a fixed procedure: MySQL → UDR/NRF → rest of 5GC → gNB → nr-UE, restarting in that order.</p>
+				</li>
+			</ol>
+
+			<div class="method panel">
+				<h3 class="panel-title"><span lang="es">Metodología de depuración</span><span lang="en">Debugging approach</span></h3>
+				<ul class="tl-points">
+					<li lang="es"><strong>Por capas:</strong> interfaz → socket → asociación → registro, sin avanzar hasta validar la capa anterior. Los logs suelen indicar el último protocolo en el que se quedó la pila.</li>
+					<li lang="en"><strong>Layer by layer:</strong> interface → socket → association → registration, never moving on until the layer below is validated. Logs usually point to the last protocol the stack reached.</li>
+					<li lang="es"><strong>Inspección de bajo nivel</strong> vía <code>/proc/net/sctp/eps</code> y <code>/proc/net/tcp</code>, porque las imágenes de OAI apenas traen herramientas de red.</li>
+					<li lang="en"><strong>Low-level inspection</strong> through <code>/proc/net/sctp/eps</code> and <code>/proc/net/tcp</code>, since OAI images ship with barely any network tools.</li>
+					<li lang="es"><strong><code>ps aux</code></strong> para ver los argumentos reales de arranque: <code>useAdditionalOptions</code> sobrescribe los ficheros de configuración y podía ocultar la causa real.</li>
+					<li lang="en"><strong><code>ps aux</code></strong> to see the real startup arguments: <code>useAdditionalOptions</code> overrides the config files and could hide the real cause.</li>
+					<li lang="es"><strong>Revisar los ConfigMaps</strong> generados por Helm: un error de indentación puede dar un YAML válido pero funcionalmente incorrecto.</li>
+					<li lang="en"><strong>Review the ConfigMaps</strong> Helm renders: an indentation mistake can produce valid but functionally wrong YAML.</li>
+				</ul>
+			</div>
+		</section>
+
+		<!-- Resultados -->
+		<section class="section container reveal" id="resultados">
+			<header class="section-head">
+				<span class="section-index">04</span>
+				<h2><span lang="es">Resultados</span><span lang="en">Results</span></h2>
+			</header>
+
+			<p class="section-lead">
+				<span lang="es">El nr-UE completa la sincronización (PSS/SSS, MIB), la conexión RRC, el registro NAS con <strong>5G-AKA</strong> y el establecimiento de la <strong>sesión PDU</strong>, recibe la IP <code>12.1.1.100</code> en <code>oaitun_ue1</code> y cursa tráfico por la cadena completa radio → GTP-U → N3 → UPF → N6.</span>
+				<span lang="en">The nr-UE completes sync (PSS/SSS, MIB), the RRC connection, NAS registration with <strong>5G-AKA</strong> and <strong>PDU session</strong> establishment, gets <code>12.1.1.100</code> on <code>oaitun_ue1</code> and carries traffic through the whole radio → GTP-U → N3 → UPF → N6 chain.</span>
+			</p>
+
+			<div class="evidence">
+				<figure class="term-figure">
+					<figcaption><span lang="es">AMF · gNB conectado vía NGAP</span><span lang="en">AMF · gNB connected over NGAP</span></figcaption>
+<pre class="term"><code><span class="c">[amf_app] ----------------- gNBs' information ------------------</span>
+ Index | Status    | Global ID | gNB Name  | PLMN
+ 1     | <span class="ok">Connected</span> | 0xe000    | FGE-USTHB | 001, 01</code></pre>
+				</figure>
+
+				<figure class="term-figure">
+					<figcaption><span lang="es">AMF · UE registrado</span><span lang="en">AMF · UE registered</span></figcaption>
+<pre class="term"><code><span class="c">[amf_app] ----------------- UEs' information -------------------</span>
+ Index | 5GMM state       | IMSI            | PLMN    | Cell ID
+ 1     | <span class="ok">5GMM-REGISTERED</span>  | 001010000000100 | 001, 01 | 0xe00000</code></pre>
+				</figure>
+
+				<figure class="term-figure">
+					<figcaption><span lang="es">SMF · sesión PDU establecida</span><span lang="en">SMF · PDU session established</span></figcaption>
+<pre class="term"><code>[smf_app] Found UPF for this PDU session: 192.168.24.2
+[smf_app] Handle N4 Session Establishment Response (PDU Session Id 10)
+[smf_n1 ] Create N1 SM Container, PDU Session Establishment Accept
+[smf_n2 ] Create N2 SM Information, PDU Session Resource Setup Request Transfer
+[smf_app] Handle N4 Session Modification Response (PDU Session Id 10)
+[smf_app] Set PDU Session Status to <span class="ok">PDU_SESSION_ACTIVE</span></code></pre>
+				</figure>
+
+				<div class="evidence-pair">
+					<figure class="term-figure">
+						<figcaption><span lang="es">nr-UE → UPF (plano de usuario)</span><span lang="en">nr-UE → UPF (user plane)</span></figcaption>
+<pre class="term"><code><span class="p">$</span> ping -I oaitun_ue1 12.1.1.1
+PING 12.1.1.1 from 12.1.1.100 oaitun_ue1
+10 packets transmitted, 10 received, <span class="ok">0% packet loss</span>
+rtt min/avg/max = 4.566/5.518/6.584 ms</code></pre>
+					</figure>
+					<figure class="term-figure">
+						<figcaption><span lang="es">nr-UE → Internet (N6)</span><span lang="en">nr-UE → Internet (N6)</span></figcaption>
+<pre class="term"><code><span class="p">$</span> ping -I oaitun_ue1 8.8.8.8
+PING 8.8.8.8 from 12.1.1.100 oaitun_ue1
+10 packets transmitted, 10 received, <span class="ok">0% packet loss</span>
+rtt min/avg/max = 5.256/6.657/7.562 ms</code></pre>
+					</figure>
+				</div>
+			</div>
+			<p class="muted small">
+				<span lang="es">Extractos de los logs y capturas incluidos en la memoria (capítulo 3 y Anexo 1).</span>
+				<span lang="en">Excerpts from the logs and screenshots included in the thesis (chapter 3 and Annex 1).</span>
+			</p>
+		</section>
+
+		<!-- Objetivos -->
+		<section class="section container reveal" id="objetivos">
+			<header class="section-head">
+				<span class="section-index">05</span>
+				<h2><span lang="es">Objetivos cumplidos</span><span lang="en">Goals achieved</span></h2>
+			</header>
+
+			<ul class="objectives">
+				<li>
+					<span class="obj-k">OE1</span>
+					<div><strong><span lang="es">Desplegar el 5GC con Helm</span><span lang="en">Deploy the 5GC with Helm</span></strong>
+					<span class="muted"><span lang="es">AMF, SMF, UPF, NRF, AUSF, UDM, UDR + MySQL en Running y registrados en el NRF.</span><span lang="en">AMF, SMF, UPF, NRF, AUSF, UDM, UDR + MySQL Running and registered with the NRF.</span></span></div>
+					<span class="obj-ok" aria-label="Cumplido">✓</span>
+				</li>
+				<li>
+					<span class="obj-k">OE2</span>
+					<div><strong><span lang="es">Segmentación multi-interfaz</span><span lang="en">Multi-interface segmentation</span></strong>
+					<span class="muted"><span lang="es">Cada NAD crea su interfaz macvlan sin conflictos, verificable con <code>ip a</code>.</span><span lang="en">Each NAD creates its macvlan interface conflict-free, verifiable with <code>ip a</code>.</span></span></div>
+					<span class="obj-ok" aria-label="Cumplido">✓</span>
+				</li>
+				<li>
+					<span class="obj-k">OE3</span>
+					<div><strong><span lang="es">gNB y nr-UE con rfsimulator</span><span lang="en">gNB and nr-UE over rfsimulator</span></strong>
+					<span class="muted"><span lang="es">Conexión TCP establecida entre ambos procesos.</span><span lang="en">TCP connection established between both processes.</span></span></div>
+					<span class="obj-ok" aria-label="Cumplido">✓</span>
+				</li>
+				<li>
+					<span class="obj-k">OE4</span>
+					<div><strong><span lang="es">Diagnóstico de incidencias</span><span lang="en">Issue diagnosis</span></strong>
+					<span class="muted"><span lang="es">Cada incidencia documentada con causa raíz, método y solución.</span><span lang="en">Every issue documented with root cause, method and fix.</span></span></div>
+					<span class="obj-ok" aria-label="Cumplido">✓</span>
+				</li>
+				<li>
+					<span class="obj-k">OE5</span>
+					<div><strong><span lang="es">Registro y datos de extremo a extremo</span><span lang="en">End-to-end registration and data</span></strong>
+					<span class="muted"><span lang="es">Registro NAS en el AMF y ping correcto por <code>oaitun_ue1</code>.</span><span lang="en">NAS registration at the AMF and a successful ping over <code>oaitun_ue1</code>.</span></span></div>
+					<span class="obj-ok" aria-label="Cumplido">✓</span>
+				</li>
+				<li>
+					<span class="obj-k">OE6</span>
+					<div><strong><span lang="es">Memoria autocontenida y reproducible</span><span lang="en">Self-contained, reproducible write-up</span></strong>
+					<span class="muted"><span lang="es">Marco teórico, implementación y guía de despliegue paso a paso.</span><span lang="en">Theory, implementation and a step-by-step deployment guide.</span></span></div>
+					<span class="obj-ok" aria-label="Cumplido">✓</span>
+				</li>
+			</ul>
+		</section>
+
+		<!-- Líneas futuras -->
+		<section class="section container reveal" id="futuro">
+			<header class="section-head">
+				<span class="section-index">06</span>
+				<h2><span lang="es">Próximos pasos</span><span lang="en">What's next</span></h2>
+			</header>
+
+			<div class="cards cards-3">
+				<article class="card">
+					<h3><span lang="es">Clúster multinodo</span><span lang="en">Multi-node cluster</span></h3>
+					<p lang="es">Pruebas de carga, escalado horizontal y alta disponibilidad: la línea más relevante a nivel profesional.</p>
+					<p lang="en">Load testing, horizontal scaling and high availability: the most relevant direction professionally.</p>
+				</article>
+				<article class="card">
+					<h3><span lang="es">Interoperabilidad</span><span lang="en">Interoperability</span></h3>
+					<p lang="es">Combinar NFs de otros proyectos o fabricantes para comprobar el cumplimiento real del 3GPP, en línea con O-RAN.</p>
+					<p lang="en">Mix NFs from other projects or vendors to test real-world 3GPP compliance, in the spirit of O-RAN.</p>
+				</article>
+				<article class="card">
+					<h3><span lang="es">Radio real con USRP</span><span lang="en">Real radio with a USRP</span></h3>
+					<p lang="es">Contrastar los resultados de rfsimulator con un enlace RF real, resolviendo antes los requisitos de espectro.</p>
+					<p lang="en">Compare rfsimulator results against a real RF link, after sorting out spectrum requirements.</p>
+				</article>
+			</div>
+
+			<div class="case-cta">
+				<p>
+					<span lang="es">La memoria completa incluye el marco teórico (5G SA, Kubernetes, Multus, O-RAN), la guía de despliegue paso a paso, el marco regulador y el presupuesto.</span>
+					<span lang="en">The full thesis covers the theory (5G SA, Kubernetes, Multus, O-RAN), the step-by-step deployment guide, the regulatory framework and the budget.</span>
+				</p>
+				<div class="hero-actions">
+					<a class="btn btn-primary" href="files/TFG_Daniel_Carballo_Reyes.pdf" target="_blank" rel="noopener">
+						<span lang="es">Leer la memoria (PDF · 75 págs.)</span><span lang="en">Read the thesis (PDF · 75 pp., Spanish)</span>
+					</a>
+					<a class="btn btn-ghost" href="index.html">
+						<span lang="es">← Volver al portfolio</span><span lang="en">← Back to portfolio</span>
+					</a>
+				</div>
+				<p class="muted small">
+					<span lang="es">Obra bajo licencia Creative Commons Reconocimiento – No Comercial – Sin Obra Derivada.</span>
+					<span lang="en">Licensed under Creative Commons Attribution – NonCommercial – NoDerivatives.</span>
+				</p>
+			</div>
+		</section>
+	</main>
+
+	<footer class="site-footer">
+		<div class="container footer-inner">
+			<p>© <span id="year">2026</span> Daniel Carballo Reyes</p>
+			<p class="muted mono">kubectl get pods -n 5gc · <span class="ok">Running</span></p>
+		</div>
+	</footer>
+
+	<script src="js/main.js"></script>
+</body>
+</html>

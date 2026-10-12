@@ -89,7 +89,7 @@
 			</div>
 
 			<!-- Diagrama 5G Core: SBI + interfaces N2/N3/N4 -->
-			<figure class="hero-visual" aria-label="Diagrama simplificado de un núcleo 5G desplegado en Kubernetes">
+			<figure class="hero-visual diagram" aria-label="Diagrama simplificado de un núcleo 5G desplegado en Kubernetes">
 				<svg viewBox="0 0 420 360" role="img">
 					<title>5G Core: UE, gNB, AMF, SMF, UPF, NRF, AUSF y UDM</title>
 					<!-- Cluster -->
@@ -234,6 +234,7 @@
 						<ul class="tags">
 							<li>OpenAirInterface</li><li>Kubernetes</li><li>Multus</li><li>Proxmox</li><li>Prometheus</li><li>Grafana</li><li>3GPP</li>
 						</ul>
+						<a class="card-link" href="tfg.html"><span lang="es">Ver el TFG en detalle</span><span lang="en">See the thesis in detail</span></a>
 					</div>
 				</li>
 
@@ -292,16 +293,19 @@
 					</div>
 					<h3><span lang="es">Núcleo 5G como CNFs en Kubernetes</span><span lang="en">5G Core as CNFs on Kubernetes</span></h3>
 					<p lang="es">
-						Despliegue end-to-end de un 5G SA con OpenAirInterface: NFs del núcleo en Kubernetes, red multi-interfaz con
-						Multus, gNB + UE simulados por rfsim y observabilidad con Prometheus/Grafana.
+						Red 5G SA completa con OpenAirInterface sobre Kubernetes: núcleo desplegado con Helm, interfaces N2/N3/N4/N6
+						separadas con Multus y macvlan, y gNB + UE por rfsim. El UE se registra con 5G-AKA, abre su sesión PDU y navega
+						con 0&nbsp;% de pérdida.
 					</p>
 					<p lang="en">
-						End-to-end 5G SA deployment with OpenAirInterface: core NFs on Kubernetes, multi-interface networking with Multus,
-						gNB + UE simulated over rfsim and observability with Prometheus/Grafana.
+						A complete 5G SA network with OpenAirInterface on Kubernetes: core deployed with Helm, N2/N3/N4/N6 split out with
+						Multus and macvlan, and gNB + UE over rfsim. The UE registers with 5G-AKA, opens its PDU session and reaches the
+						Internet with 0&nbsp;% packet loss.
 					</p>
 					<ul class="tags">
-						<li>5G SA</li><li>OAI</li><li>Kubernetes</li><li>Multus</li><li>NGAP</li><li>GTP-U</li><li>PFCP</li>
+						<li>5G SA</li><li>OAI</li><li>Kubernetes</li><li>Helm</li><li>Multus</li><li>NGAP</li><li>GTP-U</li><li>PFCP</li>
 					</ul>
+					<a class="card-link" href="tfg.html"><span lang="es">Ver caso de estudio</span><span lang="en">Read the case study</span></a>
 				</article>
 
 				<article class="card">
