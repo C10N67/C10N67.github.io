@@ -72,6 +72,85 @@
 		sections.forEach(function (s) { s.classList.add('visible'); });
 	}
 
+	// Bocadillos de tecnologías: de dónde sale cada una ----------------------
+	var SOURCES = {
+		t: { href: 'tfg.html', es: 'TFG · Núcleo 5G en Kubernetes', en: 'Thesis · 5G core on Kubernetes' },
+		d: { href: '#exp-datatronics', es: 'Datatronics · soporte a la red 5G de VMO2', en: 'Datatronics · VMO2 5G network support' },
+		h: { href: 'homelab.html', es: 'Homelab Polaris', en: 'Polaris homelab' },
+		e: { href: '#formacion', es: 'Estudios · Grado en Telecomunicación (UC3M)', en: 'Studies · Telecom degree (UC3M)' }
+	};
+	var chips = document.querySelectorAll('.chips .chip');
+	if (chips.length) {
+		var pop = document.createElement('div');
+		pop.className = 'chip-pop';
+		pop.setAttribute('role', 'group');
+		pop.hidden = true;
+		document.body.appendChild(pop);
+		var openChip = null;
+
+		function closePop() {
+			pop.hidden = true;
+			if (openChip) openChip.setAttribute('aria-expanded', 'false');
+			openChip = null;
+		}
+
+		function openPop(chip) {
+			var l = root.getAttribute('data-lang') === 'en' ? 'en' : 'es';
+			var keys = (chip.dataset.src || 'e').split(' ');
+			pop.innerHTML = '';
+			var title = document.createElement('p');
+			title.className = 'chip-pop-title';
+			title.textContent = l === 'en' ? 'Where I used it' : 'Dónde la he usado';
+			var list = document.createElement('ul');
+			keys.forEach(function (k) {
+				var src = SOURCES[k];
+				if (!src) return;
+				var li = document.createElement('li');
+				var a = document.createElement('a');
+				a.href = src.href;
+				a.textContent = src[l];
+				a.addEventListener('click', closePop);
+				li.appendChild(a);
+				list.appendChild(li);
+			});
+			pop.appendChild(title);
+			pop.appendChild(list);
+			pop.setAttribute('aria-label', chip.textContent);
+			pop.hidden = false;
+
+			// Encima del chip si cabe; si no, debajo. Siempre dentro de la pantalla.
+			var r = chip.getBoundingClientRect();
+			var pw = pop.offsetWidth, ph = pop.offsetHeight;
+			var side = r.top - ph - 14 > 70 ? 'top' : 'bottom';
+			var left = r.left + r.width / 2 - pw / 2;
+			left = Math.max(12, Math.min(left, document.documentElement.clientWidth - pw - 12));
+			var top = side === 'top' ? r.top - ph - 12 : r.bottom + 12;
+			pop.dataset.side = side;
+			pop.style.left = (left + window.scrollX) + 'px';
+			pop.style.top = (top + window.scrollY) + 'px';
+			pop.style.setProperty('--arrow-x', (r.left + r.width / 2 - left) + 'px');
+
+			if (openChip) openChip.setAttribute('aria-expanded', 'false');
+			openChip = chip;
+			chip.setAttribute('aria-expanded', 'true');
+		}
+
+		chips.forEach(function (chip) {
+			chip.addEventListener('click', function (e) {
+				e.stopPropagation();
+				openChip === chip ? closePop() : openPop(chip);
+			});
+		});
+		document.addEventListener('click', function (e) { if (!pop.contains(e.target)) closePop(); });
+		document.addEventListener('keydown', function (e) { if (e.key === 'Escape') closePop(); });
+		// Solo al cambiar el ancho: en móvil, ocultar la barra del navegador también dispara resize
+		var lastW = window.innerWidth;
+		window.addEventListener('resize', function () {
+			if (window.innerWidth !== lastW) { lastW = window.innerWidth; closePop(); }
+		});
+		langButtons.forEach(function (btn) { btn.addEventListener('click', closePop); });
+	}
+
 	// Año del pie -----------------------------------------------------------
 	document.getElementById('year').textContent = new Date().getFullYear();
 })();

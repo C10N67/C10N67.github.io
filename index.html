@@ -19,7 +19,7 @@
 	<link rel="preconnect" href="https://fonts.googleapis.com" />
 	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 	<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
-	<link rel="stylesheet" href="css/style.css?v=f2b682f3" />
+	<link rel="stylesheet" href="css/style.css?v=91baf3b7" />
 	<script>document.documentElement.classList.add('js');</script>
 </head>
 <body>
@@ -204,7 +204,7 @@
 					</div>
 				</li>
 
-				<li class="tl-item">
+				<li class="tl-item" id="exp-datatronics">
 					<div class="tl-date">
 						<span lang="es">sep 2025 – feb 2026</span><span lang="en">Sep 2025 – Feb 2026</span>
 					</div>
@@ -333,39 +333,44 @@
 				<h2><span lang="es">Tecnologías</span><span lang="en">Tech stack</span></h2>
 			</header>
 
+			<p class="section-lead stack-hint">
+				<span lang="es">Pulsa una tecnología para ver en qué proyecto, experiencia o estudios la he usado.</span>
+				<span lang="en">Tap a technology to see which project, job or studies it comes from.</span>
+			</p>
+
 			<div class="stack">
 				<div class="stack-group">
 					<h3>5G / Telecom</h3>
 					<ul class="chips">
-						<li>5G SA</li><li>5G Core</li><li>OpenAirInterface</li><li>gNB</li><li>UE</li><li>NGAP</li><li>NAS</li>
-						<li>SCTP</li><li>GTP-U</li><li>PFCP</li><li>rfsimulator</li><li>Policy &amp; signaling</li>
+						<li><button type="button" class="chip" data-src="t" aria-expanded="false">5G SA</button></li><li><button type="button" class="chip" data-src="t d" aria-expanded="false">5G Core</button></li><li><button type="button" class="chip" data-src="t" aria-expanded="false">OpenAirInterface</button></li><li><button type="button" class="chip" data-src="t" aria-expanded="false">gNB</button></li><li><button type="button" class="chip" data-src="t" aria-expanded="false">UE</button></li><li><button type="button" class="chip" data-src="t" aria-expanded="false">NGAP</button></li><li><button type="button" class="chip" data-src="t" aria-expanded="false">NAS</button></li>
+						<li><button type="button" class="chip" data-src="t" aria-expanded="false">SCTP</button></li><li><button type="button" class="chip" data-src="t" aria-expanded="false">GTP-U</button></li><li><button type="button" class="chip" data-src="t" aria-expanded="false">PFCP</button></li><li><button type="button" class="chip" data-src="t" aria-expanded="false">rfsimulator</button></li><li><button type="button" class="chip" data-src="d" aria-expanded="false">Policy &amp; signaling</button></li>
 					</ul>
 				</div>
 				<div class="stack-group">
 					<h3>Cloud Native</h3>
 					<ul class="chips">
-						<li>Kubernetes</li><li>Minikube</li><li>Helm</li><li>kubeadm</li><li>Multus</li><li>Calico</li><li>Docker</li><li>YAML</li>
-						<li>Prometheus</li><li>Grafana</li>
+						<li><button type="button" class="chip" data-src="t d h" aria-expanded="false">Kubernetes</button></li><li><button type="button" class="chip" data-src="t" aria-expanded="false">Minikube</button></li><li><button type="button" class="chip" data-src="t d" aria-expanded="false">Helm</button></li><li><button type="button" class="chip" data-src="d h" aria-expanded="false">kubeadm</button></li><li><button type="button" class="chip" data-src="t" aria-expanded="false">Multus</button></li><li><button type="button" class="chip" data-src="h" aria-expanded="false">Calico</button></li><li><button type="button" class="chip" data-src="t" aria-expanded="false">Docker</button></li><li><button type="button" class="chip" data-src="t d" aria-expanded="false">YAML</button></li>
+						<li><button type="button" class="chip" data-src="d h" aria-expanded="false">Prometheus</button></li><li><button type="button" class="chip" data-src="d h" aria-expanded="false">Grafana</button></li>
 					</ul>
 				</div>
 				<div class="stack-group">
 					<h3><span lang="es">Sistemas y redes</span><span lang="en">Systems &amp; networking</span></h3>
 					<ul class="chips">
-						<li>Linux</li><li>RHEL</li><li>TCP/IP</li><li>Proxmox</li>
-						<li><span lang="es">Virtualización</span><span lang="en">Virtualization</span></li>
-						<li>Troubleshooting</li>
+						<li><button type="button" class="chip" data-src="t d h" aria-expanded="false">Linux</button></li><li><button type="button" class="chip" data-src="d" aria-expanded="false">RHEL</button></li><li><button type="button" class="chip" data-src="t e" aria-expanded="false">TCP/IP</button></li><li><button type="button" class="chip" data-src="t h" aria-expanded="false">Proxmox</button></li>
+						<li><button type="button" class="chip" data-src="t h" aria-expanded="false"><span lang="es">Virtualización</span><span lang="en">Virtualization</span></button></li>
+						<li><button type="button" class="chip" data-src="t d h" aria-expanded="false">Troubleshooting</button></li>
 					</ul>
 				</div>
 				<div class="stack-group">
 					<h3><span lang="es">Programación</span><span lang="en">Programming</span></h3>
 					<ul class="chips">
-						<li>Python</li><li>C</li><li>Java</li><li>MATLAB</li>
+						<li><button type="button" class="chip" data-src="e" aria-expanded="false">Python</button></li><li><button type="button" class="chip" data-src="e" aria-expanded="false">C</button></li><li><button type="button" class="chip" data-src="e" aria-expanded="false">Java</button></li><li><button type="button" class="chip" data-src="e" aria-expanded="false">MATLAB</button></li>
 					</ul>
 				</div>
 				<div class="stack-group">
 					<h3><span lang="es">Ofimática</span><span lang="en">Productivity</span></h3>
 					<ul class="chips">
-						<li>Office 365</li><li>Google Drive</li><li>OneDrive</li><li>Dropbox</li>
+						<li><button type="button" class="chip" data-src="t e" aria-expanded="false">Office 365</button></li><li><button type="button" class="chip" data-src="e" aria-expanded="false">Google Drive</button></li><li><button type="button" class="chip" data-src="e" aria-expanded="false">OneDrive</button></li><li><button type="button" class="chip" data-src="e" aria-expanded="false">Dropbox</button></li>
 					</ul>
 				</div>
 			</div>
@@ -497,12 +502,12 @@
 
 	<footer class="site-footer">
 		<div class="container footer-inner">
-			<p>© <span id="year">2026</span> Daniel Carballo Reyes · <a class="version mono" href="https://github.com/C10N67/C10N67.github.io/commits/main" target="_blank" rel="noopener" title="Historial de cambios / Changelog">v1.12.0</a></p>
+			<p>© <span id="year">2026</span> Daniel Carballo Reyes · <a class="version mono" href="https://github.com/C10N67/C10N67.github.io/commits/main" target="_blank" rel="noopener" title="Historial de cambios / Changelog">v1.13.0</a></p>
 			<p class="muted mono">kubectl get pods -n 5gc · <span class="ok">Running</span></p>
 		</div>
 	</footer>
 
-	<script src="js/main.js?v=a9d79513"></script>
+	<script src="js/main.js?v=c828ddc7"></script>
 	<script src="js/sky.js?v=132017c3"></script>
 </body>
 </html>

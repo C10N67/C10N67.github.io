@@ -328,12 +328,35 @@ svg.filled { fill: currentColor; stroke: none; }
 }
 
 .chips { display: flex; flex-wrap: wrap; gap: 8px; }
-.chips li {
-	font-size: 0.88rem; padding: 6px 12px; border-radius: 8px;
-	background: var(--surface-2); border: 1px solid var(--border);
-	transition: border-color .15s, color .15s;
+.chips .chip {
+	font: inherit; font-size: 0.88rem; padding: 6px 12px; border-radius: 8px; cursor: pointer;
+	color: var(--text); background: var(--surface-2); border: 1px solid var(--border);
+	transition: border-color .15s, color .15s, background .15s;
 }
-.chips li:hover { border-color: var(--accent); color: var(--accent); }
+.chips .chip:hover, .chips .chip[aria-expanded="true"] { border-color: var(--accent); color: var(--accent); }
+.chips .chip[aria-expanded="true"] { background: var(--accent-soft); }
+.stack-hint { font-size: 0.95rem; margin-top: -12px; }
+
+/* Bocadillo con el origen de cada tecnología */
+.chip-pop {
+	position: absolute; z-index: 60; width: max-content; max-width: min(300px, calc(100vw - 24px));
+	padding: 12px 14px; border-radius: 12px; background: var(--bg-alt); border: 1px solid var(--accent);
+	box-shadow: 0 16px 40px -12px rgba(0, 0, 0, .6); font-size: 0.88rem;
+	animation: pop-in .14s ease-out;
+}
+.chip-pop[hidden] { display: none; }
+.chip-pop::after {
+	content: ""; position: absolute; left: var(--arrow-x, 50%); width: 10px; height: 10px;
+	background: var(--bg-alt); border: 1px solid var(--accent); transform: translateX(-50%) rotate(45deg);
+}
+.chip-pop[data-side="top"]::after { bottom: -6px; border-top: 0; border-left: 0; }
+.chip-pop[data-side="bottom"]::after { top: -6px; border-bottom: 0; border-right: 0; }
+.chip-pop-title { margin: 0 0 8px; font: 600 0.72rem var(--mono); color: var(--accent); text-transform: uppercase; letter-spacing: .06em; }
+.chip-pop ul { display: grid; gap: 6px; }
+.chip-pop a { display: flex; align-items: center; gap: 8px; color: var(--text); }
+.chip-pop a::before { content: "→"; color: var(--accent); }
+.chip-pop a:hover { color: var(--accent); text-decoration: none; }
+@keyframes pop-in { from { opacity: 0; transform: translateY(4px); } }
 
 /* Project cards */
 .cards { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
