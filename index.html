@@ -285,16 +285,16 @@
 						<span class="card-kicker">Homelab</span>
 						<h3><span lang="es">Clúster Kubernetes en casa</span><span lang="en">Home Kubernetes cluster</span></h3>
 						<p lang="es">
-							Un portátil reciclado con Proxmox dividido en dos nodos Debian, OsaMayor y OsaMenor, con Kubernetes montado
-							con kubeadm y Calico como CNI. Mi laboratorio para practicar de cara a la CKA.
+							Un portátil reciclado con Proxmox dividido en dos nodos Debian, OsaMayor y OsaMenor, más una Raspberry Pi 4
+							como tercer nodo, con Kubernetes montado con kubeadm y Calico como CNI. Mi laboratorio para practicar de cara a la CKA.
 						</p>
 						<p lang="en">
-							A recycled laptop running Proxmox, split into two Debian nodes, OsaMayor and OsaMenor, with Kubernetes built
-							using kubeadm and Calico as the CNI. My lab for CKA practice.
+							A recycled laptop running Proxmox, split into two Debian nodes, OsaMayor and OsaMenor, plus a Raspberry Pi 4
+							as a third node, with Kubernetes built using kubeadm and Calico as the CNI. My lab for CKA practice.
 						</p>
 					</div>
 					<ul class="tags">
-						<li>Kubernetes</li><li>kubeadm</li><li>Calico</li><li>Proxmox</li><li>Debian</li>
+						<li>Kubernetes</li><li>kubeadm</li><li>Calico</li><li>Proxmox</li><li>Debian</li><li>Raspberry Pi</li>
 					</ul>
 					<a class="card-link" href="homelab.html"><span lang="es">Ver el homelab</span><span lang="en">Explore the homelab</span></a>
 				</article>
@@ -312,11 +312,12 @@
 						<span class="card-kicker"><span lang="es">Observabilidad</span><span lang="en">Observability</span></span>
 						<h3><span lang="es">Monitorización del clúster</span><span lang="en">Cluster monitoring</span></h3>
 						<p lang="es">
-							Stack de Prometheus + Grafana para seguir el estado de nodos y pods, tanto en mi homelab como en el soporte a
-							producción en Datatronics.
+							Stack de Prometheus + Grafana para seguir el estado de nodos y pods, tanto en mi homelab, donde corre en una
+							Raspberry Pi 4 dedicada, como en el soporte a producción en Datatronics.
 						</p>
 						<p lang="en">
-							Prometheus + Grafana stack to follow node and pod health, both in my homelab and in production support at Datatronics.
+							Prometheus + Grafana stack to follow node and pod health, both in my homelab, where it runs on a dedicated
+							Raspberry Pi 4, and in production support at Datatronics.
 						</p>
 					</div>
 					<ul class="tags">
@@ -502,7 +503,7 @@
 
 	<footer class="site-footer">
 		<div class="container footer-inner">
-			<p>© <span id="year">2026</span> Daniel Carballo Reyes · <a class="version mono" href="https://github.com/C10N67/C10N67.github.io/commits/main" target="_blank" rel="noopener" title="Historial de cambios / Changelog">v1.13.0</a></p>
+			<p>© <span id="year">2026</span> Daniel Carballo Reyes · <a class="version mono" href="https://github.com/C10N67/C10N67.github.io/commits/main" target="_blank" rel="noopener" title="Historial de cambios / Changelog">v1.14.0</a></p>
 			<p class="muted mono">kubectl get pods -n 5gc · <span class="ok">Running</span></p>
 		</div>
 	</footer>
