@@ -412,6 +412,8 @@ svg.filled { fill: currentColor; stroke: none; }
 .site-footer { margin-top: 64px; border-top: 1px solid var(--border); }
 .footer-inner { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px; padding-top: 24px; padding-bottom: 24px; font-size: 0.88rem; }
 .footer-inner p { margin: 0; }
+.version { color: var(--text-muted); }
+.version:hover { color: var(--accent); }
 
 /* ==========================================================================
    Caso de estudio (tfg.html)
