@@ -4,10 +4,10 @@
 	<meta charset="utf-8" />
 	<meta name="viewport" content="width=device-width, initial-scale=1" />
 	<title>Homelab Polaris · Kubernetes en casa · Daniel Carballo Reyes</title>
-	<meta name="description" content="Homelab de Daniel Carballo Reyes: un portátil HP con Proxmox VE dividido en dos nodos Debian (OsaMayor y OsaMenor) con Kubernetes instalado mediante kubeadm, monitorizado con Prometheus y Grafana." />
+	<meta name="description" content="Homelab de Daniel Carballo Reyes: un portátil HP con Proxmox VE dividido en dos nodos Debian (OsaMayor y OsaMenor) con Kubernetes instalado mediante kubeadm y Calico como CNI, monitorizado con Prometheus y Grafana." />
 	<meta name="author" content="Daniel Carballo Reyes" />
 	<meta property="og:title" content="Homelab Polaris · Kubernetes en casa" />
-	<meta property="og:description" content="Proxmox VE, dos nodos Debian y Kubernetes con kubeadm sobre un portátil reciclado, con Prometheus, Grafana y Homepage." />
+	<meta property="og:description" content="Proxmox VE, dos nodos Debian y Kubernetes con kubeadm y Calico sobre un portátil reciclado, con Prometheus, Grafana y Homepage." />
 	<meta property="og:url" content="https://c10n67.github.io/homelab.html" />
 	<meta property="og:type" content="article" />
 	<meta property="og:image" content="https://c10n67.github.io/images/og-preview.jpg" />
@@ -78,6 +78,7 @@
 				<div><dt><span lang="es">Hipervisor</span><span lang="en">Hypervisor</span></dt><dd>Proxmox VE 9</dd></div>
 				<div><dt><span lang="es">Sistema</span><span lang="en">OS</span></dt><dd>Debian 13 “trixie”</dd></div>
 				<div><dt>Kubernetes</dt><dd>kubeadm</dd></div>
+				<div><dt>CNI</dt><dd>Calico</dd></div>
 				<div><dt><span lang="es">Observabilidad</span><span lang="en">Observability</span></dt><dd>Prometheus · Grafana</dd></div>
 			</dl>
 			</div>
@@ -149,7 +150,7 @@
 
 					<!-- Clúster -->
 					<rect class="k8s-box" x="30" y="58" width="520" height="330" rx="12" />
-					<text class="t-k8s" x="46" y="82">Kubernetes · kubeadm</text>
+					<text class="t-k8s" x="46" y="82">Kubernetes · kubeadm · CNI Calico</text>
 
 					<!-- Nodos -->
 					<g class="vm">
@@ -208,6 +209,8 @@
 						<li lang="es">Dos <strong>VMs con Debian 13 “trixie”</strong>, OsaMayor y OsaMenor, con 4 vCPU, 3,1 GiB de RAM y 32 GB de disco cada una.</li>
 						<li lang="en">Two <strong>Debian 13 “trixie” VMs</strong>, OsaMayor and OsaMenor, each with 4 vCPU, 3.1 GiB of RAM and 32 GB of disk.</li>
 						<li lang="es">Clúster de <strong>Kubernetes con kubeadm</strong>, siguiendo <a href="https://cubepath.com/docs/docker-kubernetes/instalacion-de-kubernetes-con-kubeadm" target="_blank" rel="noopener">esta guía</a> y adaptándola a Debian y a mis recursos.</li>
+						<li lang="es"><strong>Calico</strong> como CNI en lugar de Flannel: además de la red entre pods, permite aplicar <code>NetworkPolicies</code>.</li>
+						<li lang="en"><strong>Calico</strong> as the CNI instead of Flannel: on top of pod networking, it supports <code>NetworkPolicies</code>.</li>
 						<li lang="en"><strong>Kubernetes cluster with kubeadm</strong>, following <a href="https://cubepath.com/docs/docker-kubernetes/instalacion-de-kubernetes-con-kubeadm" target="_blank" rel="noopener">this guide</a> (Spanish) and adapting it to Debian and my resources.</li>
 						<li lang="es"><strong>Prometheus y Grafana</strong> para la monitorización, y <strong>Homepage</strong> como panel de inicio del laboratorio.</li>
 						<li lang="en"><strong>Prometheus and Grafana</strong> for monitoring, and <strong>Homepage</strong> as the lab's start page.</li>
@@ -343,7 +346,7 @@
 
 	<footer class="site-footer">
 		<div class="container footer-inner">
-			<p>© <span id="year">2026</span> Daniel Carballo Reyes · <a class="version mono" href="https://github.com/C10N67/C10N67.github.io/commits/main" target="_blank" rel="noopener" title="Historial de cambios / Changelog">v1.10.0</a></p>
+			<p>© <span id="year">2026</span> Daniel Carballo Reyes · <a class="version mono" href="https://github.com/C10N67/C10N67.github.io/commits/main" target="_blank" rel="noopener" title="Historial de cambios / Changelog">v1.10.1</a></p>
 			<p class="muted mono">kubectl get nodes · <span class="ok">Ready</span></p>
 		</div>
 	</footer>
