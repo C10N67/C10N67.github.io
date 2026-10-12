@@ -4,10 +4,10 @@
 	<meta charset="utf-8" />
 	<meta name="viewport" content="width=device-width, initial-scale=1" />
 	<title>Homelab Polaris · Kubernetes en casa · Daniel Carballo Reyes</title>
-	<meta name="description" content="Homelab de Daniel Carballo Reyes: un portátil HP con Proxmox VE dividido en dos nodos Debian (OsaMayor y OsaMenor) y una Raspberry Pi 4 como tercer nodo, con Kubernetes instalado mediante kubeadm y Calico como CNI. Prometheus y Grafana se ejecutan en la Raspberry Pi." />
+	<meta name="description" content="Homelab de Daniel Carballo Reyes: un portátil HP con Proxmox VE dividido en dos nodos Debian (OsaMayor y OsaMenor) y Orion, una Raspberry Pi 4 de 4 GB, como tercer nodo, con Kubernetes instalado mediante kubeadm y Calico como CNI. Prometheus y Grafana se ejecutan en Orion." />
 	<meta name="author" content="Daniel Carballo Reyes" />
 	<meta property="og:title" content="Homelab Polaris · Kubernetes en casa" />
-	<meta property="og:description" content="Proxmox VE, dos nodos Debian sobre un portátil reciclado y una Raspberry Pi 4 con Prometheus y Grafana, todo en un clúster de Kubernetes con kubeadm y Calico." />
+	<meta property="og:description" content="Proxmox VE, dos nodos Debian sobre un portátil reciclado y Orion, una Raspberry Pi 4 con Prometheus y Grafana, todo en un clúster de Kubernetes con kubeadm y Calico." />
 	<meta property="og:url" content="https://c10n67.github.io/homelab.html" />
 	<meta property="og:type" content="article" />
 	<meta property="og:image" content="https://c10n67.github.io/images/og-preview.jpg" />
@@ -70,8 +70,8 @@
 				<span lang="en">Polaris: my Kubernetes cluster at home</span>
 			</h1>
 			<p class="tagline">
-				<span lang="es">Un <strong>portátil HP reciclado</strong> con <strong>Proxmox VE</strong>, dividido en dos máquinas virtuales Debian que, junto a una <strong>Raspberry Pi 4</strong>, forman un clúster de <strong>Kubernetes montado a mano con kubeadm</strong>. Es mi laboratorio para practicar administración de clústeres, observabilidad y todo lo que no se puede romper en producción.</span>
-				<span lang="en">A <strong>recycled HP laptop</strong> running <strong>Proxmox VE</strong>, split into two Debian virtual machines that, together with a <strong>Raspberry Pi 4</strong>, form a <strong>hand-built Kubernetes cluster using kubeadm</strong>. It's my lab for practising cluster administration, observability and everything you can't break in production.</span>
+				<span lang="es">Un <strong>portátil HP reciclado</strong> con <strong>Proxmox VE</strong>, dividido en dos máquinas virtuales Debian que, junto a <strong>Orion</strong>, una <strong>Raspberry Pi 4</strong>, forman un clúster de <strong>Kubernetes montado a mano con kubeadm</strong>. Es mi laboratorio para practicar administración de clústeres, observabilidad y todo lo que no se puede romper en producción.</span>
+				<span lang="en">A <strong>recycled HP laptop</strong> running <strong>Proxmox VE</strong>, split into two Debian virtual machines that, together with <strong>Orion</strong>, a <strong>Raspberry Pi 4</strong>, form a <strong>hand-built Kubernetes cluster using kubeadm</strong>. It's my lab for practising cluster administration, observability and everything you can't break in production.</span>
 			</p>
 
 			<dl class="case-meta">
@@ -80,7 +80,7 @@
 				<div><dt>Kubernetes</dt><dd>kubeadm</dd></div>
 				<div><dt>CNI</dt><dd>Calico</dd></div>
 				<div><dt><span lang="es">Nodos</span><span lang="en">Nodes</span></dt><dd>2 × amd64 · 1 × arm64</dd></div>
-				<div><dt><span lang="es">Observabilidad</span><span lang="en">Observability</span></dt><dd>Prometheus · Grafana <span lang="es">(en la Pi)</span><span lang="en">(on the Pi)</span></dd></div>
+				<div><dt><span lang="es">Observabilidad</span><span lang="en">Observability</span></dt><dd>Prometheus · Grafana <span lang="es">(en Orion)</span><span lang="en">(on Orion)</span></dd></div>
 			</dl>
 			</div>
 
@@ -91,7 +91,7 @@
 
 			<ul class="stats">
 				<li><span class="stat-n">2</span><span class="stat-l"><span lang="es">Máquinas físicas: el portátil HP con Proxmox y una Raspberry Pi 4</span><span lang="en">Physical machines: the HP laptop running Proxmox and a Raspberry Pi 4</span></span></li>
-				<li><span class="stat-n">3</span><span class="stat-l"><span lang="es">Nodos de Kubernetes: OsaMayor, OsaMenor y la Raspberry Pi 4</span><span lang="en">Kubernetes nodes: OsaMayor, OsaMenor and the Raspberry Pi 4</span></span></li>
+				<li><span class="stat-n">3</span><span class="stat-l"><span lang="es">Nodos de Kubernetes: OsaMayor, OsaMenor y Orion</span><span lang="en">Kubernetes nodes: OsaMayor, OsaMenor and Orion</span></span></li>
 				<li><span class="stat-n">8</span><span class="stat-l"><span lang="es">Hilos de CPU (i7-1065G7) repartidos entre las VMs</span><span lang="en">CPU threads (i7-1065G7) shared by the VMs</span></span></li>
 				<li><span class="stat-n">7,5</span><span class="stat-l"><span lang="es">GiB de RAM en el portátil: el gran cuello de botella</span><span lang="en">GiB of RAM on the laptop: the main bottleneck</span></span></li>
 			</ul>
@@ -105,8 +105,8 @@
 			</header>
 
 			<p class="section-lead">
-				<span lang="es">Los nombres no son casualidad: <strong>Polaris</strong>, la estrella polar, es la estrella más brillante de la Osa Menor y el punto fijo alrededor del que parece girar el cielo. Aquí es el host sobre el que giran las dos “osas”. A ellas se suma una <strong>Raspberry Pi 4</strong>, el primer nodo físico del clúster.</span>
-				<span lang="en">The names aren't random: <strong>Polaris</strong>, the North Star, is the brightest star in Ursa Minor and the fixed point the sky seems to turn around. Here it's the host both “bears” run on. They're joined by a <strong>Raspberry Pi 4</strong>, the cluster's first bare-metal node.</span>
+				<span lang="es">Los nombres no son casualidad: <strong>Polaris</strong>, la estrella polar, es la estrella más brillante de la Osa Menor y el punto fijo alrededor del que parece girar el cielo. Aquí es el host sobre el que giran las dos “osas”. A ellas se suma <strong>Orion</strong>, como la constelación del cazador: una Raspberry Pi 4 que es el primer nodo físico del clúster.</span>
+				<span lang="en">The names aren't random: <strong>Polaris</strong>, the North Star, is the brightest star in Ursa Minor and the fixed point the sky seems to turn around. Here it's the host both “bears” run on. They're joined by <strong>Orion</strong>, named after the hunter constellation: a Raspberry Pi 4 that is the cluster's first bare-metal node.</span>
 			</p>
 
 			<div class="cards">
@@ -132,11 +132,11 @@
 					<ul class="tags"><li>4 vCPU</li><li>3,1 GiB</li><li>32 GB</li></ul>
 				</article>
 				<article class="card star-card">
-					<span class="card-kicker"><span lang="es">Nodo · físico</span><span lang="en">Node · bare metal</span></span>
-					<h3>Raspberry Pi 4</h3>
-					<p lang="es">Tercer nodo del clúster, fuera del portátil y con su propia memoria. Ejecuta todo el stack de observabilidad: Prometheus y Grafana.</p>
-					<p lang="en">The cluster's third node, outside the laptop and with its own memory. It runs the whole observability stack: Prometheus and Grafana.</p>
-					<ul class="tags"><li>arm64</li><li>Prometheus</li><li>Grafana</li></ul>
+					<span class="card-kicker"><span lang="es">Nodo · Raspberry Pi 4</span><span lang="en">Node · Raspberry Pi 4</span></span>
+					<h3>Orion</h3>
+					<p lang="es">Tercer nodo del clúster, fuera del portátil y con sus propios 4&nbsp;GB de RAM. Ejecuta todo el stack de observabilidad: Prometheus y Grafana.</p>
+					<p lang="en">The cluster's third node, outside the laptop and with its own 4&nbsp;GB of RAM. It runs the whole observability stack: Prometheus and Grafana.</p>
+					<ul class="tags"><li>arm64</li><li>4 GB</li><li>Prometheus</li><li>Grafana</li></ul>
 				</article>
 			</div>
 		</section>
@@ -150,7 +150,7 @@
 
 			<figure class="arch diagram">
 				<svg viewBox="0 0 800 350" role="img" aria-labelledby="hl-title">
-					<title id="hl-title">Clúster de Kubernetes con tres nodos: las VMs OsaMayor y OsaMenor, que corren en Polaris (Proxmox) junto a Homepage y CoreDNS, y una Raspberry Pi 4 que ejecuta Prometheus y Grafana.</title>
+					<title id="hl-title">Clúster de Kubernetes con tres nodos: las VMs OsaMayor y OsaMenor, que corren en Polaris (Proxmox) junto a Homepage y CoreDNS, y Orion, una Raspberry Pi 4 que ejecuta Prometheus y Grafana.</title>
 
 					<!-- Clúster -->
 					<rect class="k8s-box" x="10" y="14" width="780" height="322" rx="16" />
@@ -180,14 +180,13 @@
 					<g class="pod"><rect x="50" y="246" width="225" height="40" rx="20" /><text x="162.5" y="271">Homepage</text></g>
 					<g class="pod"><rect x="285" y="246" width="225" height="40" rx="20" /><text x="397.5" y="271">CoreDNS</text></g>
 
-					<!-- Raspberry Pi -->
+					<!-- Orion · Raspberry Pi -->
 					<g class="vm">
 						<rect x="550" y="56" width="220" height="260" rx="12" />
-						<text class="t-title" x="568" y="88">Raspberry Pi 4</text>
-						<text class="t-sub" x="568" y="112" lang="es">nodo físico · arm64</text>
-						<text class="t-sub" x="568" y="112" lang="en">bare-metal node · arm64</text>
-						<text class="t-sub" x="568" y="132" lang="es">fuera del portátil</text>
-						<text class="t-sub" x="568" y="132" lang="en">outside the laptop</text>
+						<text class="t-title" x="568" y="88">Orion</text>
+						<text class="t-sub" x="568" y="112">Raspberry Pi 4 · arm64</text>
+						<text class="t-sub" x="568" y="132" lang="es">nodo físico · 4 GB</text>
+						<text class="t-sub" x="568" y="132" lang="en">bare metal · 4 GB</text>
 						<text class="t-sub" x="568" y="178" lang="es">observabilidad</text>
 						<text class="t-sub" x="568" y="178" lang="en">observability</text>
 						<g class="pod"><rect x="568" y="192" width="184" height="40" rx="20" /><text x="660" y="217">Prometheus</text></g>
@@ -195,8 +194,8 @@
 					</g>
 				</svg>
 				<figcaption>
-					<span lang="es">Prometheus y Grafana se ejecutan en la Raspberry Pi 4; las VMs del portátil quedan libres para el resto de workloads.</span>
-					<span lang="en">Prometheus and Grafana run on the Raspberry Pi 4, leaving the laptop's VMs free for everything else.</span>
+					<span lang="es">Prometheus y Grafana se ejecutan en Orion, la Raspberry Pi 4; las VMs del portátil quedan libres para el resto de workloads.</span>
+					<span lang="en">Prometheus and Grafana run on Orion, the Raspberry Pi 4, leaving the laptop's VMs free for everything else.</span>
 				</figcaption>
 			</figure>
 
@@ -214,8 +213,8 @@
 						<li lang="en"><strong>Kubernetes cluster with kubeadm</strong>, following <a href="https://cubepath.com/docs/docker-kubernetes/instalacion-de-kubernetes-con-kubeadm" target="_blank" rel="noopener">this guide</a> (Spanish) and adapting it to Debian and my resources.</li>
 						<li lang="es"><strong>Prometheus y Grafana</strong> para la monitorización, y <strong>Homepage</strong> como panel de inicio del laboratorio.</li>
 						<li lang="en"><strong>Prometheus and Grafana</strong> for monitoring, and <strong>Homepage</strong> as the lab's start page.</li>
-						<li lang="es">Una <strong>Raspberry Pi 4</strong> unida al clúster como tercer nodo (arm64), que ahora ejecuta todo el stack de observabilidad.</li>
-						<li lang="en">A <strong>Raspberry Pi 4</strong> joined to the cluster as a third node (arm64), now running the whole observability stack.</li>
+						<li lang="es"><strong>Orion</strong>, una Raspberry Pi 4 de 4&nbsp;GB, unida al clúster como tercer nodo (arm64), que ahora ejecuta todo el stack de observabilidad.</li>
+						<li lang="en"><strong>Orion</strong>, a 4&nbsp;GB Raspberry Pi 4, joined to the cluster as a third node (arm64), now running the whole observability stack.</li>
 					</ol>
 				</div>
 
@@ -274,9 +273,9 @@
 					</div>
 					<div>
 						<h4><span lang="es">Solución</span><span lang="en">Fix</span></h4>
-						<p lang="es">He añadido una <strong>Raspberry Pi 4</strong> como tercer nodo, fuera del portátil, y he llevado a ella todo el stack de observabilidad: <strong>Prometheus y Grafana se ejecutan ahora en la Raspberry</strong>, con su propia memoria, y las dos VMs dejan de cargar con lo que más RAM consumía. Además, el clúster mezcla ya un nodo <strong>arm64</strong> con los dos x86, lo que obliga a trabajar con imágenes multiarquitectura.</p>
+						<p lang="es">He añadido <strong>Orion</strong>, una <strong>Raspberry Pi 4</strong> de 4&nbsp;GB, como tercer nodo, fuera del portátil, y he llevado a ella todo el stack de observabilidad: <strong>Prometheus y Grafana se ejecutan ahora en Orion</strong>, con su propia memoria, y las dos VMs dejan de cargar con lo que más RAM consumía. Además, el clúster mezcla ya un nodo <strong>arm64</strong> con los dos x86, lo que obliga a trabajar con imágenes multiarquitectura.</p>
 						<p lang="es">El resultado se ve en el propio Prometheus: el contador de OOM kills del kernel que expone Node Exporter, <code>node_vmstat_oom_kill</code>, está a <strong>0</strong>.</p>
-						<p lang="en">I added a <strong>Raspberry Pi 4</strong> as a third node, outside the laptop, and moved the whole observability stack onto it: <strong>Prometheus and Grafana now run on the Pi</strong>, with their own memory, so the two VMs no longer carry the hungriest workload. The cluster now also mixes an <strong>arm64</strong> node with the two x86 ones, which means working with multi-arch images.</p>
+						<p lang="en">I added <strong>Orion</strong>, a 4&nbsp;GB <strong>Raspberry Pi 4</strong>, as a third node, outside the laptop, and moved the whole observability stack onto it: <strong>Prometheus and Grafana now run on Orion</strong>, with their own memory, so the two VMs no longer carry the hungriest workload. The cluster now also mixes an <strong>arm64</strong> node with the two x86 ones, which means working with multi-arch images.</p>
 						<p lang="en">The result shows up in Prometheus itself: the kernel OOM kill counter exposed by Node Exporter, <code>node_vmstat_oom_kill</code>, sits at <strong>0</strong>.</p>
 <pre class="term"><code><span class="c" lang="es"># PromQL · contador de OOM kills (Node Exporter)</span><span class="c" lang="en"># PromQL · OOM kill counter (Node Exporter)</span>
 <span class="p">&gt;</span> node_vmstat_oom_kill
@@ -294,8 +293,8 @@
 			</header>
 
 			<p class="section-lead">
-				<span lang="es">Grafana, alimentado por Prometheus y ambos ejecutándose en la Raspberry Pi 4, con dashboards de nodos (Node Exporter), Kubelet, CoreDNS, red del clúster y del propio Prometheus. Es el mismo tipo de herramientas que usaba en Datatronics, ahora montadas y mantenidas por mí.</span>
-				<span lang="en">Grafana, fed by Prometheus, both running on the Raspberry Pi 4, with dashboards for nodes (Node Exporter), Kubelet, CoreDNS, cluster networking and Prometheus itself. The same kind of tooling I used at Datatronics, now built and run by me.</span>
+				<span lang="es">Grafana, alimentado por Prometheus y ambos ejecutándose en Orion (la Raspberry Pi 4), con dashboards de nodos (Node Exporter), Kubelet, CoreDNS, red del clúster y del propio Prometheus. Es el mismo tipo de herramientas que usaba en Datatronics, ahora montadas y mantenidas por mí.</span>
+				<span lang="en">Grafana, fed by Prometheus, both running on Orion (the Raspberry Pi 4), with dashboards for nodes (Node Exporter), Kubelet, CoreDNS, cluster networking and Prometheus itself. The same kind of tooling I used at Datatronics, now built and run by me.</span>
 			</p>
 
 			<figure class="shot">
@@ -351,7 +350,7 @@
 
 	<footer class="site-footer">
 		<div class="container footer-inner">
-			<p>© <span id="year">2026</span> Daniel Carballo Reyes · <a class="version mono" href="https://github.com/C10N67/C10N67.github.io/commits/main" target="_blank" rel="noopener" title="Historial de cambios / Changelog">v1.14.1</a></p>
+			<p>© <span id="year">2026</span> Daniel Carballo Reyes · <a class="version mono" href="https://github.com/C10N67/C10N67.github.io/commits/main" target="_blank" rel="noopener" title="Historial de cambios / Changelog">v1.15.0</a></p>
 			<p class="muted mono">kubectl get nodes · <span class="ok">Ready</span></p>
 		</div>
 	</footer>
