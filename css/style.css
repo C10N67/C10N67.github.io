@@ -415,6 +415,24 @@ svg.filled { fill: currentColor; stroke: none; }
 .version { color: var(--text-muted); }
 .version:hover { color: var(--accent); }
 
+/* Cielo animado de la portada */
+.hero-visual.sky {
+	position: relative; padding: 0; overflow: hidden; aspect-ratio: 400 / 360;
+	background:
+		radial-gradient(120% 80% at 70% 0%, rgba(79, 70, 229, .28), transparent 60%),
+		linear-gradient(180deg, #050816 0%, #0a1230 70%, #0e1a3a 100%);
+}
+.sky canvas, .sky .sky-ground { position: absolute; inset: 0; width: 100%; height: 100%; }
+.sky .sky-ground rect, .sky .hill { stroke: none; }
+.sky .hill { fill: #03060d; }
+.sky .stargazer { fill: #03060d; stroke: #03060d; stroke-width: 6; stroke-linecap: round; stroke-linejoin: round; }
+.sky .stargazer .torso { stroke-width: 10; }
+.sky .stargazer polyline { fill: none; stroke-width: 4.5; }
+.sky-label {
+	position: absolute; left: 16px; top: 14px; margin: 0;
+	font: 500 0.75rem var(--mono); color: rgba(207, 230, 255, .78); letter-spacing: .02em;
+}
+
 /* ==========================================================================
    Caso de estudio (tfg.html)
    ========================================================================== */

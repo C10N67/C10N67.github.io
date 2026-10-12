@@ -19,7 +19,7 @@
 	<link rel="preconnect" href="https://fonts.googleapis.com" />
 	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 	<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
-	<link rel="stylesheet" href="css/style.css?v=b836686c" />
+	<link rel="stylesheet" href="css/style.css?v=d2bd2ca9" />
 	<script>document.documentElement.classList.add('js');</script>
 </head>
 <body>
@@ -93,52 +93,27 @@
 			</div>
 
 			<!-- Diagrama 5G Core: SBI + interfaces N2/N3/N4 -->
-			<figure class="hero-visual diagram" aria-label="Diagrama simplificado de un núcleo 5G desplegado en Kubernetes">
-				<svg viewBox="0 0 420 360" role="img">
-					<title>5G Core: UE, gNB, AMF, SMF, UPF, NRF, AUSF y UDM</title>
-					<!-- Cluster -->
-					<rect class="cluster" x="120" y="14" width="288" height="332" rx="16" />
-					<text class="cluster-label" x="136" y="38">k8s · namespace: 5gc</text>
-
-					<!-- SBI bus -->
-					<line class="bus" x1="146" y1="110" x2="390" y2="110" />
-					<text class="iface" x="362" y="128">SBI</text>
-
-					<!-- SBI links -->
-					<line class="link" x1="170" y1="66" x2="170" y2="110" />
-					<line class="link" x1="268" y1="66" x2="268" y2="110" />
-					<line class="link" x1="360" y1="66" x2="360" y2="110" />
-					<line class="link" x1="190" y1="110" x2="190" y2="160" />
-					<line class="link" x1="330" y1="110" x2="330" y2="160" />
-
-					<!-- N-interfaces (Multus) -->
-					<path class="link n" d="M60 270 C 110 240, 140 200, 168 186" />
-					<path class="link n flow" d="M76 288 C 170 300, 250 300, 300 290" />
-					<line class="link n" x1="330" y1="200" x2="330" y2="262" />
-					<text class="iface" x="98" y="226">N2</text>
-					<text class="iface" x="180" y="316">N3</text>
-					<text class="iface" x="340" y="236">N4</text>
-
-					<!-- Radio -->
-					<path class="link radio" d="M36 196 L 46 258" />
-					<text class="iface" x="48" y="230">rfsim</text>
-
-					<!-- NFs -->
-					<g class="nf"><rect x="138" y="42" width="64" height="28" rx="8"/><text x="170" y="61">NRF</text></g>
-					<g class="nf"><rect x="236" y="42" width="64" height="28" rx="8"/><text x="268" y="61">AUSF</text></g>
-					<g class="nf"><rect x="328" y="42" width="64" height="28" rx="8"/><text x="360" y="61">UDM</text></g>
-					<g class="nf"><rect x="158" y="160" width="64" height="28" rx="8"/><text x="190" y="179">AMF</text></g>
-					<g class="nf"><rect x="298" y="160" width="64" height="28" rx="8"/><text x="330" y="179">SMF</text></g>
-					<g class="nf nf-hot"><rect x="298" y="262" width="64" height="28" rx="8"/><text x="330" y="281">UPF</text></g>
-
-					<!-- RAN -->
-					<g class="nf nf-ran"><rect x="10" y="168" width="52" height="28" rx="14"/><text x="36" y="187">UE</text></g>
-					<g class="nf nf-ran"><rect x="16" y="258" width="64" height="28" rx="8"/><text x="48" y="277">gNB</text></g>
+			<figure class="hero-visual sky" role="img" aria-label="Animación: una figura mira un cielo estrellado en el que las estrellas giran y forman constelaciones reales y logos de Kubernetes, Helm, Prometheus, Grafana, Proxmox y Debian">
+				<canvas aria-hidden="true"></canvas>
+				<svg class="sky-ground" viewBox="0 0 400 360" preserveAspectRatio="xMidYMax meet" aria-hidden="true">
+					<defs>
+						<linearGradient id="horizon" x1="0" y1="0" x2="0" y2="1">
+							<stop offset="0" stop-color="#22d3ee" stop-opacity="0" />
+							<stop offset="1" stop-color="#22d3ee" stop-opacity=".12" />
+						</linearGradient>
+					</defs>
+					<rect x="0" y="230" width="400" height="90" fill="url(#horizon)" />
+					<path class="hill" d="M0 318 C 70 292, 150 296, 230 318 S 360 330, 400 312 L 400 360 L 0 360 Z" />
+					<g class="stargazer" transform="translate(81 302) scale(1.45) translate(-81 -302)">
+						<line x1="76" y1="302" x2="79" y2="279" />
+						<line x1="87" y1="302" x2="82" y2="279" />
+						<line class="torso" x1="80.5" y1="281" x2="83.5" y2="254" />
+						<polyline points="83,259 95,246 103,228" />
+						<polyline points="80.5,259 75,275" />
+						<circle cx="87.5" cy="240" r="8.5" />
+					</g>
 				</svg>
-				<figcaption>
-					<span lang="es">Esquema del núcleo 5G de mi TFG: SBI separado de N2/N3/N4 con Multus.</span>
-					<span lang="en">Sketch of my thesis 5G core: SBI split from N2/N3/N4 using Multus.</span>
-				</figcaption>
+				<p class="sky-label" aria-hidden="true"></p>
 			</figure>
 		</section>
 
@@ -539,11 +514,12 @@
 
 	<footer class="site-footer">
 		<div class="container footer-inner">
-			<p>© <span id="year">2026</span> Daniel Carballo Reyes · <a class="version mono" href="https://github.com/C10N67/C10N67.github.io/commits/main" target="_blank" rel="noopener" title="Historial de cambios / Changelog">v1.10.1</a></p>
+			<p>© <span id="year">2026</span> Daniel Carballo Reyes · <a class="version mono" href="https://github.com/C10N67/C10N67.github.io/commits/main" target="_blank" rel="noopener" title="Historial de cambios / Changelog">v1.11.0</a></p>
 			<p class="muted mono">kubectl get pods -n 5gc · <span class="ok">Running</span></p>
 		</div>
 	</footer>
 
 	<script src="js/main.js?v=a9d79513"></script>
+	<script src="js/sky.js?v=3924a37b"></script>
 </body>
 </html>
