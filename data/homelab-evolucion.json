@@ -63,6 +63,7 @@
 			"es": "Con Orion",
 			"en": "With Orion",
 			"ram": {
+				"polaris": 81,
 				"osamayor": 55.5,
 				"orion": 43.1
 			}
