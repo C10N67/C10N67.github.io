@@ -19,7 +19,7 @@
 	<link rel="preconnect" href="https://fonts.googleapis.com" />
 	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 	<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
-	<link rel="stylesheet" href="css/style.css?v=91baf3b7" />
+	<link rel="stylesheet" href="css/style.css?v=de25d5a7" />
 	<script>document.documentElement.classList.add('js');</script>
 </head>
 <body>
@@ -43,6 +43,7 @@
 				<li><a href="#arquitectura"><span lang="es">Arquitectura</span><span lang="en">Architecture</span></a></li>
 				<li><a href="#reto"><span lang="es">Reto</span><span lang="en">Challenge</span></a></li>
 				<li><a href="#monitorizacion"><span lang="es">Monitorización</span><span lang="en">Monitoring</span></a></li>
+				<li><a href="#evolucion"><span lang="es">Evolución</span><span lang="en">Evolution</span></a></li>
 				<li><a href="index.html#proyectos" class="nav-back">← Portfolio</a></li>
 				<li class="lang-switch" role="group" aria-label="Idioma / Language">
 					<button type="button" data-set-lang="es" aria-pressed="true">ES</button>
@@ -306,10 +307,38 @@
 			</figure>
 		</section>
 
+		<!-- Evolución -->
+		<section class="section container reveal" id="evolucion">
+			<header class="section-head">
+				<span class="section-index">05</span>
+				<h2><span lang="es">Evolución</span><span lang="en">Evolution</span></h2>
+			</header>
+
+			<p class="section-lead">
+				<span lang="es">Uso de RAM de cada nodo a lo largo del tiempo, con los hitos del homelab marcados encima. Lo iré actualizando a medida que el clúster cambie.</span>
+				<span lang="en">RAM usage for each node over time, with the homelab's milestones marked on top. I'll keep it updated as the cluster changes.</span>
+			</p>
+
+			<figure class="evo" id="evo-chart" data-src="data/homelab-evolucion.json">
+				<ul class="evo-legend" aria-label="Nodos / Nodes"></ul>
+				<div class="evo-plot"><p class="muted"><span lang="es">Cargando datos…</span><span lang="en">Loading data…</span></p></div>
+				<div class="evo-tip" role="status" hidden></div>
+				<ol class="evo-hitos"></ol>
+				<details>
+					<summary><span lang="es">Ver los datos en tabla</span><span lang="en">Show data as a table</span></summary>
+					<div class="evo-table-wrap"><table class="evo-table"></table></div>
+				</details>
+				<figcaption class="panel-note muted">
+					<span lang="es">% de RAM usada. Polaris es el host físico; OsaMayor y OsaMenor, sus VMs; Orion, la Raspberry Pi 4.</span>
+					<span lang="en">% of RAM in use. Polaris is the physical host; OsaMayor and OsaMenor are its VMs; Orion is the Raspberry Pi 4.</span>
+				</figcaption>
+			</figure>
+		</section>
+
 		<!-- Próximos pasos -->
 		<section class="section container reveal" id="futuro">
 			<header class="section-head">
-				<span class="section-index">05</span>
+				<span class="section-index">06</span>
 				<h2><span lang="es">Próximos pasos</span><span lang="en">What's next</span></h2>
 			</header>
 
@@ -350,11 +379,12 @@
 
 	<footer class="site-footer">
 		<div class="container footer-inner">
-			<p>© <span id="year">2026</span> Daniel Carballo Reyes · <a class="version mono" href="https://github.com/C10N67/C10N67.github.io/commits/main" target="_blank" rel="noopener" title="Historial de cambios / Changelog">v1.15.0</a></p>
+			<p>© <span id="year">2026</span> Daniel Carballo Reyes · <a class="version mono" href="https://github.com/C10N67/C10N67.github.io/commits/main" target="_blank" rel="noopener" title="Historial de cambios / Changelog">v1.16.0</a></p>
 			<p class="muted mono">kubectl get nodes · <span class="ok">Ready</span></p>
 		</div>
 	</footer>
 
 	<script src="js/main.js?v=c828ddc7"></script>
+	<script src="js/evolucion.js?v=adad891f"></script>
 </body>
 </html>

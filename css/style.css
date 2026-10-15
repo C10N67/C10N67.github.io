@@ -639,6 +639,61 @@ code { font-family: var(--mono); font-size: 0.86em; background: var(--surface-2)
 
 .star-card h3 { font-family: var(--mono); color: var(--accent); margin-top: 8px; }
 
+/* Evolución del homelab (gráfico de RAM por nodo + hitos) */
+.evo {
+	--s0: #3987e5; --s1: #d95926; --s2: #199e70; --s3: #c98500;
+	--grid: rgba(148, 163, 184, 0.14); --axis: rgba(148, 163, 184, 0.35);
+	position: relative; margin: 0; padding: 20px; border-radius: 20px;
+	background: var(--surface); border: 1px solid var(--border);
+}
+@media (prefers-color-scheme: light) {
+	.evo { --s0: #2a78d6; --s1: #eb6834; --s2: #1baf7a; --s3: #eda100; --grid: rgba(15, 23, 42, 0.08); --axis: rgba(15, 23, 42, 0.25); }
+}
+.evo .s-0 { fill: var(--s0); background: var(--s0); }
+.evo .s-1 { fill: var(--s1); background: var(--s1); }
+.evo .s-2 { fill: var(--s2); background: var(--s2); }
+.evo .s-3 { fill: var(--s3); background: var(--s3); }
+.evo-legend { display: flex; flex-wrap: wrap; gap: 8px 20px; margin-bottom: 14px; font-size: 0.85rem; }
+.evo-legend li { display: flex; align-items: center; gap: 6px; }
+.evo-legend .muted { font-size: 0.78rem; }
+.evo-swatch { width: 10px; height: 10px; border-radius: 3px; display: inline-block; }
+.evo-plot { overflow-x: auto; }
+.evo-plot svg { display: block; width: auto; height: auto; stroke: none; }
+.evo-grid { stroke: var(--grid); stroke-width: 1; }
+.evo-base { stroke: var(--axis); stroke-width: 1; }
+.evo-tick, .evo-x-sub, .evo-empty { fill: var(--text-muted); font: 500 11px var(--mono); }
+.evo-x { fill: var(--text); font: 600 12px var(--font); }
+.evo-val { fill: var(--text); font: 600 11px var(--mono); }
+.evo-badge { fill: var(--accent-soft); stroke: var(--accent); stroke-width: 1.5; }
+.evo-badge-n { fill: var(--text); font: 700 11px var(--mono); }
+.evo-stem { stroke: var(--accent); stroke-width: 1; opacity: .5; }
+.evo-hover { fill: var(--text); opacity: 0; pointer-events: all; transition: opacity .15s; }
+.evo-slot { outline: none; cursor: default; }
+.evo-slot:hover .evo-hover, .evo-slot:focus-visible .evo-hover { opacity: .05; }
+.evo-slot:focus-visible .evo-hover { opacity: .08; }
+.evo-tip {
+	position: absolute; z-index: 5; pointer-events: none; min-width: 170px; padding: 10px 12px;
+	background: var(--bg-alt); border: 1px solid var(--border); border-radius: 10px; box-shadow: var(--shadow); font-size: 0.82rem;
+}
+.evo-tip p { margin: 0; display: flex; align-items: center; gap: 6px; }
+.evo-tip .evo-tip-head { color: var(--text-muted); margin-bottom: 6px; font-size: 0.78rem; }
+.evo-key { width: 12px; height: 2px; border-radius: 1px; display: inline-block; }
+.evo-hitos { counter-reset: hito; display: grid; gap: 6px; margin-top: 16px; font-size: 0.88rem; color: var(--text-muted); }
+.evo-hitos li { counter-increment: hito; position: relative; padding-left: 30px; }
+.evo-hitos li::before {
+	content: counter(hito); position: absolute; left: 0; top: 1px; width: 20px; height: 20px; border-radius: 50%;
+	display: grid; place-items: center; font: 700 0.7rem var(--mono); color: var(--text);
+	background: var(--accent-soft); border: 1.5px solid var(--accent);
+}
+.evo-hitos .mono { font-family: var(--mono); font-size: 0.8rem; }
+.evo details { margin-top: 14px; font-size: 0.85rem; }
+.evo summary { cursor: pointer; color: var(--accent); font-family: var(--mono); font-size: 0.8rem; }
+.evo-table-wrap { overflow-x: auto; margin-top: 10px; }
+.evo-table { border-collapse: collapse; width: 100%; font-size: 0.82rem; }
+.evo-table th, .evo-table td { padding: 6px 10px; border-bottom: 1px solid var(--border); text-align: left; vertical-align: top; }
+.evo-table th { color: var(--text-muted); font-weight: 600; }
+.evo-table .num { font-family: var(--mono); font-variant-numeric: tabular-nums; white-space: nowrap; }
+
 /* Print: clean, light, everything visible */
 @media print {
 	.site-header, .hero-visual, .hero-actions, .skip-link { display: none !important; }
