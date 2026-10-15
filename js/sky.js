@@ -53,10 +53,11 @@
 
 	var N_STARS = 140;
 	var LOGO_POINTS = 104;
-	var MORPH = 2.4;   // s que tarda en recolocarse
-	var HOLD = 4.6;    // s que se mantiene cada figura
-	var SPIN = 0.018;  // rad/s de giro del cielo
-	var SWIRL = 1.1;   // rad extra de remolino durante la transición
+	// Ritmo pausado para que el fondo no distraiga al leer
+	var MORPH = 5;     // s que tarda en recolocarse
+	var HOLD = 11;     // s que se mantiene cada figura
+	var SPIN = 0.007;  // rad/s de giro del cielo
+	var SWIRL = 0.5;   // rad extra de remolino durante la transición
 
 	// Muestrea puntos a lo largo del contorno de un logo
 	function sampleLogo(d, n) {
@@ -110,7 +111,7 @@
 		var p0 = randomSkyPoint();
 		stars.push({ x: p0[0], y: p0[1], fx: p0[0], fy: p0[1], tx: p0[0], ty: p0[1],
 			size: rand(.5, 1.2), fsize: 0, tsize: rand(.5, 1.2), lit: 0, flit: 0, tlit: 0,
-			tw: rand(0, Math.PI * 2), tws: rand(.8, 2.2) });
+			tw: rand(0, Math.PI * 2), tws: rand(.3, .9) });
 	}
 
 	var W = 0, H = 0, DPR = 1, S = 1, CX = 0, CY = 0, mobile = false, fixed = false;
@@ -254,7 +255,7 @@
 		var lineA = 0;
 		if (elapsed > MORPH) {
 			var h = elapsed - MORPH;
-			lineA = Math.min(h / 0.7, 1, (HOLD - h) / 0.6);
+			lineA = Math.min(h / 1.6, 1, (HOLD - h) / 1.4);
 		}
 		if (lineA > 0 && shape) {
 			ctx.lineWidth = shape.kind === 'logo' ? 1.1 : 1;
