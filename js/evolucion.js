@@ -49,9 +49,29 @@
 			'H' + (x + w - r) + 'Q' + (x + w) + ',' + y + ' ' + (x + w) + ',' + (y + r) + 'V' + (y + h) + 'Z';
 	}
 
+	// Valores de cada medida. Un nodo sin dato nuevo repite su último valor conocido,
+	// marcado con 'desde' (la fecha de la que viene) para pintarlo atenuado
+	function valores(entradas, nodos) {
+		var ultimo = {};
+		return entradas.map(function (e) {
+			if (!e.ram) return null;
+			var vals = {};
+			nodos.forEach(function (n) {
+				if (e.ram[n.id] != null) {
+					ultimo[n.id] = { v: Number(e.ram[n.id]), fecha: e.fecha };
+					vals[n.id] = { v: Number(e.ram[n.id]) };
+				} else if (ultimo[n.id]) {
+					vals[n.id] = { v: ultimo[n.id].v, desde: ultimo[n.id].fecha || '?' };
+				}
+			});
+			return vals;
+		});
+	}
+
 	function render(data) {
 		var nodos = data.nodos || [];
 		var entradas = data.entradas || [];
+		var medidas = valores(entradas, nodos);
 		// Se dibuja a tamaño real (sin escalar): los huecos se reparten el ancho disponible
 		// y, si no caben, el gráfico se desplaza en horizontal
 		var minSlot = Math.max(110, nodos.length * (BAR + GAP) + SLOT_PAD * 2);
@@ -64,7 +84,7 @@
 
 		// Última entrada con medidas: la única con valores rotulados
 		var ultima = -1;
-		entradas.forEach(function (e, i) { if (e.ram) ultima = i; });
+		medidas.forEach(function (m, i) { if (m) ultima = i; });
 
 		var svg = el('svg', { viewBox: '0 0 ' + W + ' ' + H, width: W, height: H, role: 'img', 'aria-labelledby': 'evo-title' });
 		var title = el('title', { id: 'evo-title' });
@@ -85,14 +105,16 @@
 			var g = el('g', { class: 'evo-slot', tabindex: '0' });
 			g.appendChild(el('rect', { class: 'evo-hover', x: x0 + 4, y: TOP - 6, width: slotW - 8, height: PLOT_H + 6, rx: 8 }));
 
-			if (e.ram) {
-				var conDato = nodos.filter(function (n) { return e.ram[n.id] != null; });
+			var vals = medidas[i];
+			if (vals) {
+				var conDato = nodos.filter(function (n) { return vals[n.id]; });
 				var groupW = conDato.length * (BAR + GAP) - GAP;
 				conDato.forEach(function (n, j) {
-					var v = Math.max(0, Math.min(100, Number(e.ram[n.id])));
+					var v = Math.max(0, Math.min(100, vals[n.id].v));
 					var x = cx - groupW / 2 + j * (BAR + GAP);
 					var y = yOf(v);
-					g.appendChild(el('path', { class: 'evo-bar s-' + nodos.indexOf(n), d: barPath(x, y, BAR, y0 - y) }));
+					var cls = 'evo-bar s-' + nodos.indexOf(n) + (vals[n.id].desde ? ' evo-bar-old' : '');
+					g.appendChild(el('path', { class: cls, d: barPath(x, y, BAR, y0 - y) }));
 					if (i === ultima) {
 						// Redondeado para que no se pisen; el decimal está en el tooltip y en la tabla
 						g.appendChild(el('text', { class: 'evo-val', x: x + BAR / 2, y: y - 6, 'text-anchor': 'middle' }, String(Math.round(v))));
@@ -120,7 +142,7 @@
 			}, e));
 			if (e.fecha) g.appendChild(el('text', { class: 'evo-x-sub', x: cx, y: y0 + 37, 'text-anchor': 'middle' }, e.fecha));
 
-			bindTip(g, e, nodos);
+			bindTip(g, e, vals, nodos);
 			svg.appendChild(g);
 		});
 
@@ -171,15 +193,23 @@
 		nodos.forEach(function (n) { var th = document.createElement('th'); th.textContent = n.nombre; thead.appendChild(th); });
 		var thH = document.createElement('th'); thH.appendChild(bi(span, { es: 'Hitos', en: 'Milestones' })); thead.appendChild(thH);
 		var tbody = table.createTBody();
-		entradas.forEach(function (e) {
+		entradas.forEach(function (e, i) {
+			var vals = medidas[i];
 			var tr = tbody.insertRow();
 			tr.insertCell().textContent = e.fecha || '—';
 			tr.insertCell().appendChild(bi(span, e));
 			nodos.forEach(function (n) {
 				var td = tr.insertCell();
 				td.className = 'num';
-				if (e.ram && e.ram[n.id] != null) td.appendChild(bi(span, fmtBi(e.ram[n.id], ' %')));
-				else td.textContent = '—';
+				if (vals && vals[n.id]) {
+					td.appendChild(bi(span, fmtBi(vals[n.id].v, ' %')));
+					if (vals[n.id].desde) {
+						var d = document.createElement('span');
+						d.className = 'muted evo-desde';
+						d.appendChild(bi(span, { es: ' (sin cambios desde ' + vals[n.id].desde + ')', en: ' (unchanged since ' + vals[n.id].desde + ')' }));
+						td.appendChild(d);
+					}
+				} else td.textContent = '—';
 			});
 			var tdH = tr.insertCell();
 			(e.hitos || []).forEach(function (h, k) {
@@ -190,7 +220,7 @@
 		});
 	}
 
-	function bindTip(g, e, nodos) {
+	function bindTip(g, e, vals, nodos) {
 		function show() {
 			var l = lang();
 			tip.textContent = '';
@@ -198,17 +228,22 @@
 			head.className = 'evo-tip-head';
 			head.textContent = (e[l] || e.es) + (e.fecha ? ' · ' + e.fecha : '');
 			tip.appendChild(head);
-			if (e.ram) {
+			if (vals) {
 				nodos.forEach(function (n, j) {
-					if (e.ram[n.id] == null) return;
+					if (!vals[n.id]) return;
 					var row = document.createElement('p');
 					var key = document.createElement('span');
 					key.className = 'evo-key s-' + j;
 					var val = document.createElement('strong');
-					val.textContent = fmt(e.ram[n.id], l) + ' %';
+					val.textContent = fmt(vals[n.id].v, l) + ' %';
 					row.appendChild(key);
 					row.appendChild(val);
 					row.appendChild(span(' ' + n.nombre));
+					if (vals[n.id].desde) {
+						var d = span((l === 'en' ? ' · unchanged since ' : ' · sin cambios desde ') + vals[n.id].desde);
+						d.className = 'muted';
+						row.appendChild(d);
+					}
 					tip.appendChild(row);
 				});
 			} else {
