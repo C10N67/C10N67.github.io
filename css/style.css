@@ -447,17 +447,12 @@ svg.filled { fill: currentColor; stroke: none; }
 }
 .hero-wrap .hero { position: relative; z-index: 1; }
 .hero-sky-anchor { min-height: 440px; align-self: stretch; }
-.sky-label {
-	position: absolute; z-index: 1; margin: 0; transform: translateX(-50%); white-space: nowrap; pointer-events: none;
-	font: 500 0.78rem var(--mono); color: var(--text-muted); letter-spacing: .02em;
-}
 /* En escritorio el cielo se queda fijo detrás de toda la página y sigue cambiando al hacer scroll */
 @media (min-width: 901px) {
 	.hero-sky { position: fixed; z-index: -1; -webkit-mask-image: none; mask-image: none; }
-	.sky-label { position: fixed; z-index: -1; }
 }
 @media (max-width: 900px) {
-	.hero-sky-anchor, .sky-label { display: none; }
+	.hero-sky-anchor { display: none; }
 	.hero-wrap .hero-text :is(.prompt, h1, .role, .tagline, .hero-meta) { text-shadow: 0 1px 12px var(--bg); }
 }
 

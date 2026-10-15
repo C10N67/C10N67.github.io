@@ -4,7 +4,6 @@
 	var wrap = document.querySelector('.hero-wrap');
 	if (!wrap) return;
 	var canvas = wrap.querySelector('.hero-sky');
-	var label = wrap.querySelector('.sky-label');
 	var anchor = wrap.querySelector('.hero-sky-anchor');
 	var ctx = canvas.getContext('2d');
 	var lightMq = window.matchMedia ? window.matchMedia('(prefers-color-scheme: light)') : { matches: false };
@@ -115,6 +114,17 @@
 	}
 
 	var W = 0, H = 0, DPR = 1, S = 1, CX = 0, CY = 0, mobile = false, fixed = false;
+
+	// Centro del planeta en images/space-bg.jpg (335 × 597), en fracción de la imagen
+	var PLANET = [0.757, 0.524], BG_W = 335, BG_H = 597, BG_BLEED = 24;
+	// Dónde cae en pantalla: el fondo (body::before) es fijo, sobresale 24px por cada
+	// lado y usa background-size: cover centrado
+	function planeta(w, h) {
+		var bw = w + BG_BLEED * 2, bh = h + BG_BLEED * 2;
+		var k = Math.max(bw / BG_W, bh / BG_H);
+		var iw = BG_W * k, ih = BG_H * k;
+		return [-BG_BLEED + (bw - iw) / 2 + PLANET[0] * iw, -BG_BLEED + (bh - ih) / 2 + PLANET[1] * ih];
+	}
 	function resize() {
 		var r = canvas.getBoundingClientRect();
 		DPR = Math.min(window.devicePixelRatio || 1, 2);
@@ -135,14 +145,15 @@
 			// En escritorio se forman en la columna derecha, junto al texto
 			S = Math.min(a.width, a.height) * 0.86;
 			CX = a.left - r.left + a.width / 2;
-			CY = a.top - r.top + (fixed ? window.scrollY : 0) + a.height * 0.46;
-			if (fixed) CY = Math.min(CY, H * 0.6);
+			CY = a.top - r.top + a.height * 0.46;
+			if (fixed) {
+				// Fondo fijo: la figura se centra en el planeta de la imagen de fondo
+				var pl = planeta(W, H);
+				CX = pl[0];
+				CY = pl[1];
+			}
 		}
 		skyRadius = Math.hypot(Math.max(CX, W - CX), Math.max(CY, H - CY)) / S + 0.1;
-		if (label) {
-			label.style.left = CX + 'px';
-			label.style.top = (CY + S * 0.58) + 'px';
-		}
 	}
 
 	// Sprites de brillo precalculados por color
@@ -169,15 +180,6 @@
 
 	var current = -1, phaseStart = 0, angle = 0, lastT = 0;
 
-	function lang() { return document.documentElement.getAttribute('data-lang') === 'en' ? 'en' : 'es'; }
-	function setLabel(shape) {
-		if (!label) return;
-		var prefix = shape.kind === 'const'
-			? (lang() === 'en' ? 'constellation' : 'constelación')
-			: 'stack';
-		label.textContent = '✦ ' + prefix + ' · ' + shape[lang()];
-	}
-
 	// Asigna los puntos de la nueva figura (girados para que se vean derechos a mitad de exposición)
 	function goTo(index, now) {
 		current = index;
@@ -203,7 +205,6 @@
 				st.tlit = 0;
 			}
 		}
-		setLabel(shape);
 	}
 
 	function ease(t) { return t < .5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2; }
@@ -307,11 +308,6 @@
 		visible = fixed || (wr.bottom > 0 && wr.top < window.innerHeight);
 		visible ? start() : stop();
 		if (!running) { var e = update(performance.now()); draw(performance.now(), e); }
-	});
-
-	// Cambiar de idioma actualiza la etiqueta
-	document.querySelectorAll('[data-set-lang]').forEach(function (b) {
-		b.addEventListener('click', function () { if (current >= 0) setLabel(shapes[current]); });
 	});
 
 	if ('IntersectionObserver' in window) {
