@@ -135,8 +135,8 @@
 				<article class="card star-card">
 					<span class="card-kicker"><span lang="es">Nodo · Raspberry Pi 4</span><span lang="en">Node · Raspberry Pi 4</span></span>
 					<h3>Orion</h3>
-					<p lang="es">Tercer nodo del clúster, fuera del portátil y con sus propios 4&nbsp;GB de RAM. Prometheus y Grafana tienen afinidad preferente por este nodo, y ahora también corre aquí Homepage.</p>
-					<p lang="en">The cluster's third node, outside the laptop and with its own 4&nbsp;GB of RAM. Prometheus and Grafana have a preferred affinity for this node, and Homepage now runs here too.</p>
+					<p lang="es">Tercer nodo del clúster, fuera del portátil y con sus propios 4&nbsp;GB de RAM. Prometheus y Grafana tienen afinidad preferente por este nodo, y Homepage puede ejecutarse aquí o en OsaMenor (ahora está aquí).</p>
+					<p lang="en">The cluster's third node, outside the laptop and with its own 4&nbsp;GB of RAM. Prometheus and Grafana have a preferred affinity for this node, and Homepage can run here or on OsaMenor (it's here now).</p>
 					<ul class="tags"><li>arm64</li><li>4 GB</li><li>Prometheus</li><li>Grafana</li></ul>
 				</article>
 			</div>
@@ -151,7 +151,7 @@
 
 			<figure class="arch diagram">
 				<svg viewBox="0 0 800 350" role="img" aria-labelledby="hl-title">
-					<title id="hl-title">Clúster de Kubernetes con tres nodos: las VMs OsaMayor (con el plano de control) y OsaMenor, que corren en Polaris (Proxmox), y Orion, una Raspberry Pi 4 donde se programan preferentemente Prometheus, Grafana y Homepage.</title>
+					<title id="hl-title">Clúster de Kubernetes con tres nodos: las VMs OsaMayor (con el plano de control) y OsaMenor, que corren en Polaris (Proxmox), y Orion, una Raspberry Pi 4 donde se programan preferentemente Prometheus y Grafana y donde ahora corre Homepage.</title>
 
 					<!-- Clúster -->
 					<rect class="k8s-box" x="10" y="14" width="780" height="322" rx="16" />
@@ -188,16 +188,16 @@
 						<text class="t-sub" x="568" y="112">Raspberry Pi 4 · arm64</text>
 						<text class="t-sub" x="568" y="132" lang="es">nodo físico · 4 GB</text>
 						<text class="t-sub" x="568" y="132" lang="en">bare metal · 4 GB</text>
-						<text class="t-sub" x="568" y="160" lang="es">afinidad preferente</text>
-						<text class="t-sub" x="568" y="160" lang="en">preferred affinity</text>
+						<text class="t-sub" x="568" y="160" lang="es">workloads actuales</text>
+						<text class="t-sub" x="568" y="160" lang="en">current workloads</text>
 						<g class="pod"><rect x="568" y="172" width="184" height="38" rx="19" /><text x="660" y="196">Prometheus</text></g>
 						<g class="pod"><rect x="568" y="218" width="184" height="38" rx="19" /><text x="660" y="242">Grafana</text></g>
 						<g class="pod"><rect x="568" y="264" width="184" height="38" rx="19" /><text x="660" y="288">Homepage</text></g>
 					</g>
 				</svg>
 				<figcaption>
-					<span lang="es">Prometheus y Grafana tienen afinidad <em>preferente</em> por Orion, la Raspberry Pi 4: se programan ahí si hay sitio, pero pueden acabar en otro nodo. Ahora también corren en Orion Homepage y una de las dos réplicas de CoreDNS; el plano de control está en OsaMayor.</span>
-					<span lang="en">Prometheus and Grafana have a <em>preferred</em> affinity for Orion, the Raspberry Pi 4: they're scheduled there when there's room, but can end up on another node. Homepage and one of the two CoreDNS replicas now run on Orion too; the control plane is on OsaMayor.</span>
+					<span lang="es">Prometheus y Grafana tienen afinidad <em>preferente</em> por Orion, la Raspberry Pi 4: se programan ahí si hay sitio, pero pueden acabar en otro nodo. Homepage puede ejecutarse en Orion u OsaMenor y ahora está en Orion, igual que una de las dos réplicas de CoreDNS; el plano de control está en OsaMayor.</span>
+					<span lang="en">Prometheus and Grafana have a <em>preferred</em> affinity for Orion, the Raspberry Pi 4: they're scheduled there when there's room, but can end up on another node. Homepage can run on Orion or OsaMenor and is on Orion now, as is one of the two CoreDNS replicas; the control plane is on OsaMayor.</span>
 				</figcaption>
 			</figure>
 
@@ -275,8 +275,8 @@
 
 			<div class="incident-featured">
 				<div class="incident-head">
-					<span class="incident-tag"><span lang="es">Resuelto</span><span lang="en">Resolved</span></span>
-					<h3><span lang="es">Prometheus y Grafana sufrían OOMKilled</span><span lang="en">Prometheus and Grafana were getting OOMKilled</span></h3>
+					<span class="incident-tag"><span lang="es">Mitigado</span><span lang="en">Mitigated</span></span>
+					<h3><span lang="es">OOMKilled en Prometheus y Grafana</span><span lang="en">OOMKilled in Prometheus and Grafana</span></h3>
 				</div>
 				<div class="incident-grid">
 					<div>
@@ -290,12 +290,15 @@
 					<div>
 						<h4><span lang="es">Solución</span><span lang="en">Fix</span></h4>
 						<p lang="es">He añadido <strong>Orion</strong>, una <strong>Raspberry Pi 4</strong> de 4&nbsp;GB, como tercer nodo, fuera del portátil, y le he dado al stack de observabilidad una afinidad preferente por ella: <strong>Prometheus y Grafana se programan ahora en Orion</strong> siempre que haya sitio, con su propia memoria, y las dos VMs dejan de cargar con lo que más RAM consumía. Al ser preferente y no obligatoria, si Orion no tiene recursos Kubernetes puede colocarlos en otro nodo. Además, el clúster mezcla ya un nodo <strong>arm64</strong> con los dos x86, lo que obliga a trabajar con imágenes multiarquitectura.</p>
-						<p lang="es">El resultado se ve en el propio Prometheus: el contador de OOM kills del kernel que expone Node Exporter, <code>node_vmstat_oom_kill</code>, está a <strong>0</strong>.</p>
+						<p lang="es">Tras el cambio, el contador de OOM kills del kernel que expone Node Exporter, <code>node_vmstat_oom_kill</code>, marcaba <strong>0</strong> en OsaMayor.</p>
 						<p lang="en">I added <strong>Orion</strong>, a 4&nbsp;GB <strong>Raspberry Pi 4</strong>, as a third node, outside the laptop, and gave the observability stack a preferred affinity for it: <strong>Prometheus and Grafana are now scheduled on Orion</strong> whenever there's room, with their own memory, so the two VMs no longer carry the hungriest workload. Since it's preferred rather than required, Kubernetes can place them elsewhere if Orion runs short. The cluster now also mixes an <strong>arm64</strong> node with the two x86 ones, which means working with multi-arch images.</p>
-						<p lang="en">The result shows up in Prometheus itself: the kernel OOM kill counter exposed by Node Exporter, <code>node_vmstat_oom_kill</code>, sits at <strong>0</strong>.</p>
+						<p lang="en">After the change, the kernel OOM kill counter exposed by Node Exporter, <code>node_vmstat_oom_kill</code>, read <strong>0</strong> on OsaMayor.</p>
 <pre class="term"><code><span class="c" lang="es"># PromQL · contador de OOM kills (Node Exporter)</span><span class="c" lang="en"># PromQL · OOM kill counter (Node Exporter)</span>
 <span class="p">&gt;</span> node_vmstat_oom_kill
 <span class="ok">0</span></code></pre>
+						<h4><span lang="es">Estado actual</span><span lang="en">Current status</span></h4>
+						<p lang="es">Mitigado, no resuelto: el 15/10 Grafana volvió a terminar en <code>OOMKilled</code>, ya en Orion y con el nodo al 43&nbsp;% de RAM. Esta vez no le falta memoria al nodo, así que apunta al límite de memoria del propio contenedor de Grafana, que es lo siguiente que voy a revisar.</p>
+						<p lang="en">Mitigated, not solved: on 15 Oct Grafana was <code>OOMKilled</code> again, this time on Orion with the node at 43&nbsp;% RAM. The node isn't short of memory any more, so it points to the memory limit of Grafana's own container, which is what I'll review next.</p>
 					</div>
 				</div>
 			</div>
@@ -394,7 +397,7 @@
 
 	<footer class="site-footer">
 		<div class="container footer-inner">
-			<p>© <span id="year">2026</span> Daniel Carballo Reyes · <a class="version mono" href="https://github.com/C10N67/C10N67.github.io/commits/main" target="_blank" rel="noopener" title="Historial de cambios / Changelog">v1.21.0</a></p>
+			<p>© <span id="year">2026</span> Daniel Carballo Reyes · <a class="version mono" href="https://github.com/C10N67/C10N67.github.io/commits/main" target="_blank" rel="noopener" title="Historial de cambios / Changelog">v1.21.1</a></p>
 			<p class="muted mono">kubectl get nodes · <span class="ok">Ready</span></p>
 		</div>
 	</footer>
