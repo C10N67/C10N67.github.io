@@ -114,7 +114,7 @@
 			tw: rand(0, Math.PI * 2), tws: rand(.8, 2.2) });
 	}
 
-	var W = 0, H = 0, DPR = 1, S = 1, CX = 0, CY = 0, mobile = false;
+	var W = 0, H = 0, DPR = 1, S = 1, CX = 0, CY = 0, mobile = false, fixed = false;
 	function resize() {
 		var r = canvas.getBoundingClientRect();
 		DPR = Math.min(window.devicePixelRatio || 1, 2);
@@ -123,6 +123,9 @@
 		canvas.height = Math.round(H * DPR);
 		var a = anchor && anchor.offsetParent ? anchor.getBoundingClientRect() : null;
 		mobile = !a || a.width < 40;
+		// En escritorio el lienzo es fijo (fondo de toda la página): la figura se queda
+		// donde está la columna derecha de la portada sin scroll
+		fixed = getComputedStyle(canvas).position === 'fixed';
 		if (mobile) {
 			// En móvil las figuras quedan de fondo, detrás del texto
 			S = Math.min(W * 0.92, H * 0.6);
@@ -132,7 +135,8 @@
 			// En escritorio se forman en la columna derecha, junto al texto
 			S = Math.min(a.width, a.height) * 0.86;
 			CX = a.left - r.left + a.width / 2;
-			CY = a.top - r.top + a.height * 0.46;
+			CY = a.top - r.top + (fixed ? window.scrollY : 0) + a.height * 0.46;
+			if (fixed) CY = Math.min(CY, H * 0.6);
 		}
 		skyRadius = Math.hypot(Math.max(CX, W - CX), Math.max(CY, H - CY)) / S + 0.1;
 		if (label) {
@@ -299,6 +303,9 @@
 	resize();
 	window.addEventListener('resize', function () {
 		resize();
+		var wr = wrap.getBoundingClientRect();
+		visible = fixed || (wr.bottom > 0 && wr.top < window.innerHeight);
+		visible ? start() : stop();
 		if (!running) { var e = update(performance.now()); draw(performance.now(), e); }
 	});
 
@@ -309,7 +316,8 @@
 
 	if ('IntersectionObserver' in window) {
 		new IntersectionObserver(function (entries) {
-			visible = entries[0].isIntersecting;
+			// Si es el fondo fijo, se ve siempre aunque la portada salga de pantalla
+			visible = fixed || entries[0].isIntersecting;
 			visible ? start() : stop();
 		}).observe(wrap);
 	}
