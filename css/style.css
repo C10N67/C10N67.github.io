@@ -51,12 +51,12 @@ html { scroll-behavior: smooth; scroll-padding-top: 80px; background: var(--bg);
 body::before,
 body::after { content: ""; position: fixed; pointer-events: none; }
 body::before {
-	inset: -24px; z-index: -2;
+	inset: -24px; z-index: -3;
 	background: url("../images/space-bg.jpg") center / cover no-repeat;
 	filter: blur(3px) saturate(1.15);
 }
 body::after {
-	inset: 0; z-index: -1;
+	inset: 0; z-index: -2;
 	background: radial-gradient(1200px 600px at 85% -10%, var(--accent-soft), transparent 60%), var(--veil);
 }
 
@@ -450,6 +450,11 @@ svg.filled { fill: currentColor; stroke: none; }
 .sky-label {
 	position: absolute; z-index: 1; margin: 0; transform: translateX(-50%); white-space: nowrap; pointer-events: none;
 	font: 500 0.78rem var(--mono); color: var(--text-muted); letter-spacing: .02em;
+}
+/* En escritorio el cielo se queda fijo detrás de toda la página y sigue cambiando al hacer scroll */
+@media (min-width: 901px) {
+	.hero-sky { position: fixed; z-index: -1; -webkit-mask-image: none; mask-image: none; }
+	.sky-label { position: fixed; z-index: -1; }
 }
 @media (max-width: 900px) {
 	.hero-sky-anchor, .sky-label { display: none; }
