@@ -31,9 +31,10 @@
 		instala: { es: 'Nuevo', en: 'New' },
 		actualiza: { es: 'Actualizado', en: 'Updated' },
 		mueve: { es: 'Movido', en: 'Moved' },
+		amplia: { es: 'Ampliado', en: 'Extended' },
 		quita: { es: 'Retirado', en: 'Removed' }
 	};
-	var SIGNO = { instala: '+', actualiza: '↑', mueve: '→', quita: '−' };
+	var SIGNO = { instala: '+', actualiza: '↑', mueve: '→', amplia: '⇉', quita: '−' };
 
 	// Estado tras cada momento: { nombre: componente } más los cambios de ese momento
 	function estados(momentos) {
@@ -115,7 +116,7 @@
 				li.appendChild(span(': ' + d.c.nombre, 'inst-name'));
 				var extra = '';
 				if (d.c.accion === 'actualiza' && d.antes) extra = (d.antes.version || '?') + ' → ' + (d.despues.version || '?');
-				else if (d.c.accion === 'mueve' && d.antes) extra = (d.antes.donde || '?') + ' → ' + (d.despues.donde || '?');
+				else if ((d.c.accion === 'mueve' || d.c.accion === 'amplia') && d.antes) extra = (d.antes.donde || '?') + ' → ' + (d.despues.donde || '?');
 				else if (d.c.accion === 'instala' && d.despues) extra = [d.despues.version, d.despues.donde].filter(Boolean).join(' · ');
 				if (extra) li.appendChild(span(' · ' + extra, 'muted'));
 				cambiosEl.appendChild(li);

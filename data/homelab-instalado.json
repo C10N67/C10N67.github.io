@@ -1,5 +1,5 @@
 {
-	"_leeme": "Una entrada por momento, en orden. Cada cambio tiene 'accion' (instala, actualiza, mueve o quita), 'nombre' (identifica el componente), y opcionalmente 'categoria', 'version', 'donde' y 'nota' {es, en}. Para 'actualiza' basta con la nueva 'version'; para 'mueve', con el nuevo 'donde'. El estado de cada fecha se calcula aplicando los cambios en orden.",
+	"_leeme": "Una entrada por momento, en orden. Cada cambio tiene 'accion' (instala, actualiza, mueve, amplia o quita), 'nombre' (identifica el componente), y opcionalmente 'categoria', 'version', 'donde' y 'nota' {es, en}. Para 'actualiza' basta con la nueva 'version'; para 'mueve' o 'amplia' (pasa a correr también en otro nodo), con el nuevo 'donde'. El estado de cada fecha se calcula aplicando los cambios en orden.",
 	"categorias": [
 		{
 			"id": "infra",
@@ -142,6 +142,42 @@
 					}
 				},
 				{
+					"accion": "amplia",
+					"nombre": "Kubernetes (kubeadm)",
+					"donde": "OsaMayor · OsaMenor · Orion",
+					"nota": {
+						"es": "ahora también en Orion",
+						"en": "now also on Orion"
+					}
+				},
+				{
+					"accion": "amplia",
+					"nombre": "containerd",
+					"donde": "OsaMayor · OsaMenor · Orion",
+					"nota": {
+						"es": "ahora también en Orion",
+						"en": "now also on Orion"
+					}
+				},
+				{
+					"accion": "amplia",
+					"nombre": "kube-proxy",
+					"donde": "OsaMayor · OsaMenor · Orion",
+					"nota": {
+						"es": "ahora también en Orion",
+						"en": "now also on Orion"
+					}
+				},
+				{
+					"accion": "amplia",
+					"nombre": "Calico (Tigera operator)",
+					"donde": "OsaMayor · OsaMenor · Orion",
+					"nota": {
+						"es": "ahora también en Orion",
+						"en": "now also on Orion"
+					}
+				},
+				{
 					"accion": "mueve",
 					"nombre": "Prometheus",
 					"donde": "Orion"
@@ -152,12 +188,12 @@
 					"donde": "Orion"
 				},
 				{
-					"accion": "mueve",
+					"accion": "amplia",
 					"nombre": "Node Exporter",
 					"donde": "OsaMayor · OsaMenor · Orion",
 					"nota": {
-						"es": "DaemonSet: ahora también corre en Orion",
-						"en": "DaemonSet: now also runs on Orion"
+						"es": "DaemonSet: ahora también en Orion",
+						"en": "DaemonSet: now also on Orion"
 					}
 				}
 			]
