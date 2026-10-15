@@ -674,6 +674,45 @@ code { font-family: var(--mono); font-size: 0.86em; background: var(--surface-2)
 .inst-cambios .muted { font-size: 0.82rem; }
 .inst-quita .inst-name { text-decoration: line-through; }
 
+/* Hoja de ruta (homelab) */
+.road-summary { display: grid; gap: 8px; max-width: 520px; margin-bottom: 24px; }
+.road-total { margin: 0; color: var(--text-muted); }
+.road-n { font: 700 1.6rem var(--font); color: var(--text); }
+.road-updated { margin: 0; font-size: 0.8rem; }
+.road-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; }
+@media (max-width: 860px) { .road-grid { grid-template-columns: 1fr; } }
+.road-card { padding: 18px 20px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); }
+.road-card.road-hecho { border-color: color-mix(in srgb, var(--ok) 50%, var(--border)); }
+.road-card.road-en-curso { border-color: color-mix(in srgb, var(--accent) 45%, var(--border)); }
+.road-head { display: flex; align-items: baseline; gap: 10px; }
+.road-head h3 { font-size: 1.05rem; flex: 1; }
+.road-num { font: 600 0.8rem var(--mono); color: var(--accent); }
+.road-chip {
+	font: 600 0.65rem var(--mono); text-transform: uppercase; letter-spacing: .05em; white-space: nowrap;
+	padding: 2px 8px; border-radius: 999px; border: 1px solid currentColor; color: var(--text-muted);
+}
+.road-hecho > .road-head .road-chip { color: var(--ok); }
+.road-en-curso > .road-head .road-chip { color: var(--accent); }
+.road-prog { display: flex; align-items: center; gap: 10px; margin: 10px 0 4px; }
+.road-prog .meter { flex: 1; }
+.road-count { font: 500 0.75rem var(--mono); color: var(--text-muted); }
+.road-note { font-size: 0.82rem; margin: 6px 0 0; }
+.road-tasks { display: grid; gap: 6px; margin-top: 12px; }
+.road-task { display: flex; gap: 8px; font-size: 0.88rem; color: var(--text-muted); }
+.road-icon { flex: none; width: 1.1em; font-family: var(--mono); color: var(--text-muted); }
+/* Pendiente: círculo vacío; en curso: medio lleno (dibujados, no dependen de la fuente) */
+.road-task:not(.road-hecho) .road-icon::before {
+	content: ""; display: inline-block; width: .62em; height: .62em; border-radius: 50%;
+	border: 1.5px solid currentColor; vertical-align: .05em;
+}
+.road-task.road-en-curso .road-icon::before { background: linear-gradient(90deg, currentColor 50%, transparent 50%); }
+.road-task.road-hecho .road-icon { color: var(--ok); }
+.road-task.road-hecho .road-text { color: var(--text); }
+.road-task.road-en-curso .road-icon { color: var(--accent); }
+.road-task.road-en-curso .road-text { color: var(--text); }
+.road-date { font: 500 0.75rem var(--mono); color: var(--text-muted); }
+.road-tnote { display: block; font-size: 0.78rem; color: var(--text-muted); }
+
 .shot { margin: 0; }
 .shot img { display: block; width: 100%; height: auto; border-radius: 14px; border: 1px solid var(--border); box-shadow: var(--shadow); }
 .shot figcaption { margin-top: 10px; font-size: 0.85rem; color: var(--text-muted); }
