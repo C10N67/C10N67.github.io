@@ -87,6 +87,10 @@
 					"es": "node_vmstat_oom_kill = 0",
 					"en": "node_vmstat_oom_kill = 0",
 					"fecha": "2026-10-12"
+				},
+				{
+					"es": "Grafana vuelve a sufrir OOMKilled, ya en Orion",
+					"en": "Grafana gets OOMKilled again, now on Orion"
 				}
 			]
 		}

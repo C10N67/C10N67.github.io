@@ -254,7 +254,11 @@
 				{
 					"accion": "mueve",
 					"nombre": "Homepage",
-					"donde": "Orion"
+					"donde": "Orion",
+					"nota": {
+						"es": "puede ejecutarse en Orion u OsaMenor",
+						"en": "can run on Orion or OsaMenor"
+					}
 				},
 				{
 					"accion": "mueve",
