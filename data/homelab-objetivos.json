@@ -1,0 +1,204 @@
+{
+	"_leeme": "Hoja de ruta del clúster. Cada objetivo tiene tareas con 'estado': pendiente, en-curso o hecho; al terminar una, pon también su 'fecha'. 'nota' {es, en} es opcional. El estado de cada objetivo y el progreso total se calculan solos. Actualiza 'actualizado' al cambiar algo.",
+	"actualizado": "2026-10-15",
+	"objetivos": [
+		{
+			"es": "Base del clúster",
+			"en": "Cluster foundations",
+			"tareas": [
+				{
+					"es": "kubeadm",
+					"en": "kubeadm",
+					"estado": "hecho",
+					"fecha": "2026-10-11"
+				},
+				{
+					"es": "Calico como CNI",
+					"en": "Calico as the CNI",
+					"estado": "hecho",
+					"fecha": "2026-10-11"
+				},
+				{
+					"es": "MetalLB para Services LoadBalancer en casa",
+					"en": "MetalLB for LoadBalancer Services at home",
+					"estado": "pendiente"
+				},
+				{
+					"es": "StorageClass con local-path-provisioner, o Longhorn si sobra disco",
+					"en": "StorageClass with local-path-provisioner, or Longhorn if there's disk to spare",
+					"estado": "pendiente"
+				}
+			]
+		},
+		{
+			"es": "GitOps",
+			"en": "GitOps",
+			"nota": {
+				"es": "Lo que más se valora en entrevistas.",
+				"en": "What interviewers value most."
+			},
+			"tareas": [
+				{
+					"es": "Todo el clúster en un repositorio",
+					"en": "The whole cluster in one repository",
+					"estado": "pendiente"
+				},
+				{
+					"es": "Despliegue con Argo CD, o Flux que es más ligero",
+					"en": "Deployed with Argo CD, or the lighter Flux",
+					"estado": "pendiente"
+				},
+				{
+					"es": "Nada de kubectl apply a mano",
+					"en": "No more manual kubectl apply",
+					"estado": "pendiente"
+				}
+			]
+		},
+		{
+			"es": "Empaquetado",
+			"en": "Packaging",
+			"tareas": [
+				{
+					"es": "Chart de Helm propio, o Kustomize con overlays dev/prod",
+					"en": "Own Helm chart, or Kustomize with dev/prod overlays",
+					"estado": "pendiente"
+				}
+			]
+		},
+		{
+			"es": "Red y seguridad",
+			"en": "Networking & security",
+			"tareas": [
+				{
+					"es": "NetworkPolicies que aíslen las NFs: solo el AMF habla con el gNB, solo la SMF con la UPF…",
+					"en": "NetworkPolicies isolating the NFs: only the AMF talks to the gNB, only the SMF to the UPF…",
+					"estado": "pendiente"
+				},
+				{
+					"es": "RBAC con ServiceAccounts mínimos",
+					"en": "RBAC with minimal ServiceAccounts",
+					"estado": "pendiente"
+				},
+				{
+					"es": "Pod Security Admission",
+					"en": "Pod Security Admission",
+					"estado": "pendiente"
+				},
+				{
+					"es": "Secretos con Sealed Secrets",
+					"en": "Secrets with Sealed Secrets",
+					"estado": "pendiente"
+				}
+			]
+		},
+		{
+			"es": "Exposición",
+			"en": "Exposure",
+			"tareas": [
+				{
+					"es": "Gateway API o ingress-nginx",
+					"en": "Gateway API or ingress-nginx",
+					"estado": "pendiente"
+				},
+				{
+					"es": "cert-manager con certificados de una CA propia",
+					"en": "cert-manager with certificates from an in-house CA",
+					"estado": "pendiente"
+				},
+				{
+					"es": "WebUI de Open5GS y Grafana publicadas con TLS",
+					"en": "Open5GS WebUI and Grafana served over TLS",
+					"estado": "pendiente"
+				}
+			]
+		},
+		{
+			"es": "Observabilidad",
+			"en": "Observability",
+			"tareas": [
+				{
+					"es": "Prometheus y Grafana",
+					"en": "Prometheus and Grafana",
+					"estado": "hecho",
+					"fecha": "2026-10-11"
+				},
+				{
+					"es": "Retención corta, o VictoriaMetrics que gasta mucho menos",
+					"en": "Short retention, or the much lighter VictoriaMetrics",
+					"estado": "pendiente"
+				},
+				{
+					"es": "Loki para logs",
+					"en": "Loki for logs",
+					"estado": "pendiente"
+				},
+				{
+					"es": "Dashboards de UEs registrados y sesiones PDU con las métricas de Open5GS",
+					"en": "Dashboards of registered UEs and PDU sessions from Open5GS metrics",
+					"estado": "pendiente"
+				}
+			]
+		},
+		{
+			"es": "Operación",
+			"en": "Operations",
+			"tareas": [
+				{
+					"es": "HPA en alguna NF",
+					"en": "HPA on an NF",
+					"estado": "pendiente"
+				},
+				{
+					"es": "PodDisruptionBudgets",
+					"en": "PodDisruptionBudgets",
+					"estado": "pendiente"
+				},
+				{
+					"es": "requests/limits bien ajustados",
+					"en": "Well-tuned requests/limits",
+					"estado": "en-curso",
+					"nota": {
+						"es": "Empezando por Grafana, que llega a OOMKilled en Orion",
+						"en": "Starting with Grafana, which gets OOMKilled on Orion"
+					}
+				},
+				{
+					"es": "Backups con Velero, o etcd + snapshot de MongoDB",
+					"en": "Backups with Velero, or etcd + a MongoDB snapshot",
+					"estado": "pendiente"
+				},
+				{
+					"es": "Ensayo de upgrade del clúster con la red funcionando",
+					"en": "Cluster upgrade drill with the network running",
+					"estado": "pendiente"
+				}
+			]
+		},
+		{
+			"es": "Caos y pruebas",
+			"en": "Chaos & testing",
+			"nota": {
+				"es": "Documentado, queda muy bien en un CV.",
+				"en": "Written up, it looks great on a CV."
+			},
+			"tareas": [
+				{
+					"es": "Matar la UPF y comprobar que los UEs se recuperan",
+					"en": "Kill the UPF and check the UEs recover",
+					"estado": "pendiente"
+				},
+				{
+					"es": "Vaciar un nodo con kubectl drain y comprobar que los UEs se recuperan",
+					"en": "Drain a node with kubectl drain and check the UEs recover",
+					"estado": "pendiente"
+				},
+				{
+					"es": "Documentar las pruebas",
+					"en": "Write up the tests",
+					"estado": "pendiente"
+				}
+			]
+		}
+	]
+}
