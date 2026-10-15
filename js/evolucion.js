@@ -150,10 +150,12 @@
 			(e.hitos || []).forEach(function (h) {
 				var li = document.createElement('li');
 				li.appendChild(bi(span, h));
-				if (e.fecha) {
+				// Un hito puede llevar su propia fecha si no coincide con la de la medida
+				var fh = h.fecha || e.fecha;
+				if (fh) {
 					var f = document.createElement('span');
 					f.className = 'muted mono';
-					f.textContent = ' · ' + e.fecha;
+					f.textContent = ' · ' + fh;
 					li.appendChild(f);
 				}
 				hitosList.appendChild(li);
@@ -183,6 +185,7 @@
 			(e.hitos || []).forEach(function (h, k) {
 				if (k) tdH.appendChild(document.createTextNode(' · '));
 				tdH.appendChild(bi(span, h));
+				if (h.fecha && h.fecha !== e.fecha) tdH.appendChild(document.createTextNode(' (' + h.fecha + ')'));
 			});
 		});
 	}

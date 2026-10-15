@@ -1,5 +1,5 @@
 {
-	"_leeme": "Una entrada por momento, en orden. 'ram' es el % de RAM usada de cada nodo (0-100) y es opcional; 'hitos' también. Para añadir una medida copia la última entrada, cambia fecha, textos y valores, y haz commit. Los ids de 'ram' deben coincidir con los de 'nodos'.",
+	"_leeme": "Una entrada por momento, en orden. 'ram' es el % de RAM usada de cada nodo (0-100) y es opcional; 'hitos' también; un hito puede llevar su propia 'fecha' si no coincide con la de la medida. Para añadir una medida copia la última entrada, cambia fecha, textos y valores, y haz commit. Los ids de 'ram' deben coincidir con los de 'nodos'.",
 	"nodos": [
 		{
 			"id": "polaris",
@@ -29,20 +29,17 @@
 	"entradas": [
 		{
 			"fecha": "2026-10-12",
-			"es": "Llega Orion",
-			"en": "Orion joins",
+			"es": "Antes de Orion",
+			"en": "Before Orion",
+			"ram": {
+				"polaris": 92,
+				"osamayor": 92,
+				"osamenor": 94
+			},
 			"hitos": [
 				{
 					"es": "Prometheus y Grafana sufren OOMKilled",
 					"en": "Prometheus and Grafana get OOMKilled"
-				},
-				{
-					"es": "Orion (Raspberry Pi 4) se une al clúster y asume Prometheus y Grafana",
-					"en": "Orion (Raspberry Pi 4) joins the cluster and takes over Prometheus and Grafana"
-				},
-				{
-					"es": "node_vmstat_oom_kill = 0",
-					"en": "node_vmstat_oom_kill = 0"
 				}
 			]
 		},
@@ -54,7 +51,19 @@
 				"polaris": 81,
 				"osamayor": 55.5,
 				"orion": 43.1
-			}
+			},
+			"hitos": [
+				{
+					"es": "Orion (Raspberry Pi 4) se une al clúster y asume Prometheus y Grafana",
+					"en": "Orion (Raspberry Pi 4) joins the cluster and takes over Prometheus and Grafana",
+					"fecha": "2026-10-12"
+				},
+				{
+					"es": "node_vmstat_oom_kill = 0",
+					"en": "node_vmstat_oom_kill = 0",
+					"fecha": "2026-10-12"
+				}
+			]
 		}
 	]
 }
