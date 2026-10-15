@@ -19,7 +19,7 @@
 	<link rel="preconnect" href="https://fonts.googleapis.com" />
 	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 	<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
-	<link rel="stylesheet" href="css/style.css?v=945cd709" />
+	<link rel="stylesheet" href="css/style.css?v=6d8feba6" />
 	<script>document.documentElement.classList.add('js');</script>
 </head>
 <body>
@@ -250,6 +250,19 @@
 					</p>
 				</div>
 			</div>
+
+			<div class="panel inst" id="instalado" data-src="data/homelab-instalado.json">
+				<h3 class="panel-title"><span lang="es">Qué hay instalado</span><span lang="en">What's installed</span></h3>
+				<p class="inst-intro muted">
+					<span lang="es">Lo que corre en el clúster en cada momento. Elige una fecha para ver qué había entonces y qué cambió ese día.</span>
+					<span lang="en">What runs on the cluster at each point in time. Pick a date to see what was there and what changed that day.</span>
+				</p>
+				<div class="res-dates" role="group" aria-label="Fecha / Date" hidden></div>
+				<div class="inst-grid"><p class="muted"><span lang="es">Cargando…</span><span lang="en">Loading…</span></p></div>
+				<h4 class="inst-cambios-title"><span lang="es">Cambios en esta fecha</span><span lang="en">Changes on this date</span></h4>
+				<ul class="inst-cambios"></ul>
+				<p class="panel-note muted inst-resumen"></p>
+			</div>
 		</section>
 
 		<!-- Reto actual -->
@@ -380,12 +393,13 @@
 
 	<footer class="site-footer">
 		<div class="container footer-inner">
-			<p>© <span id="year">2026</span> Daniel Carballo Reyes · <a class="version mono" href="https://github.com/C10N67/C10N67.github.io/commits/main" target="_blank" rel="noopener" title="Historial de cambios / Changelog">v1.19.4</a></p>
+			<p>© <span id="year">2026</span> Daniel Carballo Reyes · <a class="version mono" href="https://github.com/C10N67/C10N67.github.io/commits/main" target="_blank" rel="noopener" title="Historial de cambios / Changelog">v1.20.0</a></p>
 			<p class="muted mono">kubectl get nodes · <span class="ok">Ready</span></p>
 		</div>
 	</footer>
 
 	<script src="js/main.js?v=c828ddc7"></script>
 	<script src="js/evolucion.js?v=b7c84bec"></script>
+	<script src="js/instalado.js?v=1b106caf"></script>
 </body>
 </html>
