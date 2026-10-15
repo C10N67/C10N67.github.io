@@ -1,5 +1,5 @@
 {
-	"_leeme": "Una entrada por momento, en orden. 'ram' es el % de RAM usada de cada nodo (0-100) y es opcional; 'hitos' también; un hito puede llevar su propia 'fecha' si no coincide con la de la medida. Para añadir una medida copia la última entrada, cambia fecha, textos y valores, y haz commit. Los ids de 'ram' deben coincidir con los de 'nodos'. Si un nodo no tiene valor en una medida, el gráfico repite su último valor conocido (atenuado).",
+	"_leeme": "Una entrada por momento, en orden. 'polaris' son los recursos del host (cpu en %, ram y disco como [usado, total] en GiB/GB, ksm en MiB, nota opcional) y de ahí sale también la barra de Polaris del gráfico. 'ram' es el % de RAM usada de cada nodo (0-100). Todo es opcional; un hito puede llevar su propia 'fecha'. Si falta un valor, se repite el último conocido (atenuado). Los ids de 'ram' deben coincidir con los de 'nodos'.",
 	"nodos": [
 		{
 			"id": "polaris",
@@ -31,8 +31,23 @@
 			"fecha": "2026-10-12",
 			"es": "Antes de Orion",
 			"en": "Before Orion",
+			"polaris": {
+				"cpu": 5,
+				"ram": [
+					6.97,
+					7.54
+				],
+				"disco": [
+					9.8,
+					94
+				],
+				"ksm": 291,
+				"nota": {
+					"es": "Captura del panel de Proxmox antes de añadir la Raspberry Pi. La CPU iba sobrada; la memoria, al límite.",
+					"en": "Snapshot from the Proxmox dashboard before adding the Raspberry Pi. CPU had plenty of headroom; memory was maxed out."
+				}
+			},
 			"ram": {
-				"polaris": 92,
 				"osamayor": 92,
 				"osamenor": 94
 			},
@@ -47,8 +62,17 @@
 			"fecha": "2026-10-15",
 			"es": "Con Orion",
 			"en": "With Orion",
+			"polaris": {
+				"ram": [
+					6.1,
+					7.54
+				],
+				"nota": {
+					"es": "Con Prometheus y Grafana ya en Orion, Polaris baja a unos 6,1 GiB de RAM (leído de la gráfica de Proxmox).",
+					"en": "With Prometheus and Grafana on Orion, Polaris drops to about 6.1 GiB of RAM (read from the Proxmox graph)."
+				}
+			},
 			"ram": {
-				"polaris": 81,
 				"osamayor": 55.5,
 				"orion": 43.1
 			},

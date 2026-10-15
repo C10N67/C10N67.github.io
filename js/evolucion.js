@@ -19,7 +19,7 @@
 	function lang() { return root.getAttribute('data-lang') === 'en' ? 'en' : 'es'; }
 
 	// 55.5 -> "55,5" en español
-	function fmt(v, l) { return l === 'es' ? String(v).replace('.', ',') : String(v); }
+	function fmt(v, l) { return l === 'es' ? String(v).replace(/\./g, ',') : String(v); }
 	function fmtBi(v, suf) { return { es: fmt(v, 'es') + (suf || ''), en: fmt(v, 'en') + (suf || '') }; }
 
 	function el(name, attrs, text) {
@@ -49,17 +49,27 @@
 			'H' + (x + w - r) + 'Q' + (x + w) + ',' + y + ' ' + (x + w) + ',' + (y + r) + 'V' + (y + h) + 'Z';
 	}
 
+	// % de RAM de cada nodo en una entrada; el de Polaris sale de sus recursos si están
+	function ramDe(e) {
+		var ram = {}, hay = false;
+		for (var k in e.ram || {}) { ram[k] = e.ram[k]; hay = true; }
+		var p = e.polaris && e.polaris.ram;
+		if (p && ram.polaris == null) { ram.polaris = Math.round(p[0] / p[1] * 1000) / 10; hay = true; }
+		return hay ? ram : null;
+	}
+
 	// Valores de cada medida. Un nodo sin dato nuevo repite su último valor conocido,
 	// marcado con 'desde' (la fecha de la que viene) para pintarlo atenuado
 	function valores(entradas, nodos) {
 		var ultimo = {};
 		return entradas.map(function (e) {
-			if (!e.ram) return null;
+			var ram = ramDe(e);
+			if (!ram) return null;
 			var vals = {};
 			nodos.forEach(function (n) {
-				if (e.ram[n.id] != null) {
-					ultimo[n.id] = { v: Number(e.ram[n.id]), fecha: e.fecha };
-					vals[n.id] = { v: Number(e.ram[n.id]) };
+				if (ram[n.id] != null) {
+					ultimo[n.id] = { v: Number(ram[n.id]), fecha: e.fecha };
+					vals[n.id] = { v: Number(ram[n.id]) };
 				} else if (ultimo[n.id]) {
 					vals[n.id] = { v: ultimo[n.id].v, desde: ultimo[n.id].fecha || '?' };
 				}
@@ -269,6 +279,95 @@
 		g.addEventListener('blur', hide);
 	}
 
+	// Recursos de Polaris: un botón por fecha con captura; lo que no se midió de nuevo
+	// repite el último valor y se atenúa
+	function recursos(data) {
+		var panel = document.getElementById('polaris-res');
+		if (!panel) return;
+		var botones = panel.querySelector('.res-dates');
+		var nota = panel.querySelector('.res-note');
+		var CAMPOS = ['cpu', 'ram', 'disco', 'ksm'];
+		var ultimo = {};
+		var capturas = (data.entradas || []).filter(function (e) { return e.polaris; }).map(function (e) {
+			var c = { e: e, v: {} };
+			CAMPOS.forEach(function (k) {
+				if (e.polaris[k] != null) { ultimo[k] = { v: e.polaris[k], fecha: e.fecha }; c.v[k] = { v: e.polaris[k] }; }
+				else if (ultimo[k]) c.v[k] = { v: ultimo[k].v, desde: ultimo[k].fecha };
+			});
+			return c;
+		});
+		if (!capturas.length) return;
+
+		function txt(k, v) {
+			return {
+				cpu: { es: '~' + v + '\u00a0% · 8 hilos', en: '~' + v + '\u00a0% · 8 threads' },
+				ram: fmtBi(v[0] + ' / ' + v[1] + ' GiB'),
+				disco: fmtBi(v[0] + ' / ' + v[1] + ' GB'),
+				ksm: { es: v + ' MiB compartidos', en: v + ' MiB shared' }
+			}[k];
+		}
+		// KSM se mide frente a la RAM total del host
+		function nivel(k, v, ramTotal) {
+			var pct = k === 'cpu' ? v : k === 'ksm' ? v / 1024 / ramTotal * 100 : v[0] / v[1] * 100;
+			return Math.max(1, Math.min(100, Math.round(pct)));
+		}
+
+		function mostrar(i) {
+			var c = capturas[i];
+			var viejos = [];
+			CAMPOS.forEach(function (k) {
+				var li = panel.querySelector('[data-res="' + k + '"]');
+				if (!li) return;
+				var meter = li.querySelector('.meter');
+				var val = li.querySelector('.res-val');
+				var d = c.v[k];
+				val.textContent = '';
+				li.classList.remove('res-old');
+				if (!d) { val.textContent = '—'; meter.style.setProperty('--level', '0%'); return; }
+				var lv = nivel(k, d.v, c.v.ram ? c.v.ram.v[1] : 8);
+				meter.style.setProperty('--level', lv + '%');
+				meter.classList.toggle('meter-hot', k === 'ram' && lv >= 85);
+				val.appendChild(bi(span, txt(k, d.v)));
+				li.classList.toggle('res-old', !!d.desde);
+				if (d.desde) viejos.push({ k: k, desde: d.desde });
+			});
+			nota.textContent = '';
+			var n = c.e.polaris.nota || { es: 'Captura del panel de Proxmox.', en: 'Snapshot from the Proxmox dashboard.' };
+			nota.appendChild(bi(span, n));
+			if (viejos.length) {
+				var nombres = { cpu: 'CPU', ram: 'RAM', disco: { es: 'disco', en: 'disk' }, ksm: 'KSM' };
+				var lista = function (l) {
+					return viejos.map(function (o) { var x = nombres[o.k]; return typeof x === 'string' ? x : x[l]; }).join(', ');
+				};
+				var desde = viejos[0].desde;
+				var extra = document.createElement('span');
+				extra.className = 'res-old-note';
+				extra.appendChild(bi(span, {
+					es: ' Atenuado, sin cambios desde ' + desde + ': ' + lista('es') + '.',
+					en: ' Faded, unchanged since ' + desde + ': ' + lista('en') + '.'
+				}));
+				nota.appendChild(extra);
+			}
+			botones.querySelectorAll('button').forEach(function (b, j) { b.setAttribute('aria-pressed', String(j === i)); });
+		}
+
+		botones.textContent = '';
+		capturas.forEach(function (c, i) {
+			var b = document.createElement('button');
+			b.type = 'button';
+			b.appendChild(bi(span, c.e));
+			if (c.e.fecha) {
+				var f = document.createElement('small');
+				f.textContent = c.e.fecha;
+				b.appendChild(f);
+			}
+			b.addEventListener('click', function () { mostrar(i); });
+			botones.appendChild(b);
+		});
+		botones.hidden = false;
+		mostrar(capturas.length - 1);
+	}
+
 	var datos = null, ancho = 0, pendiente = null;
 	window.addEventListener('resize', function () {
 		clearTimeout(pendiente);
@@ -279,7 +378,7 @@
 
 	fetch(fig.getAttribute('data-src'))
 		.then(function (r) { if (!r.ok) throw new Error(r.status); return r.json(); })
-		.then(function (d) { datos = d; ancho = plot.clientWidth; render(d); })
+		.then(function (d) { datos = d; ancho = plot.clientWidth; render(d); recursos(d); })
 		.catch(function () {
 			plot.textContent = '';
 			var p = document.createElement('p');

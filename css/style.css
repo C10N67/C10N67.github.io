@@ -632,6 +632,16 @@ code { font-family: var(--mono); font-size: 0.86em; background: var(--surface-2)
 .res-list li { display: grid; grid-template-columns: 52px 1fr auto; gap: 12px; align-items: center; font-size: 0.9rem; }
 .res-list .muted { font-size: 0.82rem; font-family: var(--mono); }
 .meter-hot span { background: linear-gradient(90deg, #f59e0b, #ef4444); }
+.res-dates { display: flex; flex-wrap: wrap; gap: 6px; margin: -4px 0 16px; }
+.res-dates button {
+	display: grid; gap: 1px; text-align: left; padding: 6px 12px; border-radius: 8px; cursor: pointer;
+	font: 600 0.8rem var(--font); color: var(--text-muted); background: transparent; border: 1px solid var(--border);
+}
+.res-dates button small { font: 500 0.68rem var(--mono); color: var(--text-muted); }
+.res-dates button:hover { color: var(--text); border-color: var(--accent); }
+.res-dates button[aria-pressed="true"] { color: var(--text); background: var(--accent-soft); border-color: var(--accent); }
+.res-list li.res-old .meter, .res-list li.res-old .res-val { opacity: .45; }
+.res-list .meter span { transition: width .4s ease; }
 
 .shot { margin: 0; }
 .shot img { display: block; width: 100%; height: auto; border-radius: 14px; border: 1px solid var(--border); box-shadow: var(--shadow); }
