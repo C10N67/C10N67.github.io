@@ -18,6 +18,10 @@
 
 	function lang() { return root.getAttribute('data-lang') === 'en' ? 'en' : 'es'; }
 
+	// 55.5 -> "55,5" en español
+	function fmt(v, l) { return l === 'es' ? String(v).replace('.', ',') : String(v); }
+	function fmtBi(v, suf) { return { es: fmt(v, 'es') + (suf || ''), en: fmt(v, 'en') + (suf || '') }; }
+
 	function el(name, attrs, text) {
 		var n = document.createElementNS(SVG, name);
 		for (var k in attrs) n.setAttribute(k, attrs[k]);
@@ -90,7 +94,8 @@
 					var y = yOf(v);
 					g.appendChild(el('path', { class: 'evo-bar s-' + nodos.indexOf(n), d: barPath(x, y, BAR, y0 - y) }));
 					if (i === ultima) {
-						g.appendChild(el('text', { class: 'evo-val', x: x + BAR / 2, y: y - 6, 'text-anchor': 'middle' }, String(v)));
+						// Redondeado para que no se pisen; el decimal está en el tooltip y en la tabla
+						g.appendChild(el('text', { class: 'evo-val', x: x + BAR / 2, y: y - 6, 'text-anchor': 'middle' }, String(Math.round(v))));
 					}
 				});
 			} else {
@@ -121,6 +126,8 @@
 
 		plot.textContent = '';
 		plot.appendChild(svg);
+		// Si no cabe, se abre mostrando lo más reciente
+		plot.scrollLeft = plot.scrollWidth;
 
 		// Leyenda
 		legend.textContent = '';
@@ -169,7 +176,8 @@
 			nodos.forEach(function (n) {
 				var td = tr.insertCell();
 				td.className = 'num';
-				td.textContent = e.ram && e.ram[n.id] != null ? e.ram[n.id] + ' %' : '—';
+				if (e.ram && e.ram[n.id] != null) td.appendChild(bi(span, fmtBi(e.ram[n.id], ' %')));
+				else td.textContent = '—';
 			});
 			var tdH = tr.insertCell();
 			(e.hitos || []).forEach(function (h, k) {
@@ -194,7 +202,7 @@
 					var key = document.createElement('span');
 					key.className = 'evo-key s-' + j;
 					var val = document.createElement('strong');
-					val.textContent = e.ram[n.id] + ' %';
+					val.textContent = fmt(e.ram[n.id], l) + ' %';
 					row.appendChild(key);
 					row.appendChild(val);
 					row.appendChild(span(' ' + n.nombre));
