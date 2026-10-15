@@ -660,10 +660,11 @@ code { font-family: var(--mono); font-size: 0.86em; background: var(--surface-2)
 	padding: 1px 7px; border-radius: 999px; border: 1px solid currentColor;
 }
 .inst-cat li.inst-instala { border-color: color-mix(in srgb, var(--ok) 55%, var(--border)); }
-.inst-cat li.inst-mueve { border-color: color-mix(in srgb, var(--accent-2) 55%, var(--border)); }
+.inst-cat li.inst-mueve, .inst-cat li.inst-amplia { border-color: color-mix(in srgb, var(--accent-2) 55%, var(--border)); }
 .inst-cat li.inst-actualiza { border-color: color-mix(in srgb, var(--accent) 55%, var(--border)); }
 .inst-instala .inst-badge, .inst-instala .inst-sign { color: var(--ok); }
-.inst-mueve .inst-badge, .inst-mueve .inst-sign { color: var(--accent-2); }
+.inst-mueve .inst-badge, .inst-mueve .inst-sign,
+.inst-amplia .inst-badge, .inst-amplia .inst-sign { color: var(--accent-2); }
 .inst-actualiza .inst-badge, .inst-actualiza .inst-sign { color: var(--accent); }
 .inst-quita .inst-sign { color: #ef4444; }
 .inst-cambios-title { font: 600 0.75rem var(--mono); color: var(--text-muted); text-transform: uppercase; letter-spacing: .06em; margin: 22px 0 8px; }
