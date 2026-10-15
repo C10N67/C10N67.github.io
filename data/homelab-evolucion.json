@@ -73,7 +73,8 @@
 				}
 			},
 			"ram": {
-				"osamayor": 55.5,
+				"osamayor": 90.25,
+				"osamenor": 55.76,
 				"orion": 43.1
 			},
 			"hitos": [
