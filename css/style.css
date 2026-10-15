@@ -653,6 +653,8 @@ code { font-family: var(--mono); font-size: 0.86em; background: var(--surface-2)
 .evo .s-1 { fill: var(--s1); background: var(--s1); }
 .evo .s-2 { fill: var(--s2); background: var(--s2); }
 .evo .s-3 { fill: var(--s3); background: var(--s3); }
+.evo-bar-old { opacity: .4; }
+.evo-desde { font-family: var(--font); font-size: 0.75rem; white-space: normal; }
 .evo-legend { display: flex; flex-wrap: wrap; gap: 8px 20px; margin-bottom: 14px; font-size: 0.85rem; }
 .evo-legend li { display: flex; align-items: center; gap: 6px; }
 .evo-legend .muted { font-size: 0.78rem; }

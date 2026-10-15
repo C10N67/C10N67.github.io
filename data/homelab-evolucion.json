@@ -1,5 +1,5 @@
 {
-	"_leeme": "Una entrada por momento, en orden. 'ram' es el % de RAM usada de cada nodo (0-100) y es opcional; 'hitos' también; un hito puede llevar su propia 'fecha' si no coincide con la de la medida. Para añadir una medida copia la última entrada, cambia fecha, textos y valores, y haz commit. Los ids de 'ram' deben coincidir con los de 'nodos'.",
+	"_leeme": "Una entrada por momento, en orden. 'ram' es el % de RAM usada de cada nodo (0-100) y es opcional; 'hitos' también; un hito puede llevar su propia 'fecha' si no coincide con la de la medida. Para añadir una medida copia la última entrada, cambia fecha, textos y valores, y haz commit. Los ids de 'ram' deben coincidir con los de 'nodos'. Si un nodo no tiene valor en una medida, el gráfico repite su último valor conocido (atenuado).",
 	"nodos": [
 		{
 			"id": "polaris",
