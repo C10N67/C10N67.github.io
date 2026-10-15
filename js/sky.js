@@ -115,15 +115,16 @@
 
 	var W = 0, H = 0, DPR = 1, S = 1, CX = 0, CY = 0, mobile = false, fixed = false;
 
-	// Centro del planeta en images/space-bg.jpg (335 × 597), en fracción de la imagen
-	var PLANET = [0.757, 0.524], BG_W = 335, BG_H = 597, BG_BLEED = 24;
+	// Centro del planeta en images/space-bg.jpg (335 × 597), en fracción de la imagen,
+	// y su radio en fracción del ancho
+	var PLANET = [0.757, 0.524], PLANET_R = 0.1, BG_W = 335, BG_H = 597, BG_BLEED = 24;
 	// Dónde cae en pantalla: el fondo (body::before) es fijo, sobresale 24px por cada
 	// lado y usa background-size: cover centrado
 	function planeta(w, h) {
 		var bw = w + BG_BLEED * 2, bh = h + BG_BLEED * 2;
 		var k = Math.max(bw / BG_W, bh / BG_H);
 		var iw = BG_W * k, ih = BG_H * k;
-		return [-BG_BLEED + (bw - iw) / 2 + PLANET[0] * iw, -BG_BLEED + (bh - ih) / 2 + PLANET[1] * ih];
+		return [-BG_BLEED + (bw - iw) / 2 + PLANET[0] * iw, -BG_BLEED + (bh - ih) / 2 + PLANET[1] * ih, PLANET_R * iw];
 	}
 	function resize() {
 		var r = canvas.getBoundingClientRect();
@@ -147,10 +148,12 @@
 			CX = a.left - r.left + a.width / 2;
 			CY = a.top - r.top + a.height * 0.46;
 			if (fixed) {
-				// Fondo fijo: la figura se centra en el planeta de la imagen de fondo
+				// Fondo fijo: la figura se centra en el planeta de la imagen de fondo y
+				// mide lo mismo que su diámetro, así mantiene la proporción con él
 				var pl = planeta(W, H);
 				CX = pl[0];
 				CY = pl[1];
+				S = pl[2] * 2;
 			}
 		}
 		skyRadius = Math.hypot(Math.max(CX, W - CX), Math.max(CY, H - CY)) / S + 0.1;
