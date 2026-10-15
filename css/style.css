@@ -644,6 +644,35 @@ code { font-family: var(--mono); font-size: 0.86em; background: var(--surface-2)
 .res-list li.res-old .meter, .res-list li.res-old .res-val { opacity: .45; }
 .res-list .meter span { transition: width .4s ease; }
 
+/* Qué hay instalado (homelab): estado del clúster en cada fecha */
+.inst { margin-top: 24px; }
+.inst-intro { font-size: 0.9rem; margin: -6px 0 14px; }
+.inst-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 18px 24px; }
+.inst-cat h4 { font: 600 0.75rem var(--mono); color: var(--text-muted); text-transform: uppercase; letter-spacing: .06em; margin: 0 0 8px; }
+.inst-cat ul { display: grid; gap: 8px; }
+.inst-cat li { padding: 8px 10px; border-radius: 10px; border: 1px solid var(--border); background: var(--surface-2); }
+.inst-top { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 8px; }
+.inst-name { font-weight: 600; font-size: 0.9rem; }
+.inst-ver { font: 500 0.75rem var(--mono); color: var(--text-muted); }
+.inst-sub { font-size: 0.78rem; color: var(--text-muted); margin-top: 2px; }
+.inst-badge {
+	margin-left: auto; font: 600 0.65rem var(--mono); text-transform: uppercase; letter-spacing: .05em;
+	padding: 1px 7px; border-radius: 999px; border: 1px solid currentColor;
+}
+.inst-cat li.inst-instala { border-color: color-mix(in srgb, var(--ok) 55%, var(--border)); }
+.inst-cat li.inst-mueve { border-color: color-mix(in srgb, var(--accent-2) 55%, var(--border)); }
+.inst-cat li.inst-actualiza { border-color: color-mix(in srgb, var(--accent) 55%, var(--border)); }
+.inst-instala .inst-badge, .inst-instala .inst-sign { color: var(--ok); }
+.inst-mueve .inst-badge, .inst-mueve .inst-sign { color: var(--accent-2); }
+.inst-actualiza .inst-badge, .inst-actualiza .inst-sign { color: var(--accent); }
+.inst-quita .inst-sign { color: #ef4444; }
+.inst-cambios-title { font: 600 0.75rem var(--mono); color: var(--text-muted); text-transform: uppercase; letter-spacing: .06em; margin: 22px 0 8px; }
+.inst-cambios { display: grid; gap: 4px; font-size: 0.88rem; }
+.inst-cambios .inst-sign { display: inline-block; width: 1.2em; font: 700 0.9rem var(--mono); }
+.inst-cambios .inst-what { font-weight: 600; }
+.inst-cambios .muted { font-size: 0.82rem; }
+.inst-quita .inst-name { text-decoration: line-through; }
+
 .shot { margin: 0; }
 .shot img { display: block; width: 100%; height: auto; border-radius: 14px; border: 1px solid var(--border); box-shadow: var(--shadow); }
 .shot figcaption { margin-top: 10px; font-size: 0.85rem; color: var(--text-muted); }

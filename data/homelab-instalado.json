@@ -1,0 +1,166 @@
+{
+	"_leeme": "Una entrada por momento, en orden. Cada cambio tiene 'accion' (instala, actualiza, mueve o quita), 'nombre' (identifica el componente), y opcionalmente 'categoria', 'version', 'donde' y 'nota' {es, en}. Para 'actualiza' basta con la nueva 'version'; para 'mueve', con el nuevo 'donde'. El estado de cada fecha se calcula aplicando los cambios en orden.",
+	"categorias": [
+		{
+			"id": "infra",
+			"es": "Infraestructura",
+			"en": "Infrastructure"
+		},
+		{
+			"id": "k8s",
+			"es": "Kubernetes",
+			"en": "Kubernetes"
+		},
+		{
+			"id": "red",
+			"es": "Red",
+			"en": "Networking"
+		},
+		{
+			"id": "obs",
+			"es": "Observabilidad",
+			"en": "Observability"
+		},
+		{
+			"id": "apps",
+			"es": "Aplicaciones",
+			"en": "Applications"
+		}
+	],
+	"momentos": [
+		{
+			"fecha": "2026-10-11",
+			"es": "Clúster base",
+			"en": "Base cluster",
+			"cambios": [
+				{
+					"accion": "instala",
+					"nombre": "Proxmox VE",
+					"categoria": "infra",
+					"donde": "Polaris",
+					"version": "9.2"
+				},
+				{
+					"accion": "instala",
+					"nombre": "OsaMayor",
+					"categoria": "infra",
+					"donde": "VM · Debian 13",
+					"nota": {
+						"es": "Nodo amd64",
+						"en": "amd64 node"
+					}
+				},
+				{
+					"accion": "instala",
+					"nombre": "OsaMenor",
+					"categoria": "infra",
+					"donde": "VM · Debian 13",
+					"nota": {
+						"es": "Nodo amd64",
+						"en": "amd64 node"
+					}
+				},
+				{
+					"accion": "instala",
+					"nombre": "Kubernetes (kubeadm)",
+					"categoria": "k8s",
+					"donde": "OsaMayor · OsaMenor",
+					"version": "1.36.5"
+				},
+				{
+					"accion": "instala",
+					"nombre": "containerd",
+					"categoria": "k8s",
+					"donde": "OsaMayor · OsaMenor",
+					"version": "2.4.1"
+				},
+				{
+					"accion": "instala",
+					"nombre": "kube-proxy",
+					"categoria": "k8s",
+					"donde": "OsaMayor · OsaMenor"
+				},
+				{
+					"accion": "instala",
+					"nombre": "CoreDNS",
+					"categoria": "red",
+					"donde": "OsaMayor · OsaMenor"
+				},
+				{
+					"accion": "instala",
+					"nombre": "Calico (Tigera operator)",
+					"categoria": "red",
+					"donde": "OsaMayor · OsaMenor"
+				},
+				{
+					"accion": "instala",
+					"nombre": "Prometheus",
+					"categoria": "obs",
+					"donde": "OsaMayor · OsaMenor",
+					"nota": {
+						"es": "kube-prometheus-stack",
+						"en": "kube-prometheus-stack"
+					}
+				},
+				{
+					"accion": "instala",
+					"nombre": "Grafana",
+					"categoria": "obs",
+					"donde": "OsaMayor · OsaMenor",
+					"nota": {
+						"es": "kube-prometheus-stack",
+						"en": "kube-prometheus-stack"
+					}
+				},
+				{
+					"accion": "instala",
+					"nombre": "Node Exporter",
+					"categoria": "obs",
+					"donde": "OsaMayor · OsaMenor"
+				},
+				{
+					"accion": "instala",
+					"nombre": "Homepage",
+					"categoria": "apps",
+					"donde": "OsaMayor · OsaMenor"
+				}
+			]
+		},
+		{
+			"fecha": "2026-10-12",
+			"es": "Llega Orion",
+			"en": "Orion joins",
+			"cambios": [
+				{
+					"accion": "instala",
+					"nombre": "Orion",
+					"categoria": "infra",
+					"donde": "Raspberry Pi 4 · 4 GB",
+					"nota": {
+						"es": "Nodo arm64",
+						"en": "arm64 node"
+					}
+				},
+				{
+					"accion": "mueve",
+					"nombre": "Prometheus",
+					"donde": "Orion"
+				},
+				{
+					"accion": "mueve",
+					"nombre": "Grafana",
+					"donde": "Orion"
+				},
+				{
+					"accion": "mueve",
+					"nombre": "Node Exporter",
+					"donde": "OsaMayor · OsaMenor · Orion",
+					"nota": {
+						"es": "DaemonSet: ahora también corre en Orion",
+						"en": "DaemonSet: now also runs on Orion"
+					}
+				}
+			]
+		}
+	]
+}
