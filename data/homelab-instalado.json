@@ -69,6 +69,16 @@
 				},
 				{
 					"accion": "instala",
+					"nombre": "Plano de control",
+					"categoria": "k8s",
+					"donde": "OsaMayor",
+					"nota": {
+						"es": "etcd, kube-apiserver, kube-scheduler, kube-controller-manager",
+						"en": "etcd, kube-apiserver, kube-scheduler, kube-controller-manager"
+					}
+				},
+				{
+					"accion": "instala",
 					"nombre": "containerd",
 					"categoria": "k8s",
 					"donde": "OsaMayor · OsaMenor",
@@ -117,6 +127,26 @@
 					"nombre": "Node Exporter",
 					"categoria": "obs",
 					"donde": "OsaMayor · OsaMenor"
+				},
+				{
+					"accion": "instala",
+					"nombre": "Prometheus Operator",
+					"categoria": "obs",
+					"donde": "OsaMayor · OsaMenor",
+					"nota": {
+						"es": "kube-prometheus-stack",
+						"en": "kube-prometheus-stack"
+					}
+				},
+				{
+					"accion": "instala",
+					"nombre": "kube-state-metrics",
+					"categoria": "obs",
+					"donde": "OsaMayor · OsaMenor",
+					"nota": {
+						"es": "kube-prometheus-stack",
+						"en": "kube-prometheus-stack"
+					}
 				},
 				{
 					"accion": "instala",
@@ -180,12 +210,20 @@
 				{
 					"accion": "mueve",
 					"nombre": "Prometheus",
-					"donde": "Orion"
+					"donde": "Orion",
+					"nota": {
+						"es": "kube-prometheus-stack · afinidad preferente por Orion",
+						"en": "kube-prometheus-stack · preferred affinity for Orion"
+					}
 				},
 				{
 					"accion": "mueve",
 					"nombre": "Grafana",
-					"donde": "Orion"
+					"donde": "Orion",
+					"nota": {
+						"es": "kube-prometheus-stack · afinidad preferente por Orion",
+						"en": "kube-prometheus-stack · preferred affinity for Orion"
+					}
 				},
 				{
 					"accion": "amplia",
@@ -195,6 +233,43 @@
 						"es": "DaemonSet: ahora también en Orion",
 						"en": "DaemonSet: now also on Orion"
 					}
+				}
+			]
+		},
+		{
+			"fecha": "2026-10-15",
+			"es": "Inventario de pods",
+			"en": "Pod inventory",
+			"cambios": [
+				{
+					"accion": "instala",
+					"nombre": "metrics-server",
+					"categoria": "k8s",
+					"donde": "Orion",
+					"nota": {
+						"es": "visto por primera vez en el inventario",
+						"en": "first seen in the inventory"
+					}
+				},
+				{
+					"accion": "mueve",
+					"nombre": "Homepage",
+					"donde": "Orion"
+				},
+				{
+					"accion": "mueve",
+					"nombre": "CoreDNS",
+					"donde": "OsaMayor · Orion"
+				},
+				{
+					"accion": "mueve",
+					"nombre": "Prometheus Operator",
+					"donde": "Orion"
+				},
+				{
+					"accion": "mueve",
+					"nombre": "kube-state-metrics",
+					"donde": "Orion"
 				}
 			]
 		}

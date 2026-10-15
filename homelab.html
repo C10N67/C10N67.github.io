@@ -81,7 +81,7 @@
 				<div><dt>Kubernetes</dt><dd>kubeadm</dd></div>
 				<div><dt>CNI</dt><dd>Calico</dd></div>
 				<div><dt><span lang="es">Nodos</span><span lang="en">Nodes</span></dt><dd>2 × amd64 · 1 × arm64</dd></div>
-				<div><dt><span lang="es">Observabilidad</span><span lang="en">Observability</span></dt><dd>Prometheus · Grafana <span lang="es">(en Orion)</span><span lang="en">(on Orion)</span></dd></div>
+				<div><dt><span lang="es">Observabilidad</span><span lang="en">Observability</span></dt><dd>Prometheus · Grafana <span lang="es">(preferentemente en Orion)</span><span lang="en">(preferably on Orion)</span></dd></div>
 			</dl>
 			</div>
 
@@ -135,8 +135,8 @@
 				<article class="card star-card">
 					<span class="card-kicker"><span lang="es">Nodo · Raspberry Pi 4</span><span lang="en">Node · Raspberry Pi 4</span></span>
 					<h3>Orion</h3>
-					<p lang="es">Tercer nodo del clúster, fuera del portátil y con sus propios 4&nbsp;GB de RAM. Ejecuta todo el stack de observabilidad: Prometheus y Grafana.</p>
-					<p lang="en">The cluster's third node, outside the laptop and with its own 4&nbsp;GB of RAM. It runs the whole observability stack: Prometheus and Grafana.</p>
+					<p lang="es">Tercer nodo del clúster, fuera del portátil y con sus propios 4&nbsp;GB de RAM. Prometheus y Grafana tienen afinidad preferente por este nodo, y ahora también corre aquí Homepage.</p>
+					<p lang="en">The cluster's third node, outside the laptop and with its own 4&nbsp;GB of RAM. Prometheus and Grafana have a preferred affinity for this node, and Homepage now runs here too.</p>
 					<ul class="tags"><li>arm64</li><li>4 GB</li><li>Prometheus</li><li>Grafana</li></ul>
 				</article>
 			</div>
@@ -151,7 +151,7 @@
 
 			<figure class="arch diagram">
 				<svg viewBox="0 0 800 350" role="img" aria-labelledby="hl-title">
-					<title id="hl-title">Clúster de Kubernetes con tres nodos: las VMs OsaMayor y OsaMenor, que corren en Polaris (Proxmox) junto a Homepage y CoreDNS, y Orion, una Raspberry Pi 4 que ejecuta Prometheus y Grafana.</title>
+					<title id="hl-title">Clúster de Kubernetes con tres nodos: las VMs OsaMayor (con el plano de control) y OsaMenor, que corren en Polaris (Proxmox), y Orion, una Raspberry Pi 4 donde se programan preferentemente Prometheus, Grafana y Homepage.</title>
 
 					<!-- Clúster -->
 					<rect class="k8s-box" x="10" y="14" width="780" height="322" rx="16" />
@@ -176,9 +176,9 @@
 					</g>
 
 					<!-- Workloads -->
-					<text class="t-sub" x="50" y="232" lang="es">otros workloads</text>
-					<text class="t-sub" x="50" y="232" lang="en">other workloads</text>
-					<g class="pod"><rect x="50" y="246" width="225" height="40" rx="20" /><text x="162.5" y="271">Homepage</text></g>
+					<text class="t-sub" x="50" y="232" lang="es">sistema</text>
+					<text class="t-sub" x="50" y="232" lang="en">system</text>
+					<g class="pod"><rect x="50" y="246" width="225" height="40" rx="20" /><text x="162.5" y="271" lang="es">Plano de control</text><text x="162.5" y="271" lang="en">Control plane</text></g>
 					<g class="pod"><rect x="285" y="246" width="225" height="40" rx="20" /><text x="397.5" y="271">CoreDNS</text></g>
 
 					<!-- Orion · Raspberry Pi -->
@@ -188,15 +188,16 @@
 						<text class="t-sub" x="568" y="112">Raspberry Pi 4 · arm64</text>
 						<text class="t-sub" x="568" y="132" lang="es">nodo físico · 4 GB</text>
 						<text class="t-sub" x="568" y="132" lang="en">bare metal · 4 GB</text>
-						<text class="t-sub" x="568" y="178" lang="es">observabilidad</text>
-						<text class="t-sub" x="568" y="178" lang="en">observability</text>
-						<g class="pod"><rect x="568" y="192" width="184" height="40" rx="20" /><text x="660" y="217">Prometheus</text></g>
-						<g class="pod"><rect x="568" y="246" width="184" height="40" rx="20" /><text x="660" y="271">Grafana</text></g>
+						<text class="t-sub" x="568" y="160" lang="es">afinidad preferente</text>
+						<text class="t-sub" x="568" y="160" lang="en">preferred affinity</text>
+						<g class="pod"><rect x="568" y="172" width="184" height="38" rx="19" /><text x="660" y="196">Prometheus</text></g>
+						<g class="pod"><rect x="568" y="218" width="184" height="38" rx="19" /><text x="660" y="242">Grafana</text></g>
+						<g class="pod"><rect x="568" y="264" width="184" height="38" rx="19" /><text x="660" y="288">Homepage</text></g>
 					</g>
 				</svg>
 				<figcaption>
-					<span lang="es">Prometheus y Grafana se ejecutan en Orion, la Raspberry Pi 4; las VMs del portátil quedan libres para el resto de workloads.</span>
-					<span lang="en">Prometheus and Grafana run on Orion, the Raspberry Pi 4, leaving the laptop's VMs free for everything else.</span>
+					<span lang="es">Prometheus y Grafana tienen afinidad <em>preferente</em> por Orion, la Raspberry Pi 4: se programan ahí si hay sitio, pero pueden acabar en otro nodo. Ahora también corren en Orion Homepage y una de las dos réplicas de CoreDNS; el plano de control está en OsaMayor.</span>
+					<span lang="en">Prometheus and Grafana have a <em>preferred</em> affinity for Orion, the Raspberry Pi 4: they're scheduled there when there's room, but can end up on another node. Homepage and one of the two CoreDNS replicas now run on Orion too; the control plane is on OsaMayor.</span>
 				</figcaption>
 			</figure>
 
@@ -214,8 +215,8 @@
 						<li lang="en"><strong>Kubernetes cluster with kubeadm</strong>, following <a href="https://cubepath.com/docs/docker-kubernetes/instalacion-de-kubernetes-con-kubeadm" target="_blank" rel="noopener">this guide</a> (Spanish) and adapting it to Debian and my resources.</li>
 						<li lang="es"><strong>Prometheus y Grafana</strong> para la monitorización, y <strong>Homepage</strong> como panel de inicio del laboratorio.</li>
 						<li lang="en"><strong>Prometheus and Grafana</strong> for monitoring, and <strong>Homepage</strong> as the lab's start page.</li>
-						<li lang="es"><strong>Orion</strong>, una Raspberry Pi 4 de 4&nbsp;GB, unida al clúster como tercer nodo (arm64), que ahora ejecuta todo el stack de observabilidad.</li>
-						<li lang="en"><strong>Orion</strong>, a 4&nbsp;GB Raspberry Pi 4, joined to the cluster as a third node (arm64), now running the whole observability stack.</li>
+						<li lang="es"><strong>Orion</strong>, una Raspberry Pi 4 de 4&nbsp;GB, unida al clúster como tercer nodo (arm64), donde se programa preferentemente el stack de observabilidad.</li>
+						<li lang="en"><strong>Orion</strong>, a 4&nbsp;GB Raspberry Pi 4, joined to the cluster as a third node (arm64), where the observability stack is preferably scheduled.</li>
 					</ol>
 				</div>
 
@@ -254,8 +255,8 @@
 			<div class="panel inst" id="instalado" data-src="data/homelab-instalado.json">
 				<h3 class="panel-title"><span lang="es">Qué hay instalado</span><span lang="en">What's installed</span></h3>
 				<p class="inst-intro muted">
-					<span lang="es">Lo que corre en el clúster en cada momento. Elige una fecha para ver qué había entonces y qué cambió ese día.</span>
-					<span lang="en">What runs on the cluster at each point in time. Pick a date to see what was there and what changed that day.</span>
+					<span lang="es">Lo que corre en el clúster en cada momento. Elige una fecha para ver qué había entonces y qué cambió ese día. Lo que descubro al revisar los pods se apunta el día en que lo vi, aunque pudiera venir de antes.</span>
+					<span lang="en">What runs on the cluster at each point in time. Pick a date to see what was there and what changed that day. Things I find when reviewing the pods are logged on the day I saw them, even if they happened earlier.</span>
 				</p>
 				<div class="res-dates" role="group" aria-label="Fecha / Date" hidden></div>
 				<div class="inst-grid"><p class="muted"><span lang="es">Cargando…</span><span lang="en">Loading…</span></p></div>
@@ -288,9 +289,9 @@
 					</div>
 					<div>
 						<h4><span lang="es">Solución</span><span lang="en">Fix</span></h4>
-						<p lang="es">He añadido <strong>Orion</strong>, una <strong>Raspberry Pi 4</strong> de 4&nbsp;GB, como tercer nodo, fuera del portátil, y he llevado a ella todo el stack de observabilidad: <strong>Prometheus y Grafana se ejecutan ahora en Orion</strong>, con su propia memoria, y las dos VMs dejan de cargar con lo que más RAM consumía. Además, el clúster mezcla ya un nodo <strong>arm64</strong> con los dos x86, lo que obliga a trabajar con imágenes multiarquitectura.</p>
+						<p lang="es">He añadido <strong>Orion</strong>, una <strong>Raspberry Pi 4</strong> de 4&nbsp;GB, como tercer nodo, fuera del portátil, y le he dado al stack de observabilidad una afinidad preferente por ella: <strong>Prometheus y Grafana se programan ahora en Orion</strong> siempre que haya sitio, con su propia memoria, y las dos VMs dejan de cargar con lo que más RAM consumía. Al ser preferente y no obligatoria, si Orion no tiene recursos Kubernetes puede colocarlos en otro nodo. Además, el clúster mezcla ya un nodo <strong>arm64</strong> con los dos x86, lo que obliga a trabajar con imágenes multiarquitectura.</p>
 						<p lang="es">El resultado se ve en el propio Prometheus: el contador de OOM kills del kernel que expone Node Exporter, <code>node_vmstat_oom_kill</code>, está a <strong>0</strong>.</p>
-						<p lang="en">I added <strong>Orion</strong>, a 4&nbsp;GB <strong>Raspberry Pi 4</strong>, as a third node, outside the laptop, and moved the whole observability stack onto it: <strong>Prometheus and Grafana now run on Orion</strong>, with their own memory, so the two VMs no longer carry the hungriest workload. The cluster now also mixes an <strong>arm64</strong> node with the two x86 ones, which means working with multi-arch images.</p>
+						<p lang="en">I added <strong>Orion</strong>, a 4&nbsp;GB <strong>Raspberry Pi 4</strong>, as a third node, outside the laptop, and gave the observability stack a preferred affinity for it: <strong>Prometheus and Grafana are now scheduled on Orion</strong> whenever there's room, with their own memory, so the two VMs no longer carry the hungriest workload. Since it's preferred rather than required, Kubernetes can place them elsewhere if Orion runs short. The cluster now also mixes an <strong>arm64</strong> node with the two x86 ones, which means working with multi-arch images.</p>
 						<p lang="en">The result shows up in Prometheus itself: the kernel OOM kill counter exposed by Node Exporter, <code>node_vmstat_oom_kill</code>, sits at <strong>0</strong>.</p>
 <pre class="term"><code><span class="c" lang="es"># PromQL · contador de OOM kills (Node Exporter)</span><span class="c" lang="en"># PromQL · OOM kill counter (Node Exporter)</span>
 <span class="p">&gt;</span> node_vmstat_oom_kill
@@ -308,8 +309,8 @@
 			</header>
 
 			<p class="section-lead">
-				<span lang="es">Grafana, alimentado por Prometheus y ambos ejecutándose en Orion (la Raspberry Pi 4), con dashboards de nodos (Node Exporter), Kubelet, CoreDNS, red del clúster y del propio Prometheus. Es el mismo tipo de herramientas que usaba en Datatronics, ahora montadas y mantenidas por mí.</span>
-				<span lang="en">Grafana, fed by Prometheus, both running on Orion (the Raspberry Pi 4), with dashboards for nodes (Node Exporter), Kubelet, CoreDNS, cluster networking and Prometheus itself. The same kind of tooling I used at Datatronics, now built and run by me.</span>
+				<span lang="es">Grafana, alimentado por Prometheus y ambos programados preferentemente en Orion (la Raspberry Pi 4), con dashboards de nodos (Node Exporter), Kubelet, CoreDNS, red del clúster y del propio Prometheus. Es el mismo tipo de herramientas que usaba en Datatronics, ahora montadas y mantenidas por mí.</span>
+				<span lang="en">Grafana, fed by Prometheus, both preferably scheduled on Orion (the Raspberry Pi 4), with dashboards for nodes (Node Exporter), Kubelet, CoreDNS, cluster networking and Prometheus itself. The same kind of tooling I used at Datatronics, now built and run by me.</span>
 			</p>
 
 			<figure class="shot">
@@ -364,8 +365,8 @@
 				</article>
 				<article class="card">
 					<h3><span lang="es">Alertas de verdad</span><span lang="en">Real alerting</span></h3>
-					<p lang="es">Con Prometheus y Grafana ya en su propio nodo, el siguiente paso es configurar alertas y no solo mirar dashboards.</p>
-					<p lang="en">With Prometheus and Grafana on their own node, the next step is setting up alerts instead of just watching dashboards.</p>
+					<p lang="es">Con Prometheus y Grafana ya fuera de las VMs del portátil, el siguiente paso es configurar alertas y no solo mirar dashboards.</p>
+					<p lang="en">With Prometheus and Grafana off the laptop's VMs, the next step is setting up alerts instead of just watching dashboards.</p>
 				</article>
 				<article class="card">
 					<h3><span lang="es">Preparar la CKA</span><span lang="en">CKA prep</span></h3>
@@ -393,7 +394,7 @@
 
 	<footer class="site-footer">
 		<div class="container footer-inner">
-			<p>© <span id="year">2026</span> Daniel Carballo Reyes · <a class="version mono" href="https://github.com/C10N67/C10N67.github.io/commits/main" target="_blank" rel="noopener" title="Historial de cambios / Changelog">v1.20.1</a></p>
+			<p>© <span id="year">2026</span> Daniel Carballo Reyes · <a class="version mono" href="https://github.com/C10N67/C10N67.github.io/commits/main" target="_blank" rel="noopener" title="Historial de cambios / Changelog">v1.21.0</a></p>
 			<p class="muted mono">kubectl get nodes · <span class="ok">Ready</span></p>
 		</div>
 	</footer>
