@@ -19,10 +19,25 @@
 	<link rel="preconnect" href="https://fonts.googleapis.com" />
 	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 	<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
-	<link rel="stylesheet" href="css/style.css?v=a27aaa30" />
+	<link rel="stylesheet" href="css/style.css?v=84617494" />
 	<script>document.documentElement.classList.add('js');</script>
 </head>
 <body>
+	<!-- Banderas de los botones del CV (ES / EN) -->
+	<svg class="sprite" aria-hidden="true">
+		<symbol id="flag-es" viewBox="0 0 750 500">
+			<path fill="#aa151b" d="M0 0h750v500H0z"/>
+			<path fill="#f1bf00" d="M0 125h750v250H0z"/>
+		</symbol>
+		<symbol id="flag-gb" viewBox="0 0 60 30">
+			<clipPath id="flag-gb-t"><path d="M30 15h30v15zv15H0zH0V0zV0h30z"/></clipPath>
+			<path fill="#012169" d="M0 0h60v30H0z"/>
+			<path stroke="#fff" stroke-width="6" d="M0 0l60 30m0-30L0 30"/>
+			<path stroke="#c8102e" stroke-width="4" clip-path="url(#flag-gb-t)" d="M0 0l60 30m0-30L0 30"/>
+			<path stroke="#fff" stroke-width="10" d="M30 0v30M0 15h60"/>
+			<path stroke="#c8102e" stroke-width="6" d="M30 0v30M0 15h60"/>
+		</symbol>
+	</svg>
 
 	<a class="skip-link" href="#main">Saltar al contenido</a>
 
@@ -73,9 +88,13 @@
 				</p>
 
 				<div class="hero-actions">
-					<a class="btn btn-primary" href="files/CV_Daniel_Carballo.pdf?v=b8e48380" download>
-						<svg aria-hidden="true" viewBox="0 0 24 24"><path d="M12 3v12m0 0-5-5m5 5 5-5M4 21h16"/></svg>
-						<span lang="es">Descargar CV</span><span lang="en">Download CV</span>
+					<a class="btn btn-primary" href="files/CV_Daniel_Carballo.pdf?v=78aa7dfd" download>
+						<svg class="flag" aria-hidden="true"><use href="#flag-es"/></svg>
+						<span lang="es">CV en español</span><span lang="en">CV in Spanish</span>
+					</a>
+					<a class="btn btn-primary" href="files/CV_Daniel_Carballo_EN.pdf?v=b52bf85e" download>
+						<svg class="flag" aria-hidden="true"><use href="#flag-gb"/></svg>
+						<span lang="es">CV en inglés</span><span lang="en">CV in English</span>
 					</a>
 					<a class="btn btn-ghost" href="#contacto">
 						<span lang="es">Contactar</span><span lang="en">Get in touch</span>
@@ -490,9 +509,15 @@
 						</a>
 					</li>
 					<li>
-						<a href="files/CV_Daniel_Carballo.pdf?v=b8e48380" download>
-							<svg aria-hidden="true" viewBox="0 0 24 24"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5M9 13h6M9 17h6"/></svg>
-							<span lang="es">CV en PDF</span><span lang="en">CV (PDF, ES + EN)</span>
+						<a href="files/CV_Daniel_Carballo.pdf?v=78aa7dfd" download>
+							<svg class="flag" aria-hidden="true"><use href="#flag-es"/></svg>
+							<span lang="es">CV en español (PDF)</span><span lang="en">CV in Spanish (PDF)</span>
+						</a>
+					</li>
+					<li>
+						<a href="files/CV_Daniel_Carballo_EN.pdf?v=b52bf85e" download>
+							<svg class="flag" aria-hidden="true"><use href="#flag-gb"/></svg>
+							<span lang="es">CV en inglés (PDF)</span><span lang="en">CV in English (PDF)</span>
 						</a>
 					</li>
 				</ul>
@@ -502,7 +527,7 @@
 
 	<footer class="site-footer">
 		<div class="container footer-inner">
-			<p>© <span id="year">2026</span> Daniel Carballo Reyes · <a class="version mono" href="https://github.com/C10N67/C10N67.github.io/commits/main" target="_blank" rel="noopener" title="Historial de cambios / Changelog">v1.23.0</a></p>
+			<p>© <span id="year">2026</span> Daniel Carballo Reyes · <a class="version mono" href="https://github.com/C10N67/C10N67.github.io/commits/main" target="_blank" rel="noopener" title="Historial de cambios / Changelog">v1.24.0</a></p>
 			<p class="muted mono">kubectl get pods -n 5gc · <span class="ok">Running</span></p>
 		</div>
 	</footer>
