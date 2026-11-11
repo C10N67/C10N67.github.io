@@ -162,6 +162,12 @@
 		.job h3 a:hover { color: var(--accent); text-decoration: underline; }
 		.meta { display: flex; flex-wrap: wrap; gap: 4px 12px; color: var(--text-muted); font-size: 13px; }
 		.meta .co { color: var(--text); font-weight: 500; }
+		.meta a.co { text-decoration: none; }
+		.meta a.co:hover { color: var(--accent); text-decoration: underline; }
+		.links { grid-column: 2 / -1; display: flex; flex-wrap: wrap; gap: 4px 14px; font-size: 13px; }
+		.links a { color: var(--accent); text-decoration: none; }
+		.links a:hover { text-decoration: underline; }
+		.links .muted { color: var(--text-muted); }
 		.chip { display: inline-block; font: 500 11.5px var(--mono); padding: 1px 7px; border-radius: 99px; background: var(--surface-2); color: var(--text-muted); }
 		.chip.remote { background: var(--accent-soft); color: var(--accent); }
 		.chip.new { background: var(--warn-soft); color: var(--warn); }
@@ -186,6 +192,7 @@
 			.job { grid-template-columns: 44px minmax(0, 1fr); }
 			.score { grid-row: auto; height: 34px; font-size: 14px; }
 			.meta { grid-column: 1 / -1; }
+			.links { grid-column: 1 / -1; }
 			.side { order: 5; grid-row: auto; grid-column: 1 / -1; flex-direction: row; flex-wrap: wrap; min-width: 0; margin-top: 4px; }
 			.side > * { flex: 1 1 140px; }
 			.notes { order: 6; grid-column: 1 / -1; }
@@ -437,6 +444,9 @@
 		return Math.floor((Date.now() - d.getTime()) / 86400000);
 	};
 	const safeUrl = (u) => (/^https?:\/\//i.test(u || "") ? u : "#");
+	const hostOf = (u) => { try { return new URL(u).hostname.replace(/^www\./, ""); } catch { return ""; } };
+	const searchUrl = (o) => "https://www.google.com/search?q=" +
+		encodeURIComponent(`"${o.puesto}" ${o.empresa || ""} empleo`.trim());
 
 	function matches(o) {
 		if (prefs.view === "pending" && (applied(o) || discarded(o))) return false;
@@ -535,19 +545,31 @@
 
 		return el("article", { class: "job" + (isApplied ? " applied" : "") + (discarded(o) ? " discarded" : "") },
 			el("div", { class: "score" + (pts >= 15 ? " hi" : pts >= 9 ? " mid" : ""), title: "Puntuación según tu perfil" }, o.puntos ? String(pts) : "–"),
-			el("h3", {}, el("a", { href: safeUrl(o.url), target: "_blank", rel: "noopener noreferrer" }, o.puesto || "(sin título)")),
+			el("h3", {}, el("a", { href: safeUrl(o.url_original || o.url), target: "_blank", rel: "noopener noreferrer" }, o.puesto || "(sin título)")),
 			el("div", { class: "side" },
 				applyBtn,
 				stateSel,
 				isApplied && o.fecha_candidatura ? el("span", { class: "when" }, `enviada el ${o.fecha_candidatura}`) : null),
 			el("div", { class: "meta" },
-				o.empresa ? el("span", { class: "co" }, o.empresa) : null,
+				o.empresa ? (o.web_empresa
+					? el("a", { class: "co", href: safeUrl(o.web_empresa), target: "_blank", rel: "noopener noreferrer", title: "Web oficial de la empresa" }, o.empresa)
+					: el("span", { class: "co" }, o.empresa)) : null,
 				o.ubicacion ? el("span", {}, o.ubicacion) : null,
 				(o.remoto || "").trim() ? el("span", { class: "chip remote" }, "remoto") : null,
 				o.salario ? el("span", { class: "chip sal" }, o.salario) : null,
 				ago <= 1 ? el("span", { class: "chip new" }, "nueva") : null,
 				el("span", { class: "mono" }, `${o.fuente || "?"} · ${o.encontrada || "?"}`),
 				st && st !== "descartada" ? el("span", { class: "st-" + st.split(" ")[0] }, "● " + (STATES.find(([v]) => v === st)?.[1] || o.estado)) : null),
+			el("div", { class: "links" },
+				o.web_empresa
+					? el("a", { href: safeUrl(o.web_empresa), target: "_blank", rel: "noopener noreferrer" }, `Web de la empresa (${hostOf(o.web_empresa)}) ↗`)
+					: el("span", { class: "muted" }, "Web de la empresa: no encontrada"),
+				o.url_original && o.url_original !== o.url
+					? el("a", { href: safeUrl(o.url_original), target: "_blank", rel: "noopener noreferrer" }, "Oferta original ↗")
+					: !o.url_original
+						? el("a", { href: searchUrl(o), target: "_blank", rel: "noopener noreferrer", title: "Busca esta oferta fuera del agregador" }, "Buscar en su web ↗")
+						: null,
+				el("a", { href: safeUrl(o.url), target: "_blank", rel: "noopener noreferrer" }, `Ver en ${o.fuente || "la fuente"} ↗`)),
 			(o.notas || canWrite) ? el("details", { class: "notes", open: !!o.notas }, el("summary", {}, o.notas ? "Notas" : "Añadir notas"), notes) : null,
 		);
 	}
