@@ -1,0 +1,641 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+	<meta charset="utf-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+	<title>Aracne · Panel de candidaturas</title>
+	<meta name="robots" content="noindex, nofollow" />
+	<meta name="referrer" content="no-referrer" />
+	<meta name="theme-color" content="#0b1120" />
+	<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230b1120'/%3E%3Ctext x='50%25' y='54%25' text-anchor='middle' dominant-baseline='middle' font-family='monospace' font-weight='700' font-size='28' fill='%2322d3ee'%3EAR%3C/text%3E%3C/svg%3E" />
+	<link rel="preconnect" href="https://fonts.googleapis.com" />
+	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+	<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
+	<style>
+		/* Panel de una sola columna: resumen → filtros → lista de ofertas. Tokens del portfolio. */
+		:root {
+			--bg: #0b1120;
+			--bg-alt: #0f172a;
+			--surface: #111a2e;
+			--surface-2: #16213a;
+			--border: rgba(51, 65, 99, 0.6);
+			--text: #e2e8f0;
+			--text-muted: #94a3b8;
+			--accent: #22d3ee;
+			--accent-2: #a78bfa;
+			--accent-soft: rgba(34, 211, 238, 0.12);
+			--ok: #4ade80;
+			--ok-soft: rgba(74, 222, 128, 0.12);
+			--warn: #fbbf24;
+			--warn-soft: rgba(251, 191, 36, 0.12);
+			--bad: #f87171;
+			--bad-soft: rgba(248, 113, 113, 0.12);
+			--radius: 14px;
+			--maxw: 1120px;
+			--font: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+			--mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+			color-scheme: dark;
+		}
+		@media (prefers-color-scheme: light) {
+			:root {
+				--bg: #f8fafc;
+				--bg-alt: #f1f5f9;
+				--surface: #ffffff;
+				--surface-2: #f1f5f9;
+				--border: rgba(203, 213, 225, 0.9);
+				--text: #0f172a;
+				--text-muted: #475569;
+				--accent: #0891b2;
+				--accent-2: #7c3aed;
+				--accent-soft: rgba(8, 145, 178, 0.1);
+				--ok: #16a34a;
+				--ok-soft: rgba(22, 163, 74, 0.1);
+				--warn: #b45309;
+				--warn-soft: rgba(180, 83, 9, 0.1);
+				--bad: #dc2626;
+				--bad-soft: rgba(220, 38, 38, 0.08);
+				color-scheme: light;
+			}
+		}
+
+		*, *::before, *::after { box-sizing: border-box; }
+		html, body { margin: 0; }
+		body {
+			background: var(--bg);
+			color: var(--text);
+			font: 15px/1.55 var(--font);
+			padding-block: env(safe-area-inset-top, 0px) env(safe-area-inset-bottom, 0px);
+		}
+		a { color: var(--accent); }
+		[hidden] { display: none !important; }
+		button, input, select, textarea { font: inherit; color: inherit; }
+		:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+		.wrap {
+			max-width: var(--maxw);
+			margin: 0 auto;
+			padding-left: max(16px, env(safe-area-inset-left, 0px));
+			padding-right: max(16px, env(safe-area-inset-right, 0px));
+		}
+
+		/* Cabecera */
+		header.top { border-bottom: 1px solid var(--border); background: var(--bg-alt); }
+		header.top .wrap { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 20px; padding-block: 14px; }
+		.brand { display: flex; align-items: center; gap: 10px; text-decoration: none; color: var(--text); }
+		.brand-mark {
+			display: grid; place-items: center; width: 34px; height: 34px; border-radius: 9px;
+			background: var(--accent-soft); color: var(--accent); font: 700 14px var(--mono);
+		}
+		.brand b { font-weight: 700; }
+		.brand small { display: block; color: var(--text-muted); font: 12px var(--mono); }
+		.top-actions { margin-left: auto; display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+		.stamp { color: var(--text-muted); font: 12px var(--mono); }
+
+		.btn {
+			display: inline-flex; align-items: center; gap: 6px; cursor: pointer;
+			border: 1px solid var(--border); background: var(--surface); color: var(--text);
+			padding: 7px 12px; border-radius: 9px; font-size: 14px; font-weight: 500; text-decoration: none;
+		}
+		.btn:hover { border-color: var(--accent); }
+		.btn.primary { background: var(--accent); border-color: var(--accent); color: var(--bg); }
+		.btn.ghost { background: transparent; }
+		.btn:disabled { opacity: .55; cursor: progress; }
+
+		main { padding-block: 24px 64px; display: grid; grid-template-columns: minmax(0, 1fr); gap: 22px; }
+		main > * { min-width: 0; }
+		.panel-grid { display: grid; grid-template-columns: minmax(0, 1fr); gap: 18px; }
+
+		/* Conexión */
+		.connect {
+			max-width: 640px; background: var(--surface); border: 1px solid var(--border);
+			border-radius: var(--radius); padding: 22px; display: grid; gap: 14px;
+		}
+		.connect h1 { margin: 0; font-size: 22px; text-wrap: balance; }
+		.connect p { margin: 0; color: var(--text-muted); }
+		.connect ol { margin: 0; padding-left: 20px; display: grid; gap: 6px; }
+		.connect code, .mono { font-family: var(--mono); font-size: .9em; }
+		.connect form { display: flex; flex-wrap: wrap; gap: 8px; }
+		.connect input { flex: 1 1 260px; min-width: 0; }
+		input[type="password"], input[type="search"], select, textarea {
+			background: var(--bg); border: 1px solid var(--border); border-radius: 9px; padding: 8px 10px;
+		}
+		.note { font-size: 13px; color: var(--text-muted); }
+		.error { color: var(--bad); background: var(--bad-soft); border-radius: 9px; padding: 8px 12px; margin: 0; }
+
+		/* Resumen */
+		.stats { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 10px; }
+		.stat { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 12px 14px; }
+		.stat .n { font: 700 26px/1.1 var(--mono); font-variant-numeric: tabular-nums; }
+		.stat .l { color: var(--text-muted); font-size: 12px; letter-spacing: .04em; text-transform: uppercase; }
+		.stat.ok .n { color: var(--ok); }
+		.stat.acc .n { color: var(--accent); }
+		.stat.warn .n { color: var(--warn); }
+		@media (max-width: 760px) { .stats { grid-template-columns: repeat(2, minmax(0, 1fr)); } .stat:first-child { grid-column: 1 / -1; } }
+
+		/* Filtros */
+		.filters { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+		.filters input[type="search"] { flex: 1 1 240px; min-width: 0; }
+		.seg { display: inline-flex; max-width: 100%; overflow-x: auto; border: 1px solid var(--border); border-radius: 9px; background: var(--surface); }
+		.seg button { flex: none; border: 0; background: transparent; padding: 7px 12px; cursor: pointer; font-size: 14px; color: var(--text-muted); }
+		.seg button[aria-pressed="true"] { background: var(--accent-soft); color: var(--accent); font-weight: 600; }
+		.seg .c { font: 12px var(--mono); margin-left: 4px; opacity: .8; }
+		label.chk { display: inline-flex; gap: 6px; align-items: center; font-size: 14px; color: var(--text-muted); cursor: pointer; }
+		.count { color: var(--text-muted); font-size: 13px; }
+
+		/* Ofertas */
+		.list { display: grid; gap: 8px; }
+		.job {
+			display: grid; grid-template-columns: 52px minmax(0, 1fr) auto; gap: 4px 14px; align-items: start;
+			background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 12px 14px;
+		}
+		.job.applied { border-color: color-mix(in srgb, var(--ok) 45%, var(--border)); }
+		.job.discarded { opacity: .6; }
+		.score {
+			grid-row: span 2; display: grid; place-items: center; height: 40px; border-radius: 9px;
+			font: 700 16px var(--mono); font-variant-numeric: tabular-nums;
+			background: var(--surface-2); color: var(--text-muted);
+		}
+		.score.hi { background: var(--accent-soft); color: var(--accent); }
+		.score.mid { background: color-mix(in srgb, var(--accent-2) 14%, transparent); color: var(--accent-2); }
+		.job h3 { margin: 0; font-size: 15.5px; font-weight: 600; line-height: 1.35; overflow-wrap: anywhere; }
+		.job h3 a { color: var(--text); text-decoration: none; }
+		.job h3 a:hover { color: var(--accent); text-decoration: underline; }
+		.meta { display: flex; flex-wrap: wrap; gap: 4px 12px; color: var(--text-muted); font-size: 13px; }
+		.meta .co { color: var(--text); font-weight: 500; }
+		.chip { display: inline-block; font: 500 11.5px var(--mono); padding: 1px 7px; border-radius: 99px; background: var(--surface-2); color: var(--text-muted); }
+		.chip.remote { background: var(--accent-soft); color: var(--accent); }
+		.chip.new { background: var(--warn-soft); color: var(--warn); }
+		.chip.sal { background: var(--ok-soft); color: var(--ok); }
+		.side { grid-row: span 2; display: flex; flex-direction: column; gap: 6px; align-items: stretch; min-width: 170px; }
+		.apply {
+			cursor: pointer; border: 1px solid var(--border); background: transparent; color: var(--text);
+			border-radius: 9px; padding: 6px 10px; font-size: 13.5px; font-weight: 600; text-align: left;
+		}
+		.apply:hover { border-color: var(--ok); }
+		.apply[aria-pressed="true"] { background: var(--ok-soft); border-color: var(--ok); color: var(--ok); }
+		.side select { font-size: 13.5px; padding: 5px 8px; }
+		.side .when { font: 11.5px var(--mono); color: var(--text-muted); }
+		.notes { grid-column: 2 / -1; }
+		.notes textarea { width: 100%; min-height: 38px; resize: vertical; font-size: 13.5px; }
+		.notes summary { cursor: pointer; color: var(--text-muted); font-size: 13px; width: fit-content; }
+		.job .stateline { display: flex; gap: 6px; flex-wrap: wrap; }
+		.st-entrevista, .st-prueba { color: var(--accent); }
+		.st-oferta { color: var(--ok); }
+		.st-rechazada { color: var(--bad); }
+		@media (max-width: 640px) {
+			.job { grid-template-columns: 44px minmax(0, 1fr); }
+			.score { grid-row: auto; height: 34px; font-size: 14px; }
+			.meta { grid-column: 1 / -1; }
+			.side { order: 5; grid-row: auto; grid-column: 1 / -1; flex-direction: row; flex-wrap: wrap; min-width: 0; margin-top: 4px; }
+			.side > * { flex: 1 1 140px; }
+			.notes { order: 6; grid-column: 1 / -1; }
+		}
+
+		.empty { text-align: center; color: var(--text-muted); padding: 40px 16px; border: 1px dashed var(--border); border-radius: var(--radius); }
+
+		/* Aviso flotante */
+		.toast {
+			position: fixed; left: 50%; transform: translateX(-50%);
+			bottom: calc(18px + env(safe-area-inset-bottom, 0px));
+			background: var(--surface-2); border: 1px solid var(--border); color: var(--text);
+			padding: 9px 16px; border-radius: 10px; font-size: 14px; box-shadow: 0 10px 30px -12px rgba(0,0,0,.5);
+			max-width: calc(100% - 32px); z-index: 20;
+		}
+		.toast.bad { border-color: var(--bad); color: var(--bad); }
+		@media (prefers-reduced-motion: no-preference) { .toast { animation: up .18s ease-out; } @keyframes up { from { opacity: 0; translate: 0 8px; } } }
+	</style>
+</head>
+<body>
+
+<header class="top">
+	<div class="wrap">
+		<a class="brand" href="https://github.com/C10N67/aracne" target="_blank" rel="noopener">
+			<span class="brand-mark">AR</span>
+			<span><b>Aracne</b><small>panel de candidaturas</small></span>
+		</a>
+		<div class="top-actions" id="topActions" hidden>
+			<span class="stamp" id="stamp"></span>
+			<a class="btn ghost" href="https://github.com/C10N67/aracne/blob/main/reports/latest.md" target="_blank" rel="noopener">Último informe</a>
+			<button class="btn" id="refresh" type="button">Actualizar</button>
+			<button class="btn ghost" id="logout" type="button">Desconectar</button>
+		</div>
+	</div>
+</header>
+
+<main class="wrap">
+
+	<!-- Conexión con GitHub -->
+	<section class="connect" id="connect" hidden>
+		<h1>Conecta el panel con tu repositorio Aracne</h1>
+		<p>Las ofertas están en un repositorio privado. Este panel las lee directamente de GitHub con un token que solo vive en este navegador. La página no contiene ningún dato.</p>
+		<ol>
+			<li>Abre <a href="https://github.com/settings/personal-access-tokens/new" target="_blank" rel="noopener">crear token (fine-grained)</a>.</li>
+			<li><b>Repository access</b>: <i>Only select repositories</i> → <code>C10N67/aracne</code>.</li>
+			<li><b>Permissions → Repository → Contents</b>: <i>Read and write</i>. Con <i>Read-only</i> podrás ver las ofertas, pero no marcarlas.</li>
+			<li>Genera el token y pégalo aquí.</li>
+		</ol>
+		<form id="tokenForm">
+			<input type="password" id="token" autocomplete="off" spellcheck="false" placeholder="github_pat_…" aria-label="Token de GitHub" required />
+			<button class="btn primary" type="submit">Conectar</button>
+		</form>
+		<p class="error" id="connectError" hidden></p>
+		<p class="note">Para borrarlo de este navegador, pulsa <i>Desconectar</i>. Para anularlo del todo, revócalo en GitHub.</p>
+	</section>
+
+	<!-- Panel -->
+	<section id="panel" hidden>
+		<div class="panel-grid">
+			<div class="stats" id="stats"></div>
+
+			<div class="filters">
+				<input type="search" id="q" placeholder="Buscar puesto, empresa, ubicación…" aria-label="Buscar" />
+				<div class="seg" role="group" aria-label="Estado" id="seg">
+					<button type="button" data-view="pending" aria-pressed="true">Pendientes<span class="c"></span></button>
+					<button type="button" data-view="applied" aria-pressed="false">Enviadas<span class="c"></span></button>
+					<button type="button" data-view="discarded" aria-pressed="false">Descartadas<span class="c"></span></button>
+					<button type="button" data-view="all" aria-pressed="false">Todas<span class="c"></span></button>
+				</div>
+				<select id="sort" aria-label="Ordenar">
+					<option value="score">Más puntos</option>
+					<option value="date">Más recientes</option>
+					<option value="company">Empresa (A–Z)</option>
+				</select>
+				<select id="source" aria-label="Fuente"><option value="">Todas las fuentes</option></select>
+				<label class="chk"><input type="checkbox" id="remote" /> Solo remoto</label>
+				<span class="count" id="count"></span>
+			</div>
+
+			<div class="list" id="list"></div>
+		</div>
+	</section>
+
+	<p class="empty" id="loading">Cargando ofertas…</p>
+</main>
+
+<div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
+
+<script>
+(() => {
+	"use strict";
+
+	const REPO = "C10N67/aracne";
+	const BRANCH = "main";
+	const PATH = "data/ofertas.csv";
+	const API = `https://api.github.com/repos/${REPO}/contents/${PATH}`;
+	const TOKEN_KEY = "aracne.token";
+	const PREFS_KEY = "aracne.prefs";
+	const STATES = [
+		["", "Sin estado"],
+		["entrevista", "Entrevista"],
+		["prueba técnica", "Prueba técnica"],
+		["oferta", "Oferta recibida"],
+		["rechazada", "Rechazada"],
+		["descartada", "No me interesa"],
+	];
+	const NOT_APPLIED = new Set(["", "no", "n", "-", "0", "false"]);
+
+	const $ = (id) => document.getElementById(id);
+	const store = {
+		get(k) { try { return localStorage.getItem(k); } catch { return null; } },
+		set(k, v) { try { localStorage.setItem(k, v); } catch {} },
+		del(k) { try { localStorage.removeItem(k); } catch {} },
+	};
+
+	let token = store.get(TOKEN_KEY);
+	let header = [], rows = [], sha = null;
+	let canWrite = true;
+	const prefs = Object.assign({ view: "pending", sort: "score", source: "", remote: false },
+		(() => { try { return JSON.parse(store.get(PREFS_KEY) || "{}"); } catch { return {}; } })());
+
+	/* ---------- CSV (compatible con el módulo csv de Python) ---------- */
+	function parseCSV(text) {
+		if (text.charCodeAt(0) === 0xfeff) text = text.slice(1);
+		const out = []; let row = [], field = "", i = 0, q = false;
+		while (i < text.length) {
+			const c = text[i];
+			if (q) {
+				if (c === '"') { if (text[i + 1] === '"') { field += '"'; i += 2; continue; } q = false; i++; continue; }
+				field += c; i++; continue;
+			}
+			if (c === '"') { q = true; i++; continue; }
+			if (c === ",") { row.push(field); field = ""; i++; continue; }
+			if (c === "\r" || c === "\n") {
+				row.push(field); out.push(row); row = []; field = "";
+				i += (c === "\r" && text[i + 1] === "\n") ? 2 : 1; continue;
+			}
+			field += c; i++;
+		}
+		if (field !== "" || row.length) { row.push(field); out.push(row); }
+		return out.filter((r) => !(r.length === 1 && r[0] === ""));
+	}
+	function cell(v) {
+		v = v == null ? "" : String(v);
+		return /[",\r\n]/.test(v) ? '"' + v.replace(/"/g, '""') + '"' : v;
+	}
+	function toCSV(head, objs) {
+		const lines = [head.map(cell).join(",")];
+		for (const o of objs) lines.push(head.map((h) => cell(o[h])).join(","));
+		return lines.join("\r\n") + "\r\n";
+	}
+
+	/* ---------- base64 UTF-8 ---------- */
+	function b64decode(b64) {
+		const bin = atob(b64.replace(/\s/g, ""));
+		const bytes = new Uint8Array(bin.length);
+		for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+		return new TextDecoder().decode(bytes);
+	}
+	function b64encode(str) {
+		const bytes = new TextEncoder().encode(str);
+		let bin = "";
+		for (let i = 0; i < bytes.length; i += 0x8000) bin += String.fromCharCode.apply(null, bytes.subarray(i, i + 0x8000));
+		return btoa(bin);
+	}
+
+	/* ---------- GitHub ---------- */
+	function headers(extra) {
+		return Object.assign({
+			Authorization: `Bearer ${token}`,
+			Accept: "application/vnd.github+json",
+			"X-GitHub-Api-Version": "2022-11-28",
+		}, extra || {});
+	}
+	function explain(status, body) {
+		if (status === 401) return "GitHub no acepta el token: puede que esté mal copiado, caducado o revocado.";
+		if (status === 403 || status === 404) {
+			const m = (body && body.message) || "";
+			if (/rate limit/i.test(m)) return "Has superado el límite de peticiones de GitHub. Prueba dentro de un rato.";
+			return "El token no tiene acceso a C10N67/aracne. Revisa que el repositorio esté seleccionado y que tenga permiso Contents.";
+		}
+		return `GitHub respondió ${status}${body && body.message ? ": " + body.message : ""}.`;
+	}
+	async function load() {
+		const r = await fetch(`${API}?ref=${BRANCH}`, { headers: headers(), cache: "no-store" });
+		const body = await r.json().catch(() => null);
+		if (!r.ok) throw new Error(explain(r.status, body));
+		let text;
+		if (body.content) text = b64decode(body.content);
+		else {
+			const raw = await fetch(`${API}?ref=${BRANCH}`, { headers: headers({ Accept: "application/vnd.github.raw" }), cache: "no-store" });
+			if (!raw.ok) throw new Error(explain(raw.status));
+			text = await raw.text();
+		}
+		const table = parseCSV(text);
+		header = table[0] || [];
+		rows = table.slice(1).map((r) => Object.fromEntries(header.map((h, i) => [h, r[i] ?? ""])));
+		sha = body.sha;
+	}
+	async function commit(message) {
+		const r = await fetch(API, {
+			method: "PUT", headers: headers({ "Content-Type": "application/json" }),
+			body: JSON.stringify({ message, content: b64encode(toCSV(header, rows)), sha, branch: BRANCH }),
+		});
+		const body = await r.json().catch(() => null);
+		if (r.ok) { sha = body.content.sha; return; }
+		const err = new Error(explain(r.status, body));
+		err.status = r.status;
+		throw err;
+	}
+
+	/* ---------- Guardado: cola + reintento si el fichero cambió ---------- */
+	const keyOf = (o) => o.id || o.url;
+	let queue = Promise.resolve();
+	function save(key, patch, message) {
+		const apply = () => {
+			const row = rows.find((o) => keyOf(o) === key);
+			if (!row) throw new Error("La oferta ya no está en ofertas.csv.");
+			Object.assign(row, patch);
+		};
+		apply();
+		render();
+		queue = queue.then(async () => {
+			try {
+				await commit(message);
+			} catch (e) {
+				if (e.status === 409 || e.status === 422) {   // alguien (el bot) lo cambió: recargar y reaplicar
+					await load(); apply(); await commit(message);
+				} else throw e;
+			}
+			toast("Guardado en GitHub");
+		}).catch(async (e) => {
+			if (e.status === 403) { canWrite = false; toast("Tu token solo permite leer. Dale permiso Contents: Read and write para marcar ofertas.", true); }
+			else toast("No se pudo guardar: " + e.message, true);
+			try { await load(); } catch {}
+			render();
+		});
+		return queue;
+	}
+
+	/* ---------- Estado de cada oferta ---------- */
+	const applied = (o) => !NOT_APPLIED.has((o.candidatura || "").trim().toLowerCase());
+	const state = (o) => (o.estado || "").trim().toLowerCase();
+	const discarded = (o) => state(o) === "descartada" || state(o) === "descartado";
+	const today = () => new Date().toLocaleDateString("sv-SE");
+	const daysAgo = (iso) => {
+		if (!iso) return Infinity;
+		const d = new Date(iso + "T00:00:00");
+		return Math.floor((Date.now() - d.getTime()) / 86400000);
+	};
+	const safeUrl = (u) => (/^https?:\/\//i.test(u || "") ? u : "#");
+
+	function matches(o) {
+		if (prefs.view === "pending" && (applied(o) || discarded(o))) return false;
+		if (prefs.view === "applied" && !applied(o)) return false;
+		if (prefs.view === "discarded" && !discarded(o)) return false;
+		if (prefs.source && o.fuente !== prefs.source) return false;
+		if (prefs.remote && !(o.remoto || "").trim()) return false;
+		const q = $("q").value.trim().toLowerCase();
+		if (q && !`${o.puesto} ${o.empresa} ${o.ubicacion} ${o.notas} ${o.estado}`.toLowerCase().includes(q)) return false;
+		return true;
+	}
+	function sorted(list) {
+		const num = (v) => parseFloat(v) || 0;
+		const by = {
+			score: (a, b) => num(b.puntos) - num(a.puntos) || (b.encontrada || "").localeCompare(a.encontrada || ""),
+			date: (a, b) => (b.encontrada || "").localeCompare(a.encontrada || "") || num(b.puntos) - num(a.puntos),
+			company: (a, b) => (a.empresa || "").localeCompare(b.empresa || "", "es") || num(b.puntos) - num(a.puntos),
+		}[prefs.sort];
+		return list.slice().sort(by);
+	}
+
+	/* ---------- Render ---------- */
+	function el(tag, attrs, ...kids) {
+		const n = document.createElement(tag);
+		for (const [k, v] of Object.entries(attrs || {})) {
+			if (v == null || v === false) continue;
+			if (k === "class") n.className = v;
+			else if (k.startsWith("on")) n.addEventListener(k.slice(2), v);
+			else n.setAttribute(k, v === true ? "" : v);
+		}
+		for (const k of kids.flat()) if (k != null && k !== false) n.append(k);
+		return n;
+	}
+
+	function renderStats() {
+		const sent = rows.filter(applied);
+		const inProcess = sent.filter((o) => ["entrevista", "prueba técnica", "oferta"].includes(state(o)));
+		const fresh = rows.filter((o) => daysAgo(o.encontrada) <= 7);
+		const pending = rows.filter((o) => !applied(o) && !discarded(o));
+		const tiles = [
+			["Ofertas guardadas", rows.length, ""],
+			["Nuevas esta semana", fresh.length, "warn"],
+			["Pendientes", pending.length, "acc"],
+			["Candidaturas", sent.length, "ok"],
+			["En proceso", inProcess.length, "ok"],
+		];
+		$("stats").replaceChildren(...tiles.map(([l, n, c]) =>
+			el("div", { class: "stat " + c }, el("div", { class: "n" }, String(n)), el("div", { class: "l" }, l))));
+
+		const counts = { pending: pending.length, applied: sent.length, discarded: rows.filter(discarded).length, all: rows.length };
+		for (const b of $("seg").querySelectorAll("button")) {
+			b.setAttribute("aria-pressed", String(b.dataset.view === prefs.view));
+			b.querySelector(".c").textContent = counts[b.dataset.view];
+		}
+		const maxDate = rows.reduce((m, o) => (o.encontrada > m ? o.encontrada : m), "");
+		$("stamp").textContent = maxDate ? `datos hasta ${maxDate}` : "";
+	}
+
+	function renderSources() {
+		const sel = $("source");
+		const sources = [...new Set(rows.map((o) => o.fuente).filter(Boolean))].sort();
+		const cur = prefs.source;
+		sel.replaceChildren(el("option", { value: "" }, "Todas las fuentes"),
+			...sources.map((s) => el("option", { value: s, selected: s === cur }, s)));
+	}
+
+	function jobCard(o) {
+		const key = keyOf(o);
+		const pts = parseFloat(o.puntos) || 0;
+		const isApplied = applied(o);
+		const st = state(o);
+		const ago = daysAgo(o.encontrada);
+
+		const applyBtn = el("button", {
+			class: "apply", type: "button", "aria-pressed": String(isApplied), disabled: !canWrite,
+			title: canWrite ? "" : "Tu token solo permite leer",
+			onclick: () => {
+				const now = !applied(o);
+				save(key, now ? { candidatura: "sí", fecha_candidatura: o.fecha_candidatura || today() }
+				              : { candidatura: "", fecha_candidatura: "" },
+					`${now ? "Candidatura enviada" : "Candidatura desmarcada"}: ${o.puesto} (${o.empresa || "sin empresa"})`);
+			},
+		}, isApplied ? "✓ Candidatura enviada" : "Marcar como enviada");
+
+		const stateSel = el("select", {
+			"aria-label": "Estado", disabled: !canWrite,
+			onchange: (e) => save(key, { estado: e.target.value },
+				`Estado «${e.target.value || "sin estado"}»: ${o.puesto} (${o.empresa || "sin empresa"})`),
+		}, ...STATES.map(([v, l]) => el("option", { value: v, selected: v === st }, l)),
+			...(st && !STATES.some(([v]) => v === st) ? [el("option", { value: o.estado, selected: true }, o.estado)] : []));
+
+		const notes = el("textarea", { "aria-label": "Notas", placeholder: "Contacto, salario, próximos pasos…", disabled: !canWrite },);
+		notes.value = o.notas || "";
+		notes.addEventListener("change", () => save(key, { notas: notes.value.trim() },
+			`Notas: ${o.puesto} (${o.empresa || "sin empresa"})`));
+
+		return el("article", { class: "job" + (isApplied ? " applied" : "") + (discarded(o) ? " discarded" : "") },
+			el("div", { class: "score" + (pts >= 15 ? " hi" : pts >= 9 ? " mid" : ""), title: "Puntuación según tu perfil" }, o.puntos ? String(pts) : "–"),
+			el("h3", {}, el("a", { href: safeUrl(o.url), target: "_blank", rel: "noopener noreferrer" }, o.puesto || "(sin título)")),
+			el("div", { class: "side" },
+				applyBtn,
+				stateSel,
+				isApplied && o.fecha_candidatura ? el("span", { class: "when" }, `enviada el ${o.fecha_candidatura}`) : null),
+			el("div", { class: "meta" },
+				o.empresa ? el("span", { class: "co" }, o.empresa) : null,
+				o.ubicacion ? el("span", {}, o.ubicacion) : null,
+				(o.remoto || "").trim() ? el("span", { class: "chip remote" }, "remoto") : null,
+				o.salario ? el("span", { class: "chip sal" }, o.salario) : null,
+				ago <= 1 ? el("span", { class: "chip new" }, "nueva") : null,
+				el("span", { class: "mono" }, `${o.fuente || "?"} · ${o.encontrada || "?"}`),
+				st && st !== "descartada" ? el("span", { class: "st-" + st.split(" ")[0] }, "● " + (STATES.find(([v]) => v === st)?.[1] || o.estado)) : null),
+			(o.notas || canWrite) ? el("details", { class: "notes", open: !!o.notas }, el("summary", {}, o.notas ? "Notas" : "Añadir notas"), notes) : null,
+		);
+	}
+
+	function render() {
+		renderStats();
+		const visible = sorted(rows.filter(matches));
+		$("count").textContent = `${visible.length} de ${rows.length}`;
+		const list = $("list");
+		if (!rows.length) {
+			list.replaceChildren(el("p", { class: "empty" }, "Todavía no hay ofertas en ofertas.csv. Aparecerán tras la próxima búsqueda diaria."));
+		} else if (!visible.length) {
+			list.replaceChildren(el("p", { class: "empty" }, prefs.view === "pending"
+				? "No te queda ninguna oferta pendiente con estos filtros."
+				: "Ninguna oferta coincide con estos filtros."));
+		} else {
+			list.replaceChildren(...visible.map(jobCard));
+		}
+	}
+
+	/* ---------- UI general ---------- */
+	let toastTimer;
+	function toast(msg, bad) {
+		const t = $("toast");
+		t.textContent = msg;
+		t.className = "toast" + (bad ? " bad" : "");
+		t.hidden = false;
+		clearTimeout(toastTimer);
+		toastTimer = setTimeout(() => { t.hidden = true; }, bad ? 7000 : 2200);
+	}
+	function savePrefs() { store.set(PREFS_KEY, JSON.stringify(prefs)); }
+
+	function showConnect(msg) {
+		$("panel").hidden = true; $("topActions").hidden = true; $("loading").hidden = true;
+		$("connect").hidden = false;
+		$("connectError").hidden = !msg;
+		$("connectError").textContent = msg || "";
+	}
+	async function start() {
+		if (!token) return showConnect();
+		$("connect").hidden = true; $("loading").hidden = false; $("loading").textContent = "Cargando ofertas…";
+		try {
+			await load();
+		} catch (e) {
+			return showConnect(e.message);
+		}
+		$("loading").hidden = true; $("panel").hidden = false; $("topActions").hidden = false;
+		renderSources();
+		render();
+	}
+
+	$("tokenForm").addEventListener("submit", (e) => {
+		e.preventDefault();
+		token = $("token").value.trim();
+		$("token").value = "";
+		if (!token) return;
+		store.set(TOKEN_KEY, token);
+		canWrite = true;
+		start();
+	});
+	$("logout").addEventListener("click", () => {
+		store.del(TOKEN_KEY); token = null; rows = []; header = []; sha = null;
+		showConnect();
+		toast("Token borrado de este navegador");
+	});
+	$("refresh").addEventListener("click", async (e) => {
+		const b = e.currentTarget; b.disabled = true;
+		try { await queue; await load(); renderSources(); render(); toast("Actualizado"); }
+		catch (err) { toast(err.message, true); }
+		finally { b.disabled = false; }
+	});
+	$("seg").addEventListener("click", (e) => {
+		const b = e.target.closest("button[data-view]");
+		if (!b) return;
+		prefs.view = b.dataset.view; savePrefs(); render();
+	});
+	$("sort").value = prefs.sort;
+	$("sort").addEventListener("change", (e) => { prefs.sort = e.target.value; savePrefs(); render(); });
+	$("source").addEventListener("change", (e) => { prefs.source = e.target.value; savePrefs(); render(); });
+	$("remote").checked = !!prefs.remote;
+	$("remote").addEventListener("change", (e) => { prefs.remote = e.target.checked; savePrefs(); render(); });
+	$("q").addEventListener("input", render);
+
+	// Expuesto solo para las pruebas automáticas del CSV.
+	window.__aracne = { parseCSV, toCSV };
+
+	start();
+})();
+</script>
+</body>
+</html>
