@@ -100,7 +100,9 @@
 		.seg .glow { fill: var(--c); opacity: 0; transition: opacity .15s; }
 		.seg .ic { color: var(--muted); transition: color .15s; }
 		.seg .ic svg, .seg .ic img { width: 100%; height: 100%; }
-		.seg .chip { fill: #f8fafc; stroke: var(--seg-line); stroke-width: .6; }
+		/* Logos de webs, tal cual; un contorno claro muy suave para que los oscuros (GitHub…) no se pierdan en modo oscuro */
+		.seg .ic img { filter: drop-shadow(0 0 .6px rgba(255, 255, 255, .55)) drop-shadow(0 0 .6px rgba(255, 255, 255, .35)); }
+		@media (prefers-color-scheme: light) { .seg .ic img { filter: none; } }
 		/* Tamaños en unidades del viewBox (220 de ancho): escalan con la rueda */
 		.seg .num { font: 600 5px var(--mono); fill: var(--muted); opacity: .75; }
 		.seg .lbl { font: 600 8.2px var(--serif); fill: var(--text); opacity: .88; letter-spacing: .02em; }
@@ -337,13 +339,12 @@
 			const size = Math.min(13, step * 0.32);
 			const icon = svgEl("g", { class: "ic" });
 			if (it.icon === "site") {
-				icon.append(svgEl("circle", { class: "chip", cx: ix, cy: iy, r: size / 2 + 2.2 }));
 				const fo = svgEl("foreignObject", { x: ix - size / 2, y: iy - size / 2, width: size, height: size });
 				const img = document.createElement("img");
 				img.alt = ""; img.referrerPolicy = "no-referrer"; img.loading = "lazy";
 				img.src = `${new URL(it.url).origin}/favicon.ico`;
 				img.style.cssText = "width:100%;height:100%;object-fit:contain;border-radius:4px";
-				img.addEventListener("error", () => { icon.querySelector(".chip")?.remove(); fo.replaceWith(useIcon("globe", ix, iy, size)); });
+				img.addEventListener("error", () => fo.replaceWith(useIcon("globe", ix, iy, size)));
 				fo.append(img);
 				icon.append(fo);
 			} else icon.append(useIcon(it.icon, ix, iy, size));
