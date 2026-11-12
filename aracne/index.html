@@ -198,6 +198,26 @@
 			.notes { order: 6; grid-column: 1 / -1; }
 		}
 
+		/* Scraper (GitHub Actions) */
+		.runbar {
+			display: flex; flex-wrap: wrap; align-items: center; gap: 10px 16px;
+			background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 10px 14px;
+		}
+		.runbar .rs { display: flex; align-items: center; gap: 9px; flex: 1 1 280px; min-width: 0; font-size: 14px; color: var(--text-muted); }
+		.runbar .rs b { color: var(--text); font-weight: 600; }
+		.runbar .rs a { text-decoration: none; white-space: nowrap; }
+		.runbar .rs a:hover { text-decoration: underline; }
+		.runbar .ra { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 14px; margin-left: auto; }
+		.dot { flex: none; width: 9px; height: 9px; border-radius: 50%; background: var(--text-muted); }
+		.dot.ok { background: var(--ok); }
+		.dot.bad { background: var(--bad); }
+		.dot.run { background: var(--accent); box-shadow: 0 0 0 0 var(--accent); }
+		@media (prefers-reduced-motion: no-preference) {
+			.dot.run { animation: pulse 1.4s ease-out infinite; }
+			@keyframes pulse { 70% { box-shadow: 0 0 0 7px transparent; } 100% { box-shadow: 0 0 0 0 transparent; } }
+		}
+		@media (max-width: 640px) { .runbar .ra { margin-left: 0; width: 100%; } .runbar .ra .btn { flex: 1 1 auto; justify-content: center; } }
+
 		.empty { text-align: center; color: var(--text-muted); padding: 40px 16px; border: 1px dashed var(--border); border-radius: var(--radius); }
 
 		/* Aviso flotante */
@@ -239,6 +259,7 @@
 			<li>Abre <a href="https://github.com/settings/personal-access-tokens/new" target="_blank" rel="noopener">crear token (fine-grained)</a>.</li>
 			<li><b>Repository access</b>: <i>Only select repositories</i> → <code>C10N67/aracne</code>.</li>
 			<li><b>Permissions → Repository → Contents</b>: <i>Read and write</i>. Con <i>Read-only</i> podrás ver las ofertas, pero no marcarlas.</li>
+			<li>Opcional, para lanzar la búsqueda desde aquí: <b>Permissions → Repository → Actions</b>: <i>Read and write</i>.</li>
 			<li>Genera el token y pégalo aquí.</li>
 		</ol>
 		<form id="tokenForm">
@@ -252,6 +273,14 @@
 	<!-- Panel -->
 	<section id="panel" hidden>
 		<div class="panel-grid">
+			<div class="runbar" id="runbar">
+				<div class="rs" id="runStatus" aria-live="polite"><span class="dot"></span><span>Consultando la última búsqueda…</span></div>
+				<div class="ra">
+					<label class="chk" title="Abrir el issue y enviar el email con las ofertas nuevas"><input type="checkbox" id="notify" /> Enviar avisos</label>
+					<button class="btn primary" id="runBtn" type="button">▶ Buscar ofertas ahora</button>
+				</div>
+			</div>
+
 			<div class="stats" id="stats"></div>
 
 			<div class="filters">
@@ -289,6 +318,8 @@
 	const BRANCH = "main";
 	const PATH = "data/ofertas.csv";
 	const API = `https://api.github.com/repos/${REPO}/contents/${PATH}`;
+	const WORKFLOW = "buscar.yml";
+	const WF_API = `https://api.github.com/repos/${REPO}/actions/workflows/${WORKFLOW}`;
 	const TOKEN_KEY = "aracne.token";
 	const PREFS_KEY = "aracne.prefs";
 	const STATES = [
@@ -311,7 +342,7 @@
 	let token = store.get(TOKEN_KEY);
 	let header = [], rows = [], sha = null;
 	let canWrite = true;
-	const prefs = Object.assign({ view: "pending", sort: "score", source: "", remote: false },
+	const prefs = Object.assign({ view: "pending", sort: "score", source: "", remote: false, notify: false },
 		(() => { try { return JSON.parse(store.get(PREFS_KEY) || "{}"); } catch { return {}; } })());
 
 	/* ---------- CSV (compatible con el módulo csv de Python) ---------- */
@@ -402,6 +433,125 @@
 		const err = new Error(explain(r.status, body));
 		err.status = r.status;
 		throw err;
+	}
+
+	/* ---------- Scraper: lanzar buscar.yml y seguir la ejecución ---------- */
+	const run = { last: null, waitingSince: 0, baseline: 0, tracking: null, timer: 0, error: "" };
+	function explainActions(status, body) {
+		if (status === 403 || status === 404) {
+			const m = (body && body.message) || "";
+			if (/rate limit/i.test(m)) return "Has superado el límite de peticiones de GitHub. Prueba dentro de un rato.";
+			return "Tu token no puede usar GitHub Actions. Edítalo en GitHub y añade Permissions → Actions: Read and write.";
+		}
+		return explain(status, body);
+	}
+	async function latestRun() {
+		const r = await fetch(`${WF_API}/runs?branch=${BRANCH}&per_page=1`, { headers: headers(), cache: "no-store" });
+		const body = await r.json().catch(() => null);
+		if (!r.ok) throw new Error(explainActions(r.status, body));
+		return (body.workflow_runs || [])[0] || null;
+	}
+	const isRunning = (w) => !!w && w.status !== "completed";
+	function ago(iso) {
+		const s = Math.max(0, Math.round((Date.now() - Date.parse(iso)) / 1000));
+		if (s < 60) return "hace un momento";
+		if (s < 3600) return `hace ${Math.round(s / 60)} min`;
+		if (s < 86400) return `hace ${Math.round(s / 3600)} h`;
+		return `hace ${Math.round(s / 86400)} d`;
+	}
+	function elapsed(iso) {
+		const s = Math.max(0, Math.round((Date.now() - Date.parse(iso)) / 1000));
+		return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, "0")}`;
+	}
+	function renderRun() {
+		const w = run.last;
+		let dot = "", text, link = null;
+		if (run.error) { dot = "bad"; text = [run.error]; }
+		else if (run.waitingSince) { dot = "run"; text = [el("b", {}, "Lanzando la búsqueda…"), " esperando a GitHub Actions"]; }
+		else if (!w) { text = ["Todavía no se ha ejecutado ninguna búsqueda."]; }
+		else if (isRunning(w)) {
+			dot = "run";
+			text = w.status === "in_progress"
+				? [el("b", {}, "Buscando ofertas…"), ` ${elapsed(w.run_started_at || w.created_at)}`]
+				: [el("b", {}, "En cola…"), " esperando a que GitHub asigne una máquina"];
+			link = w.html_url;
+		} else {
+			const ok = w.conclusion === "success";
+			dot = ok ? "ok" : "bad";
+			const how = w.event === "schedule" ? "automática" : "manual";
+			text = [ok ? "Última búsqueda " : "La última búsqueda falló ", el("b", {}, ago(w.updated_at || w.created_at)), ` · ${how}`];
+			link = w.html_url;
+		}
+		$("runStatus").replaceChildren(el("span", { class: "dot " + dot }), el("span", {}, ...text),
+			...(link ? [el("a", { href: safeUrl(link), target: "_blank", rel: "noopener noreferrer" }, "Ver registro ↗")] : []));
+		const busy = run.waitingSince || isRunning(w);
+		const btn = $("runBtn");
+		btn.disabled = !!busy;
+		btn.textContent = busy ? "Buscando…" : "▶ Buscar ofertas ahora";
+		btn.title = busy ? "Ya hay una búsqueda en marcha" : "Ejecuta ahora el workflow «Buscar empleo» en GitHub Actions";
+	}
+	function schedulePoll(ms) {
+		clearTimeout(run.timer);
+		run.timer = setTimeout(pollRun, ms);
+	}
+	async function pollRun() {
+		if (!token) return;
+		let w;
+		try { w = await latestRun(); }
+		catch (e) {
+			run.error = e.message; run.waitingSince = 0; renderRun();
+			if (run.tracking) schedulePoll(15000);
+			return;
+		}
+		run.error = "";
+		if (run.waitingSince) {
+			if (!w || w.id <= run.baseline) {          // la ejecución aún no aparece
+				if (Date.now() - run.waitingSince > 120000) {
+					run.waitingSince = 0; run.error = "GitHub aceptó la orden, pero la ejecución no aparece. Revisa la pestaña Actions del repositorio.";
+					renderRun(); return;
+				}
+				renderRun(); return schedulePoll(3000);
+			}
+			run.waitingSince = 0;
+			run.tracking = w.id;
+		}
+		run.last = w;
+		if (isRunning(w)) {
+			run.tracking = w.id;
+			renderRun();
+			return schedulePoll(w.status === "in_progress" ? 5000 : 4000);
+		}
+		renderRun();
+		if (w && run.tracking === w.id) {            // acaba de terminar la que seguíamos
+			run.tracking = null;
+			if (w.conclusion !== "success") return toast(`La búsqueda terminó con estado «${w.conclusion}». Mira el registro en GitHub.`, true);
+			const before = new Set(rows.map(keyOf));
+			try {
+				await queue; await load(); renderSources(); render();
+				const n = rows.filter((o) => !before.has(keyOf(o))).length;
+				toast(n ? `Búsqueda terminada: ${n} oferta${n === 1 ? "" : "s"} nueva${n === 1 ? "" : "s"}` : "Búsqueda terminada: sin ofertas nuevas");
+			} catch (e) { toast(e.message, true); }
+		}
+	}
+	async function launch() {
+		const btn = $("runBtn");
+		btn.disabled = true;
+		run.error = "";
+		run.baseline = run.last ? run.last.id : 0;
+		try {
+			const r = await fetch(`${WF_API}/dispatches`, {
+				method: "POST", headers: headers({ "Content-Type": "application/json" }),
+				body: JSON.stringify({ ref: BRANCH, inputs: { notify: String(!!prefs.notify) } }),
+			});
+			if (!r.ok) throw new Error(explainActions(r.status, await r.json().catch(() => null)));
+		} catch (e) {
+			run.error = e.message; renderRun(); toast(e.message, true);
+			return;
+		}
+		run.waitingSince = Date.now();
+		renderRun();
+		toast("Búsqueda lanzada en GitHub Actions");
+		schedulePoll(2500);
 	}
 
 	/* ---------- Guardado: cola + reintento si el fichero cambió ---------- */
@@ -619,6 +769,7 @@
 		$("loading").hidden = true; $("panel").hidden = false; $("topActions").hidden = false;
 		renderSources();
 		render();
+		pollRun();
 	}
 
 	$("tokenForm").addEventListener("submit", (e) => {
@@ -632,12 +783,16 @@
 	});
 	$("logout").addEventListener("click", () => {
 		store.del(TOKEN_KEY); token = null; rows = []; header = []; sha = null;
+		clearTimeout(run.timer); Object.assign(run, { last: null, waitingSince: 0, baseline: 0, tracking: null, error: "" });
 		showConnect();
 		toast("Token borrado de este navegador");
 	});
 	$("refresh").addEventListener("click", async (e) => {
 		const b = e.currentTarget; b.disabled = true;
-		try { await queue; await load(); renderSources(); render(); toast("Actualizado"); }
+		try {
+			await queue; await load(); renderSources(); render(); toast("Actualizado");
+			if (!run.tracking && !run.waitingSince) pollRun();
+		}
 		catch (err) { toast(err.message, true); }
 		finally { b.disabled = false; }
 	});
@@ -652,6 +807,13 @@
 	$("remote").checked = !!prefs.remote;
 	$("remote").addEventListener("change", (e) => { prefs.remote = e.target.checked; savePrefs(); render(); });
 	$("q").addEventListener("input", render);
+	$("notify").checked = !!prefs.notify;
+	$("notify").addEventListener("change", (e) => { prefs.notify = e.target.checked; savePrefs(); });
+	$("runBtn").addEventListener("click", launch);
+	// Al volver a la pestaña, refrescar el estado si no hay nada en seguimiento.
+	document.addEventListener("visibilitychange", () => {
+		if (!document.hidden && token && !run.tracking && !run.waitingSince) pollRun();
+	});
 
 	// Expuesto solo para las pruebas automáticas del CSV.
 	window.__aracne = { parseCSV, toCSV };
