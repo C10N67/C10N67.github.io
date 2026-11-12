@@ -35,6 +35,8 @@
 			--warn-soft: rgba(160, 106, 36, 0.12);
 			--bad: #a6473b;
 			--bad-soft: rgba(166, 71, 59, 0.10);
+			--hot: #c2410c;          /* ofertas recién publicadas */
+			--hot-soft: rgba(194, 65, 12, 0.07);
 			--shadow: 0 1px 2px rgba(60, 40, 25, 0.05), 0 12px 28px -18px rgba(60, 40, 25, 0.35);
 			--radius: 16px;
 			--maxw: 1240px;
@@ -65,6 +67,8 @@
 				--warn-soft: rgba(224, 176, 106, 0.12);
 				--bad: #e58a7d;
 				--bad-soft: rgba(229, 138, 125, 0.12);
+				--hot: #fb923c;
+				--hot-soft: rgba(251, 146, 60, 0.09);
 				--shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 12px 28px -18px rgba(0, 0, 0, 0.7);
 				color-scheme: dark;
 			}
@@ -276,6 +280,28 @@
 		.job-top { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 10px; margin-top: -4px; }
 		.job-top .since { font: 11.5px var(--mono); color: var(--text-muted); }
 
+		/* Recién publicada: muy visible hasta enviarla/descartarla o pasados 2 días */
+		.job.hot {
+			--st: var(--hot);
+			background: linear-gradient(var(--hot-soft), var(--hot-soft)), var(--card);
+			box-shadow: 0 0 0 2px var(--hot), 0 14px 32px -16px color-mix(in srgb, var(--hot) 55%, transparent);
+			border-color: transparent;
+		}
+		.job.hot::before { height: 6px; }
+		.hot-badge {
+			display: inline-flex; align-items: center; gap: 7px; padding: 4px 12px 4px 10px; border-radius: 999px;
+			background: var(--hot); color: #fff; font: 700 12.5px var(--sans); letter-spacing: .02em; text-transform: uppercase;
+		}
+		@media (prefers-color-scheme: dark) { .hot-badge { color: #1b1714; } }
+		.hot-badge::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: currentColor; }
+		@media (prefers-reduced-motion: no-preference) {
+			.hot-badge::before { animation: hotpulse 1.6s ease-in-out infinite; }
+			@keyframes hotpulse { 50% { opacity: .25; } }
+		}
+		.meta .age-fresh { color: var(--hot); font-weight: 600; }
+		.meta .age-fresh svg.i { color: var(--hot); }
+		.feat p .hot-n { color: var(--hot); }
+
 		/* Resumen desplegable */
 		.sum > summary {
 			list-style: none; cursor: pointer; width: fit-content; display: inline-flex; align-items: center; gap: 6px;
@@ -373,7 +399,7 @@
 		.dlg-body h3 small { font: 13px var(--sans); color: var(--text-muted); margin-left: 6px; }
 		.dlg-foot { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 12px; padding: 14px 24px 18px; border-top: 1px solid var(--line-soft); }
 		.dlg-foot .grow { flex: 1 1 220px; }
-		.tune-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+		.tune-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
 		.tune-grid label { display: grid; gap: 4px; font-size: 13px; color: var(--text-muted); }
 		.tune-grid input { width: 100%; }
 		@media (max-width: 560px) { .tune-grid { grid-template-columns: minmax(0, 1fr); } }
@@ -568,7 +594,7 @@
 			</div>
 			<select id="sort" aria-label="Ordenar">
 				<option value="score">Más puntos</option>
-				<option value="date">Más recientes</option>
+				<option value="date">Publicadas más recientemente</option>
 				<option value="company">Empresa (A–Z)</option>
 			</select>
 			<select id="source" aria-label="Fuente"><option value="">Todas las fuentes</option></select>
@@ -602,6 +628,7 @@
 				<label>Puntuación mínima para avisarte<input type="number" id="tMin" step="0.5" /></label>
 				<label>Multiplicador si está en el título<input type="number" id="tMult" step="0.5" min="0" /></label>
 				<label>Puntos extra si es remoto<input type="number" id="tRemote" step="0.5" /></label>
+				<label>Puntos extra si se publicó hace menos de 1 día<input type="number" id="tFresh" step="0.5" /></label>
 			</div>
 
 			<h3>Palabras que suman <small id="kwCount"></small></h3>
@@ -1099,6 +1126,7 @@
 			$("tMin").value = readScalar(t, "search", "min_score") ?? "";
 			$("tMult").value = readScalar(t, "scoring", "title_multiplier") ?? "";
 			$("tRemote").value = readScalar(t, "scoring", "remote_bonus") ?? "";
+			$("tFresh").value = readScalar(t, "scoring", "fresh_bonus") ?? "0";
 			$("tMode").value = readScalar(t, "scoring", "required_mode") === "any" ? "any" : "all";
 		} catch (e) { return toast("No se pudo leer config.yaml: " + e.message, true); }
 		renderTune();
@@ -1130,6 +1158,7 @@
 		t = writeScalar(t, "search", "min_score", num("tMin", "Puntuación mínima"));
 		t = writeScalar(t, "scoring", "title_multiplier", num("tMult", "Multiplicador"));
 		t = writeScalar(t, "scoring", "remote_bonus", num("tRemote", "Puntos extra si es remoto"));
+		t = writeScalar(t, "scoring", "fresh_bonus", num("tFresh", "Puntos extra si es reciente"));
 		t = writeMap(t, "scoring", "keywords", tune.kw.filter((k) => Number(k.w) !== 0).map((k) => [k.term, k.w]));
 		t = writeList(t, "scoring", "required_keywords", tune.kw.filter((k) => k.req).map((k) => k.term));
 		t = writeScalar(t, "scoring", "required_mode", $("tMode").value);
@@ -1213,6 +1242,25 @@
 		const d = new Date(iso + "T00:00:00");
 		return Math.floor((Date.now() - d.getTime()) / 86400000);
 	};
+	/* Antigüedad de la oferta desde que se publicó (columna «publicada»). */
+	function hoursSince(o) {
+		const t = Date.parse(o.publicada || "");
+		return isNaN(t) ? null : Math.max(0, (Date.now() - t) / 3600000);
+	}
+	function ageLabel(o) {
+		const h = hoursSince(o);
+		if (h == null) return null;
+		if (h < 1) return `Publicada hace ${Math.max(1, Math.round(h * 60))} min`;
+		if (h < 24) return `Publicada hace ${Math.floor(h)} h`;
+		const d = Math.floor(h / 24);
+		return d === 1 ? "Publicada hace 1 día" : `Publicada hace ${d} días`;
+	}
+	// Tenía menos de 1 día cuando la encontramos, sigue sin tocar y aún no pasa de 2 días.
+	function isHot(o) {
+		const h = hoursSince(o);
+		if (h == null || h > 48 || applied(o) || discarded(o) || rejected(o)) return false;
+		return o.recien_publicada == null ? h < 24 : o.recien_publicada.trim().toLowerCase() === "sí";
+	}
 	const whenLabel = (iso) => {
 		const d = daysAgo(iso);
 		if (!isFinite(d)) return "sin fecha";
@@ -1249,12 +1297,14 @@
 	}
 	function sorted(list) {
 		const num = (v) => parseFloat(v) || 0;
+		const pub = (o) => o.publicada || o.encontrada || "";
 		const by = {
-			score: (a, b) => num(b.puntos) - num(a.puntos) || (b.encontrada || "").localeCompare(a.encontrada || ""),
-			date: (a, b) => (b.encontrada || "").localeCompare(a.encontrada || "") || num(b.puntos) - num(a.puntos),
+			score: (a, b) => num(b.puntos) - num(a.puntos) || pub(b).localeCompare(pub(a)),
+			date: (a, b) => pub(b).localeCompare(pub(a)) || num(b.puntos) - num(a.puntos),
 			company: (a, b) => (a.empresa || "").localeCompare(b.empresa || "", "es") || num(b.puntos) - num(a.puntos),
 		}[prefs.sort];
-		return list.slice().sort(by);
+		// Las recién publicadas, siempre arriba: son las que más prisa corren.
+		return list.slice().sort((a, b) => isHot(b) - isHot(a) || by(a, b));
 	}
 
 	/* ---------- Render ---------- */
@@ -1265,7 +1315,10 @@
 		const pending = rows.filter((o) => !applied(o) && !discarded(o) && !rejected(o));
 		const nRejected = rows.filter(rejected).length;
 		const b = (n) => el("b", {}, String(n));
-		$("featOffers").replaceChildren(b(pending.length), " pendientes de revisar · ", b(fresh.length), " nuevas esta semana · ", b(rows.length), " guardadas");
+		const hot = rows.filter(isHot).length;
+		$("featOffers").replaceChildren(
+			...(hot ? [el("b", { class: "hot-n" }, String(hot)), hot === 1 ? " recién publicada sin revisar · " : " recién publicadas sin revisar · "] : []),
+			b(pending.length), " pendientes de revisar · ", b(fresh.length), " nuevas esta semana · ", b(rows.length), " guardadas");
 		$("featApplied").replaceChildren(b(sent.length), sent.length === 1 ? " candidatura enviada · " : " candidaturas enviadas · ",
 			b(inProcess.length), " en proceso · ", b(nRejected), nRejected === 1 ? " rechazada" : " rechazadas");
 
@@ -1328,6 +1381,7 @@
 					fact("Salario", o.salario || "No indicado"),
 					fact("Puntuación", o.puntos ? `${parseFloat(o.puntos) || 0} puntos` : ""),
 					fact("Fuente", o.fuente),
+					fact("Publicada", o.publicada ? new Date(o.publicada).toLocaleString("es-ES", { dateStyle: "medium", timeStyle: "short" }) : ""),
 					fact("Encontrada", o.encontrada),
 					fact("Candidatura", applied(o) ? (o.fecha_candidatura ? `Enviada el ${o.fecha_candidatura}` : "Enviada") : "No enviada"))));
 		});
@@ -1339,7 +1393,6 @@
 		const pts = parseFloat(o.puntos) || 0;
 		const isApplied = applied(o);
 		const st = state(o);
-		const ago = daysAgo(o.encontrada);
 
 		const applyBtn = el("button", {
 			class: "apply", type: "button", "aria-pressed": String(isApplied), disabled: !canWrite,
@@ -1373,12 +1426,15 @@
 		const chips = [
 			remote && o.ubicacion ? el("span", { class: "chip remote" }, "remoto") : null,
 			o.salario ? el("span", { class: "chip sal" }, o.salario) : null,
-			ago <= 1 ? el("span", { class: "chip new" }, "nueva") : null,
+
 		].filter(Boolean);
 		const [sKey, sLabel] = status(o);
+		const hot = isHot(o), h = hoursSince(o), age = ageLabel(o);
 
-		return el("article", { class: `job s-${sKey}` },
+		return el("article", { class: `job s-${sKey}` + (hot ? " hot" : "") },
 			el("div", { class: "job-top" },
+				hot ? el("span", { class: "hot-badge", title: "Publicada hace menos de 1 día cuando Aracne la encontró. Deja de destacarse al enviarla, descartarla o a los 2 días." },
+					`Recién publicada · ${h < 1 ? "hace " + Math.max(1, Math.round(h * 60)) + " min" : "hace " + Math.floor(h) + " h"}`) : null,
 				el("span", { class: "status" }, sLabel),
 				isApplied && o.fecha_candidatura ? el("span", { class: "since" }, `enviada el ${o.fecha_candidatura}`) : null),
 			el("div", { class: "job-head" },
@@ -1391,7 +1447,9 @@
 				el("span", { class: "score" + (pts >= 15 ? " hi" : pts >= 9 ? " mid" : ""), title: "Puntuación según tu perfil" }, o.puntos ? `${pts} pts` : "–")),
 			el("div", { class: "meta" },
 				el("span", { class: "it" }, icon("pin"), o.ubicacion || (remote ? "Remoto" : "Sin ubicación")),
-				el("span", { class: "it", title: o.encontrada ? `Encontrada el ${o.encontrada}` : "" }, icon("clock"), whenLabel(o.encontrada)),
+				age
+					? el("span", { class: "it" + (h <= 48 ? " age-fresh" : ""), title: `Publicada el ${new Date(o.publicada).toLocaleString("es-ES")}${o.encontrada ? " · encontrada el " + o.encontrada : ""}` }, icon("clock"), age)
+					: el("span", { class: "it", title: o.encontrada ? `Encontrada el ${o.encontrada}` : "" }, icon("clock"), "Encontrada " + whenLabel(o.encontrada).toLowerCase()),
 				el("span", { class: "mono", style: "color:var(--text-muted)" }, o.fuente || "?")),
 			chips.length ? el("div", { class: "chips" }, chips) : null,
 			summaryBox(o),
