@@ -625,6 +625,7 @@
 			<p class="note">Se guarda en <code class="mono">config.yaml</code> y se aplica en la próxima búsqueda. Las ofertas ya guardadas conservan su puntuación.</p>
 			<div class="tune-grid">
 				<label>Puntuación mínima para avisarte<input type="number" id="tMin" step="0.5" /></label>
+				<label>Antigüedad máxima de las ofertas (días)<input type="number" id="tMaxAge" step="1" min="1" /></label>
 				<label>Multiplicador si está en el título<input type="number" id="tMult" step="0.5" min="0" /></label>
 				<label>Puntos extra si es remoto<input type="number" id="tRemote" step="0.5" /></label>
 				<label>Puntos extra si se publicó hace menos de 1 día<input type="number" id="tFresh" step="0.5" /></label>
@@ -1123,6 +1124,7 @@
 			for (const r of required) if (!known.has(fold(r))) tune.kw.unshift({ term: r, w: 0, req: true });
 			tune.neg = readMap(t, "scoring", "negative_keywords").map(([term, w]) => ({ term, w: Math.abs(w) }));
 			$("tMin").value = readScalar(t, "search", "min_score") ?? "";
+			$("tMaxAge").value = readScalar(t, "search", "max_age_days") ?? String(maxAgeDays);
 			$("tMult").value = readScalar(t, "scoring", "title_multiplier") ?? "";
 			$("tRemote").value = readScalar(t, "scoring", "remote_bonus") ?? "";
 			$("tFresh").value = readScalar(t, "scoring", "fresh_bonus") ?? "0";
@@ -1155,6 +1157,7 @@
 		for (const k of [...tune.kw, ...tune.neg]) if (!isFinite(Number(k.w)) || String(k.w).trim() === "") throw new Error(`Los puntos de «${k.term}» tienen que ser un número.`);
 		let t = tune.text;
 		t = writeScalar(t, "search", "min_score", num("tMin", "Puntuación mínima"));
+		t = writeScalar(t, "search", "max_age_days", num("tMaxAge", "Antigüedad máxima"));
 		t = writeScalar(t, "scoring", "title_multiplier", num("tMult", "Multiplicador"));
 		t = writeScalar(t, "scoring", "remote_bonus", num("tRemote", "Puntos extra si es remoto"));
 		t = writeScalar(t, "scoring", "fresh_bonus", num("tFresh", "Puntos extra si es reciente"));
@@ -1176,6 +1179,8 @@
 			tune.sha = await putFile(CFG_API, next, tune.sha,
 				"Ajustes de búsqueda desde el panel" + (req.length ? ` (obligatorias: ${req.join(", ")})` : ""));
 			tune.text = next;
+			maxAgeDays = Number(readScalar(next, "search", "max_age_days")) || maxAgeDays;
+			render();
 			$("tune").close();
 			if ($("tRun").checked && !(run.waitingSince || isRunning(run.last))) { toast("Ajustes guardados"); launch(); }
 			else toast("Ajustes guardados. Se aplicarán en la próxima búsqueda.");
@@ -1287,7 +1292,25 @@
 		return h;
 	}
 
+	/* Antigüedad máxima (search.max_age_days de config.yaml, 14 por defecto): las pendientes más
+	   viejas no se muestran. Las enviadas, rechazadas y descartadas sí: son tu seguimiento. */
+	let maxAgeDays = 14;
+	function ageDays(o) {
+		const h = hoursSince(o);
+		if (h != null) return h / 24;
+		const d = daysAgo(o.encontrada);
+		return isFinite(d) ? d : 0;
+	}
+	const tooOld = (o) => !applied(o) && !discarded(o) && !rejected(o) && ageDays(o) > maxAgeDays + 0.5;
+	async function loadMaxAge() {
+		try {
+			const v = Number(readScalar((await getFile(CFG_API)).text.replace(/\r\n/g, "\n"), "search", "max_age_days"));
+			if (v > 0 && v !== maxAgeDays) { maxAgeDays = v; render(); }
+		} catch {}   // sin permiso o sin red: se queda en 14
+	}
+
 	function matches(o) {
+		if (tooOld(o)) return false;
 		if (prefs.view === "pending" && (applied(o) || discarded(o) || rejected(o))) return false;
 		if (prefs.view === "applied" && (!applied(o) || rejected(o))) return false;
 		if (prefs.view === "rejected" && !rejected(o)) return false;
@@ -1315,7 +1338,8 @@
 		const sent = rows.filter(applied);
 		const inProcess = sent.filter((o) => ["entrevista", "prueba técnica", "oferta"].includes(state(o)));
 		const fresh = rows.filter((o) => daysAgo(o.encontrada) <= 7);
-		const pending = rows.filter((o) => !applied(o) && !discarded(o) && !rejected(o));
+		const pending = rows.filter((o) => !applied(o) && !discarded(o) && !rejected(o) && !tooOld(o));
+		const hiddenOld = rows.filter(tooOld).length;
 		const nRejected = rows.filter(rejected).length;
 		const b = (n) => el("b", {}, String(n));
 		const hot = rows.filter(isHot).length;
@@ -1326,7 +1350,7 @@
 			b(inProcess.length), " en proceso · ", b(nRejected), nRejected === 1 ? " rechazada" : " rechazadas");
 
 		const counts = { pending: pending.length, applied: sent.filter((o) => !rejected(o)).length, rejected: nRejected,
-			discarded: rows.filter((o) => discarded(o) && !rejected(o)).length, all: rows.length };
+			discarded: rows.filter((o) => discarded(o) && !rejected(o)).length, all: rows.length - hiddenOld };
 		for (const btn of $("seg").querySelectorAll("button")) {
 			btn.setAttribute("aria-pressed", String(btn.dataset.view === prefs.view));
 			btn.querySelector(".c").textContent = counts[btn.dataset.view];
@@ -1478,7 +1502,9 @@
 	function render() {
 		renderStats();
 		const visible = sorted(rows.filter(matches));
-		$("count").textContent = `${visible.length} de ${rows.length}`;
+		const old = rows.filter(tooOld).length;
+		$("count").textContent = `${visible.length} de ${rows.length - old}` +
+			(old ? ` · ${old} pendiente${old === 1 ? "" : "s"} de más de ${maxAgeDays} días oculta${old === 1 ? "" : "s"}` : "");
 		const list = $("list");
 		if (!rows.length) {
 			list.replaceChildren(el("p", { class: "empty" }, "Todavía no hay ofertas en ofertas.csv. Aparecerán tras la próxima búsqueda."));
@@ -1524,6 +1550,7 @@
 		renderSources();
 		render();
 		pollRun();
+		loadMaxAge();
 	}
 
 	$("tokenForm").addEventListener("submit", (e) => {
