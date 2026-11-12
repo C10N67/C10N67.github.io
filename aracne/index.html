@@ -245,7 +245,7 @@
 		.filters select { border-radius: 999px; padding-inline: 14px; font-size: 14px; }
 		.count { color: var(--text-muted); font-size: 13px; margin-left: auto; }
 
-		.list { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 360px), 1fr)); gap: 20px; align-items: start; }
+		.list { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 360px), 1fr)); gap: 20px; align-items: stretch; }   /* todas las tarjetas de una fila, tan altas como la más alta */
 		.job {
 			display: flex; flex-direction: column; gap: 12px; min-width: 0;
 			background: var(--card); border: 1px solid var(--line-soft); border-radius: var(--radius);
@@ -325,11 +325,11 @@
 		.chip.remote { background: var(--moon); color: var(--text); }
 		.chip.new { background: var(--warn-soft); color: var(--warn); }
 		.chip.sal { background: var(--ok-soft); color: var(--ok); }
-		.links { display: flex; flex-wrap: wrap; gap: 4px 16px; font-size: 13.5px; padding-top: 10px; border-top: 1px solid var(--line-soft); }
+		.links { display: flex; flex-wrap: wrap; gap: 4px 16px; font-size: 13.5px; padding-top: 10px; margin-top: auto; border-top: 1px solid var(--line-soft); }
 		.links a { color: var(--accent); text-decoration: none; }
 		.links a:hover { text-decoration: underline; }
 		.links .muted { color: var(--text-muted); }
-		.side { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-top: auto; }
+		.side { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
 		.apply {
 			flex: 1 1 170px; cursor: pointer; border: 1px solid var(--text); background: transparent; color: var(--text);
 			border-radius: 999px; padding: 7px 14px; font: 500 16px var(--serif);
