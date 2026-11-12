@@ -79,7 +79,7 @@
 		canvas.fog { position: fixed; inset: 0; width: 100%; height: 100%; pointer-events: none; }
 		#fogBack, #fogFront { z-index: 0; }   /* detrás de la interfaz: nunca tapa textos ni botones */
 
-		.stage { position: relative; z-index: 1; height: 100%; display: grid; grid-template-rows: auto 1fr auto; padding: max(14px, env(safe-area-inset-top)) 16px max(14px, env(safe-area-inset-bottom)); }
+		.stage { position: relative; z-index: 1; height: 100%; display: grid; grid-template-rows: auto 1fr; padding: max(14px, env(safe-area-inset-top)) 16px max(14px, env(safe-area-inset-bottom)); }
 
 		header.top { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
 		.prompt { font: 500 13px var(--mono); color: var(--muted); margin: 0; }
@@ -154,11 +154,7 @@
 		}
 		.hub .go { font: 500 11px var(--mono); color: var(--muted); letter-spacing: .08em; text-transform: uppercase; }
 
-		footer.hint { display: flex; flex-wrap: wrap; justify-content: center; gap: 6px 18px; font: 12px var(--mono); color: var(--muted); }
-		footer.hint kbd { font: 600 11px var(--mono); padding: 1px 6px; border: 1px solid var(--seg-line); border-radius: 5px; background: var(--seg); color: var(--text); }
-		footer.hint .pad { color: var(--accent-2); }
 		@media (max-width: 640px) {
-			footer.hint .k { display: none; }
 			.tool .t { display: none; }
 			.tool { padding: 7px 11px; }
 			.prompt { font-size: 12px; }
@@ -248,11 +244,6 @@
 		</nav>
 	</main>
 
-	<footer class="hint">
-		<span>Apunta con el ratón o el dedo</span>
-		<span class="k"><kbd>←</kbd> <kbd>→</kbd> girar · <kbd>1</kbd>–<kbd>9</kbd> elegir · <kbd>Enter</kbd> entrar · <kbd>+</kbd> añadir</span>
-		<span class="pad" id="padHint" hidden>🎮 mando conectado: stick izquierdo + Ⓐ</span>
-	</footer>
 </div>
 
 <dialog id="addDlg" aria-labelledby="addTitle">
@@ -527,7 +518,7 @@
 	let padLoop = 0, padWasA = false;
 	function pollPad() {
 		const pad = [...(navigator.getGamepads?.() || [])].find(Boolean);
-		if (!pad) { padLoop = 0; $("padHint").hidden = true; return; }
+		if (!pad) { padLoop = 0; return; }
 		const [x, y] = pad.axes;
 		if (Math.hypot(x, y) > 0.5) {
 			let deg = (Math.atan2(y, x) * 180 / Math.PI + 90 + 360 + 180 / items.length) % 360;
@@ -538,7 +529,7 @@
 		padWasA = a;
 		padLoop = requestAnimationFrame(pollPad);
 	}
-	window.addEventListener("gamepadconnected", () => { $("padHint").hidden = false; if (!padLoop) padLoop = requestAnimationFrame(pollPad); });
+	window.addEventListener("gamepadconnected", () => { if (!padLoop) padLoop = requestAnimationFrame(pollPad); });
 
 	/* ---------- Añadir y editar ---------- */
 	const swatches = Object.keys(COLORS);
@@ -640,6 +631,14 @@
 		const bctx = back.getContext("2d"), fctx = front.getContext("2d");
 		const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
 		let W = 0, H = 0, puffs = [], wisps = [], sprite = null, last = 0;
+		// Ratón: la niebla lo sigue un poco (paralaje) y se remueve muy suave al pasar el cursor
+		const mouse = { x: 0, y: 0, vx: 0, vy: 0, px: null, py: null, on: false };
+		const par = { x: 0, y: 0 };
+		addEventListener("pointermove", (e) => {
+			if (mouse.px != null) { mouse.vx += e.clientX - mouse.px; mouse.vy += e.clientY - mouse.py; }
+			mouse.px = mouse.x = e.clientX; mouse.py = mouse.y = e.clientY; mouse.on = true;
+		});
+		document.addEventListener("pointerleave", () => { mouse.on = false; mouse.px = mouse.py = null; });
 		// Una «bocanada» de niebla: degradado radial muy suave, dibujado una vez y reutilizado
 		function makeSprite() {
 			const css = getComputedStyle(document.documentElement);
@@ -657,8 +656,8 @@
 			// Más densa abajo: la y se reparte con sesgo hacia el suelo
 			const y = H * (front ? rnd(.55, 1.1) : Math.pow(Math.random(), .6) * 1.15 - .05);
 			return { x: rnd(-.2, 1.2) * W, y, r: m * (front ? rnd(.16, .3) : rnd(.18, .42)),
-				vx: rnd(4, 14) * (Math.random() < .5 ? -1 : 1) * (front ? 1.6 : 1), vy: rnd(-1.5, 1.5),
-				a: front ? rnd(.35, .7) : rnd(.35, 1), ph: rnd(0, 6.28) };
+				vx: rnd(1.5, 5) * (Math.random() < .5 ? -1 : 1) * (front ? 1.5 : 1), vy: rnd(-.6, .6),
+				a: front ? rnd(.35, .7) : rnd(.35, 1), ph: rnd(0, 6.28), ox: 0, oy: 0, kx: 0, ky: 0 };
 		}
 		function size() {
 			W = innerWidth; H = innerHeight;
@@ -669,17 +668,26 @@
 			wisps = Array.from({ length: Math.round(n / 3) }, () => puff(true));
 			sprite = makeSprite();
 		}
-		function step(list, dt, t) {
+		function step(list, dt, stir) {
+			const spring = Math.min(1, dt * .6), damp = Math.pow(.2, dt);
 			for (const p of list) {
 				p.x += p.vx * dt; p.y += p.vy * dt;
 				if (p.x - p.r > W * 1.2) p.x = -p.r; else if (p.x + p.r < -W * .2) p.x = W + p.r;
+				// Remolino: el cursor empuja un poco las nubes que atraviesa y luego vuelven a su sitio
+				if (mouse.on && (mouse.vx || mouse.vy)) {
+					const d = Math.hypot(p.x + p.ox - mouse.x, p.y + p.oy - mouse.y);
+					if (d < p.r) { const f = (1 - d / p.r) * stir; p.kx += mouse.vx * f; p.ky += mouse.vy * f; }
+				}
+				p.kx *= damp; p.ky *= damp;
+				p.ox += (p.kx - p.ox * .9) * spring; p.oy += (p.ky - p.oy * .9) * spring;
 			}
 		}
-		function paint(ctx, list, t, k) {
+		function paint(ctx, list, t, k, depth) {
 			ctx.clearRect(0, 0, W, H);
+			const sx = par.x * depth, sy = par.y * depth;
 			for (const p of list) {
-				ctx.globalAlpha = Math.min(1, sprite.a * p.a * k * (0.85 + 0.15 * Math.sin(p.ph + t / 4000)));
-				ctx.drawImage(sprite.c, p.x - p.r, p.y - p.r, p.r * 2, p.r * 2);
+				ctx.globalAlpha = Math.min(1, sprite.a * p.a * k * (0.88 + 0.12 * Math.sin(p.ph + t / 6000)));
+				ctx.drawImage(sprite.c, p.x + p.ox + sx - p.r, p.y + p.oy + sy - p.r, p.r * 2, p.r * 2);
 			}
 			ctx.globalAlpha = 1;
 		}
@@ -694,15 +702,23 @@
 		}
 		function frame(t) {
 			const dt = Math.min(.1, (t - (last || t)) / 1000); last = t;
-			if (!reduce) { step(puffs, dt, t); step(wisps, dt, t); }
-			paint(bctx, puffs, t, 1.6);   // densa detrás de la rueda
-			paint(fctx, wisps, t, 1);
+			if (!reduce) {
+				// Paralaje: la niebla se desplaza un poco hacia el lado contrario del ratón, sin prisa
+				const tx = mouse.on ? (mouse.x / W - .5) * -26 : 0, ty = mouse.on ? (mouse.y / H - .5) * -18 : 0;
+				const e = Math.min(1, dt * .9);
+				par.x += (tx - par.x) * e; par.y += (ty - par.y) * e;
+				step(puffs, dt, .05); step(wisps, dt, .08);
+				mouse.vx = mouse.vy = 0;
+			}
+			paint(bctx, puffs, t, 1.6, .6);   // densa detrás de la rueda; se mueve menos (más lejos)
+			paint(fctx, wisps, t, 1, 1.2);
 			clearAroundWheel();
 			if (!reduce) requestAnimationFrame(frame);
 		}
 		addEventListener("resize", () => { size(); if (reduce) frame(0); });
 		matchMedia("(prefers-color-scheme: dark)").addEventListener?.("change", () => { sprite = makeSprite(); if (reduce) frame(0); });
 		size(); requestAnimationFrame(frame);
+		window.__fog = { par, stir: () => Math.max(0, ...puffs.concat(wisps).map((p) => Math.hypot(p.ox, p.oy))) };
 	})();
 
 	render();
