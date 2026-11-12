@@ -260,6 +260,11 @@
 			font: 600 21px var(--serif); letter-spacing: .02em; box-shadow: inset 0 0 0 1px hsl(var(--h) 25% 80%);
 		}
 		@media (prefers-color-scheme: dark) { .logo { background: hsl(var(--h) 18% 22%); color: hsl(var(--h) 45% 80%); box-shadow: inset 0 0 0 1px hsl(var(--h) 15% 32%); } }
+		.logo { position: relative; overflow: hidden; }
+		.logo img { position: absolute; inset: 9px; width: calc(100% - 18px); height: calc(100% - 18px); object-fit: contain; opacity: 0; }
+		.logo.has-img { background: #fff; color: transparent; box-shadow: inset 0 0 0 1px var(--line); }
+		.logo.has-img img { opacity: 1; }
+		.logo.has-img.full img { inset: 0; width: 100%; height: 100%; object-fit: cover; }
 		.job h3 { margin: 2px 0 2px; font: 500 23px/1.18 var(--serif); overflow-wrap: anywhere; }
 		.job h3 a { color: var(--text); text-decoration: none; }
 		.job h3 a:hover { text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 3px; }
@@ -1230,6 +1235,24 @@
 			...sources.map((s) => el("option", { value: s, selected: s === cur }, s)));
 	}
 
+	function logoBadge(o) {
+		const badge = el("span", { class: "logo", style: `--h:${hue(o.empresa)}`, "aria-hidden": "true" }, initials(o.empresa));
+		const src = (o.logo || "").trim();
+		if (/^https:\/\//i.test(src)) {
+			const img = el("img", { src, alt: "", loading: "lazy", decoding: "async", referrerpolicy: "no-referrer" });
+			img.addEventListener("load", () => {
+				// Un favicon diminuto se ve peor que las iniciales.
+				if (img.naturalWidth && img.naturalWidth < 24) return img.remove();
+				badge.classList.add("has-img");
+				// Un icono cuadrado y grande (tipo app) llena el círculo; los logotipos alargados van con margen.
+				if (img.naturalWidth >= 120 && Math.abs(img.naturalWidth - img.naturalHeight) <= 2) badge.classList.add("full");
+			});
+			img.addEventListener("error", () => img.remove());
+			badge.append(img);
+		}
+		return badge;
+	}
+
 	function jobCard(o) {
 		const key = keyOf(o);
 		const pts = parseFloat(o.puntos) || 0;
@@ -1270,7 +1293,7 @@
 
 		return el("article", { class: "job" + (isApplied ? " applied" : "") + (discarded(o) ? " discarded" : "") },
 			el("div", { class: "job-head" },
-				el("span", { class: "logo", style: `--h:${hue(o.empresa)}`, "aria-hidden": "true" }, initials(o.empresa)),
+				logoBadge(o),
 				el("div", {},
 					el("h3", {}, el("a", { href: safeUrl(o.url_original || o.url), target: "_blank", rel: "noopener noreferrer" }, o.puesto || "(sin título)")),
 					o.empresa ? (o.web_empresa
