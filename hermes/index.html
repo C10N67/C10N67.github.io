@@ -252,6 +252,7 @@
 		<label>Nombre<input id="fName" maxlength="24" placeholder="GitHub" autocomplete="off" required /></label>
 		<label>Dirección<input id="fUrl" type="url" placeholder="https://github.com/C10N67" autocomplete="off" required /></label>
 		<label>Descripción (opcional)<input id="fDesc" maxlength="70" placeholder="Mis repositorios" autocomplete="off" /></label>
+		<label>Icono (opcional: dirección de una imagen)<input id="fIcon" type="url" placeholder="Si lo dejas vacío, se busca solo" autocomplete="off" /></label>
 		<div>
 			<label style="margin-bottom:6px">Color</label>
 			<div class="colors" id="fColors" role="radiogroup" aria-label="Color"></div>
@@ -339,11 +340,14 @@
 			const size = Math.min(13, step * 0.32);
 			const icon = svgEl("g", { class: "ic" });
 			if (it.icon === "site") {
-				// Imagen SVG nativa: el logo entero, sin recortes (un foreignObject recortaba bordes y esquinas)
-				const img = svgEl("image", { class: "logo", x: ix - size / 2, y: iy - size / 2, width: size, height: size,
-					href: `${new URL(it.url).origin}/favicon.ico`, preserveAspectRatio: "xMidYMid meet" });
-				img.addEventListener("error", () => img.replaceWith(useIcon("globe", ix, iy, size)));
-				icon.append(img);
+				// Globo mientras se busca el logo; luego, imagen SVG nativa (el logo entero, sin recortes)
+				const holder = useIcon("globe", ix, iy, size);
+				icon.append(holder);
+				findLogo(it).then((src) => {
+					if (!src || !holder.isConnected) return;
+					holder.replaceWith(svgEl("image", { class: "logo", x: ix - size / 2, y: iy - size / 2, width: size, height: size,
+						href: src, preserveAspectRatio: "xMidYMid meet" }));
+				});
 			} else icon.append(useIcon(it.icon, ix, iy, size));
 			const a = svgEl("a", {
 				class: "seg" + (it.add ? " add" : "") + (it.custom ? " custom" : ""), href: it.add ? "#" : it.url,
@@ -364,6 +368,52 @@
 		});
 		select(Math.min(sel, items.length - 1), true);
 	}
+	/* ---------- Logos de las webs añadidas ----------
+	   Muchas webs no tienen /favicon.ico (KodeKloud, por ejemplo: su logo está declarado en el HTML y
+	   alojado en un CDN, y una página no puede leer el HTML de otra). Por orden:
+	   1. el icono que le pongas al añadirla;
+	   2. el servicio de iconos de Google, que sí lee el logo declarado (solo si da más de 16 px:
+	      con 16 px suele ser su globo genérico);
+	   3. /apple-touch-icon.png y /favicon.ico de la propia web;
+	   4. si nada sirve, el globo de Hermes.
+	   El resultado se guarda en este navegador para no repetir la búsqueda. */
+	const ICON_KEY = "hermes.icons";
+	const iconCache = (() => { try { return JSON.parse(localStorage.getItem(ICON_KEY) || "{}"); } catch { return {}; } })();
+	const pending = {};
+	function probe(src, timeout = 6000) {
+		return new Promise((resolve) => {
+			const im = new Image();
+			im.referrerPolicy = "no-referrer";
+			const t = setTimeout(() => { im.src = ""; resolve(0); }, timeout);
+			im.onload = () => { clearTimeout(t); resolve(im.naturalWidth || 1); };
+			im.onerror = () => { clearTimeout(t); resolve(0); };
+			im.src = src;
+		});
+	}
+	async function searchLogo(it) {
+		const u = new URL(it.url), host = u.hostname;
+		if (it.icon_url && await probe(it.icon_url)) return it.icon_url;
+		const google = `https://www.google.com/s2/favicons?domain=${encodeURIComponent(host)}&sz=128`;
+		if (await probe(google) > 16) return google;
+		for (const path of ["/apple-touch-icon.png", "/favicon.ico"]) {
+			const src = u.origin + path;
+			if (await probe(src)) return src;
+		}
+		return "";
+	}
+	function findLogo(it) {
+		const key = (it.icon_url || "") + "|" + new URL(it.url).hostname;
+		const hit = iconCache[key];
+		const fresh = hit && Date.now() - hit.t < (hit.src ? 30 : 1) * 86400000;   // sin logo: se reintenta al día siguiente
+		if (fresh) return Promise.resolve(hit.src);
+		return pending[key] ||= searchLogo(it).then((src) => {
+			iconCache[key] = { src, t: Date.now() };
+			try { localStorage.setItem(ICON_KEY, JSON.stringify(iconCache)); } catch {}
+			delete pending[key];
+			return src;
+		});
+	}
+
 	function useIcon(name, x, y, size) {
 		return svgEl("use", { href: "#i-" + name, x: x - size / 2, y: y - size / 2, width: size, height: size });
 	}
@@ -507,7 +557,12 @@
 		try { ok = ["http:", "https:"].includes(new URL(url).protocol) && !!new URL(url).hostname.includes("."); } catch {}
 		const err = !name ? "Ponle un nombre." : !ok ? "La dirección no es válida (ejemplo: https://github.com)." : "";
 		if (err) { $("fErr").textContent = err; $("fErr").hidden = false; return; }
-		custom.push({ name, url, desc: $("fDesc").value.trim(), color: new FormData(e.target).get("color") || "violet" });
+		let icon_url = $("fIcon").value.trim();
+		if (icon_url && !/^https?:\/\//i.test(icon_url)) icon_url = "https://" + icon_url;
+		try { if (icon_url && !["http:", "https:"].includes(new URL(icon_url).protocol)) throw 0; }
+		catch { $("fErr").textContent = "La dirección del icono no es válida."; $("fErr").hidden = false; return; }
+		custom.push({ name, url, desc: $("fDesc").value.trim(), color: new FormData(e.target).get("color") || "violet",
+			...(icon_url ? { icon_url } : {}) });
 		if (!store.set(custom)) toast("Este navegador no deja guardar: la web solo durará hasta que cierres la página");
 		$("addDlg").close();
 		render();
