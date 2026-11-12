@@ -7,7 +7,10 @@
 	<meta name="description" content="Hermes: el selector de destinos de Daniel Carballo. Elige en la rueda a dónde ir: Aracne, el perfil o cualquier web que añadas." />
 	<meta name="theme-color" content="#0b1120" media="(prefers-color-scheme: dark)" />
 	<meta name="theme-color" content="#f5efe8" media="(prefers-color-scheme: light)" />
-	<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230b1120'/%3E%3Cg fill='none' stroke='%2322d3ee' stroke-width='3' stroke-linecap='round'%3E%3Ccircle cx='32' cy='32' r='9'/%3E%3Cpath d='M23 30C15 26 10 19 9 12c6 3 11 5 16 10M23 34c-6 1-11 0-15-3M41 30c8-4 13-11 14-18-6 3-11 5-16 10M41 34c6 1 11 0 15-3'/%3E%3C/g%3E%3C/svg%3E" />
+	<link rel="icon" href="/favicon.ico" sizes="48x48" />
+	<link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+	<link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+	<link rel="manifest" href="/site.webmanifest" />
 	<link rel="preconnect" href="https://fonts.googleapis.com" />
 	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 	<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,400;1,500&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
@@ -123,12 +126,23 @@
 			box-shadow: var(--shadow), inset 0 0 0 1px var(--seg-line);
 			transition: background .2s;
 		}
-		.hub-in { width: 78%; display: grid; gap: 6px; justify-items: center; }
+		.hub-in { width: 76%; max-height: 82%; display: grid; gap: 6px; justify-items: center; overflow: hidden; }
+		.hub-in > * { max-width: 100%; }
 		.hub .wing { width: 46%; color: var(--c, var(--accent)); transition: color .2s; }
-		.hub h1, .hub h2 { margin: 0; font: 500 clamp(30px, 6.4vmin, 50px)/1 var(--serif); letter-spacing: .01em; }
-		.hub h1 { letter-spacing: .14em; text-transform: uppercase; font-size: clamp(26px, 5.6vmin, 44px); }
-		.hub p { margin: 0; color: var(--muted); font-size: clamp(12px, 1.9vmin, 14px); line-height: 1.4; max-width: 24ch; }
-		.hub .host { font: 500 clamp(10.5px, 1.6vmin, 12px) var(--mono); color: var(--c, var(--accent)); overflow-wrap: anywhere; }
+		.hub h1 {
+			margin: 0; font: 500 var(--fs, clamp(26px, 5.6vmin, 44px))/1.05 var(--serif); letter-spacing: .14em; text-transform: uppercase;
+			overflow-wrap: anywhere; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow: hidden;
+		}
+		.hub h1.long { letter-spacing: .06em; }
+		/* La descripción ocupa como mucho 3 líneas; lo que no cabe acaba en «…» */
+		.hub p {
+			margin: 0; color: var(--muted); font-size: clamp(12px, 1.9vmin, 14px); line-height: 1.4; max-width: 26ch;
+			display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 3; overflow: hidden; overflow-wrap: anywhere;
+		}
+		.hub .host {
+			font: 500 clamp(10.5px, 1.6vmin, 12px) var(--mono); color: var(--c, var(--accent));
+			white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+		}
 		.hub .go { font: 500 11px var(--mono); color: var(--muted); letter-spacing: .08em; text-transform: uppercase; }
 
 		footer.hint { display: flex; flex-wrap: wrap; justify-content: center; gap: 6px 18px; font: 12px var(--mono); color: var(--muted); }
@@ -142,8 +156,7 @@
 			.hub .wing { width: 34%; }
 			.hub .go { display: none; }
 			.hub p { font-size: 11px; -webkit-line-clamp: 2; display: -webkit-box; -webkit-box-orient: vertical; overflow: hidden; }
-			.hub h1 { font-size: 22px; }
-			.hub h1 { max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+			.hub h1 { font-size: var(--fs, 22px); }
 		}
 
 		/* Diálogo «Añadir web» */
@@ -191,11 +204,11 @@
 	<symbol id="i-user" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><circle cx="12" cy="8" r="4" /><path d="M4 21c1.2-4 4.3-6 8-6s6.8 2 8 6" /></g></symbol>
 	<symbol id="i-globe" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="12" r="9" /><path d="M3 12h18M12 3c2.6 2.6 3.8 5.6 3.8 9S14.6 18.4 12 21c-2.6-2.6-3.8-5.6-3.8-9S9.4 5.6 12 3Z" /></g></symbol>
 	<symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" /></symbol>
-	<symbol id="i-wings" viewBox="0 0 64 40">
-		<g fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-			<circle cx="32" cy="22" r="7" />
-			<path d="M24 19C16 15 9 8 6 1c7 3 13 6 19 12M24 23C15 23 7 20 2 14c7 1 14 2 21 5M25 27c-7 3-14 3-19 0 6-1 12-2 18-4" />
-			<path d="M40 19c8-4 15-11 18-18-7 3-13 6-19 12M40 23c9 0 17-3 22-9-7 1-14 2-21 5M39 27c7 3 14 3 19 0-6-1-12-2-18-4" />
+	<symbol id="i-wings" viewBox="0 6 64 40">
+		<g fill="currentColor">
+			<path id="wing-l" d="M27.5 31C21 22.5 13 16 3 12c1.4 6.6 4.6 11.4 8.6 14.4-2.6.4-4.8 1.2-6.6 2.8 3.6 2.8 8 4.2 12.6 4.4-2 1.4-3.6 3.2-4.6 5.4 5.2 1.4 10.6 1 15.8-1.4z" />
+			<use href="#wing-l" transform="matrix(-1 0 0 1 64 0)" />
+			<circle cx="32" cy="35" r="7.2" />
 		</g>
 	</symbol>
 </svg>
@@ -371,17 +384,37 @@
 		if (!it) {
 			hub.style.removeProperty("--c");
 			$("hubTitle").textContent = "Hermes";
+			fitTitle();
 			$("hubText").textContent = "Apunta a un destino y haz clic para entrar.";
 			$("hubHost").textContent = ""; $("hubGo").hidden = true;
 			return;
 		}
 		hub.style.setProperty("--c", COLORS[it.color] || COLORS.cyan);
 		$("hubTitle").textContent = it.name;
+		fitTitle();
 		$("hubText").textContent = editing && it.custom ? "Haz clic para quitarla de la rueda." : (it.desc || "");
 		$("hubHost").textContent = it.add ? "" : hostOf(it.url);
+		$("hubHost").title = it.add ? "" : new URL(it.url, location.href).href;
 		$("hubGo").hidden = false;
 		$("hubGo").textContent = it.add ? "Clic para añadir" : editing && it.custom ? "Clic para quitar" : "Clic · Enter · Ⓐ";
 	}
+
+	/* El nombre se encoge hasta caber en una línea; si ni así cabe, pasa a dos líneas (con «…» si hiciera falta) */
+	function fitTitle() {
+		const h = $("hubTitle");
+		h.style.removeProperty("--fs");
+		h.classList.toggle("long", h.textContent.length > 10);
+		const box = h.parentElement.clientWidth;
+		let size = parseFloat(getComputedStyle(h).fontSize);
+		const min = Math.max(14, size * 0.5);
+		h.style.whiteSpace = "nowrap";
+		while (h.scrollWidth > box && size > min) {
+			size -= 1;
+			h.style.setProperty("--fs", size + "px");
+		}
+		h.style.whiteSpace = "";
+	}
+	addEventListener("resize", () => fitTitle());
 
 	function activate(i) {
 		const it = items[i];
