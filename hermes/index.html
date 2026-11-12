@@ -31,6 +31,8 @@
 			--seg-line: rgba(148, 163, 184, 0.28);
 			--hub: rgba(11, 17, 32, 0.92);
 			--star: 226, 232, 240;
+			--fog: 120, 138, 168;      /* niebla gris azulada sobre la noche */
+			--fog-alpha: .30;
 			--shadow: 0 20px 60px -24px rgba(0, 0, 0, 0.8);
 			--serif: "Cormorant Garamond", Garamond, "Times New Roman", serif;
 			--sans: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
@@ -52,6 +54,8 @@
 				--seg-line: rgba(110, 88, 70, 0.28);
 				--hub: rgba(253, 251, 248, 0.95);
 				--star: 120, 98, 78;
+				--fog: 252, 248, 242;  /* niebla crema */
+				--fog-alpha: .55;
 				--shadow: 0 20px 50px -24px rgba(60, 40, 25, 0.45);
 				color-scheme: light;
 			}
@@ -71,6 +75,9 @@
 		canvas#sky { position: fixed; inset: 0; width: 100%; height: 100%; z-index: 0; pointer-events: none; }
 		svg.backweb { position: fixed; inset: 0; width: 100%; height: 100%; z-index: 0; pointer-events: none; }
 		svg.backweb path { fill: none; stroke: var(--web); stroke-width: 1; vector-effect: non-scaling-stroke; }
+		/* Niebla densa: una capa detrás de la rueda y jirones delante, despejados alrededor de la rueda */
+		canvas.fog { position: fixed; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+		#fogBack, #fogFront { z-index: 0; }   /* detrás de la interfaz: nunca tapa textos ni botones */
 
 		.stage { position: relative; z-index: 1; height: 100%; display: grid; grid-template-rows: auto 1fr auto; padding: max(14px, env(safe-area-inset-top)) 16px max(14px, env(safe-area-inset-bottom)); }
 
@@ -194,6 +201,8 @@
 
 <canvas id="sky" aria-hidden="true"></canvas>
 <svg class="backweb" id="backweb" aria-hidden="true" preserveAspectRatio="xMidYMid slice" viewBox="-100 -100 200 200"></svg>
+<canvas class="fog" id="fogBack" aria-hidden="true"></canvas>
+<canvas class="fog" id="fogFront" aria-hidden="true"></canvas>
 
 <svg width="0" height="0" style="position:absolute" aria-hidden="true">
 	<symbol id="i-spider" viewBox="-26 -26 52 52">
@@ -624,6 +633,76 @@
 		}
 		addEventListener("resize", () => { size(); if (reduce) draw(0); });
 		size(); requestAnimationFrame(draw);
+	})();
+
+	(function fog() {
+		const back = $("fogBack"), front = $("fogFront");
+		const bctx = back.getContext("2d"), fctx = front.getContext("2d");
+		const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+		let W = 0, H = 0, puffs = [], wisps = [], sprite = null, last = 0;
+		// Una «bocanada» de niebla: degradado radial muy suave, dibujado una vez y reutilizado
+		function makeSprite() {
+			const css = getComputedStyle(document.documentElement);
+			const rgb = css.getPropertyValue("--fog").trim() || "120,138,168";
+			const c = document.createElement("canvas"); c.width = c.height = 256;
+			const g = c.getContext("2d"), gr = g.createRadialGradient(128, 128, 0, 128, 128, 128);
+			gr.addColorStop(0, `rgba(${rgb},1)`); gr.addColorStop(.35, `rgba(${rgb},.75)`);
+			gr.addColorStop(.7, `rgba(${rgb},.25)`); gr.addColorStop(1, `rgba(${rgb},0)`);
+			g.fillStyle = gr; g.fillRect(0, 0, 256, 256);
+			return { c, a: parseFloat(css.getPropertyValue("--fog-alpha")) || .3 };
+		}
+		const rnd = (a, b) => a + Math.random() * (b - a);
+		function puff(front) {
+			const m = Math.max(W, H);
+			// Más densa abajo: la y se reparte con sesgo hacia el suelo
+			const y = H * (front ? rnd(.55, 1.1) : Math.pow(Math.random(), .6) * 1.15 - .05);
+			return { x: rnd(-.2, 1.2) * W, y, r: m * (front ? rnd(.16, .3) : rnd(.18, .42)),
+				vx: rnd(4, 14) * (Math.random() < .5 ? -1 : 1) * (front ? 1.6 : 1), vy: rnd(-1.5, 1.5),
+				a: front ? rnd(.35, .7) : rnd(.35, 1), ph: rnd(0, 6.28) };
+		}
+		function size() {
+			W = innerWidth; H = innerHeight;
+			for (const c of [back, front]) { c.width = Math.ceil(W / 2); c.height = Math.ceil(H / 2); }   // la niebla es borrosa: media resolución basta
+			bctx.setTransform(.5, 0, 0, .5, 0, 0); fctx.setTransform(.5, 0, 0, .5, 0, 0);
+			const n = Math.round(Math.min(70, Math.max(26, W * H / 26000)));
+			puffs = Array.from({ length: n }, () => puff(false));
+			wisps = Array.from({ length: Math.round(n / 3) }, () => puff(true));
+			sprite = makeSprite();
+		}
+		function step(list, dt, t) {
+			for (const p of list) {
+				p.x += p.vx * dt; p.y += p.vy * dt;
+				if (p.x - p.r > W * 1.2) p.x = -p.r; else if (p.x + p.r < -W * .2) p.x = W + p.r;
+			}
+		}
+		function paint(ctx, list, t, k) {
+			ctx.clearRect(0, 0, W, H);
+			for (const p of list) {
+				ctx.globalAlpha = Math.min(1, sprite.a * p.a * k * (0.85 + 0.15 * Math.sin(p.ph + t / 4000)));
+				ctx.drawImage(sprite.c, p.x - p.r, p.y - p.r, p.r * 2, p.r * 2);
+			}
+			ctx.globalAlpha = 1;
+		}
+		function clearAroundWheel() {
+			const box = $("wheel").getBoundingClientRect();
+			const cx = box.left + box.width / 2, cy = box.top + box.height / 2, r = box.width / 2;
+			const g = fctx.createRadialGradient(cx, cy, r * .85, cx, cy, r * 1.45);
+			g.addColorStop(0, "rgba(0,0,0,1)"); g.addColorStop(1, "rgba(0,0,0,0)");
+			fctx.globalCompositeOperation = "destination-out";
+			fctx.fillStyle = g; fctx.fillRect(0, 0, W, H);
+			fctx.globalCompositeOperation = "source-over";
+		}
+		function frame(t) {
+			const dt = Math.min(.1, (t - (last || t)) / 1000); last = t;
+			if (!reduce) { step(puffs, dt, t); step(wisps, dt, t); }
+			paint(bctx, puffs, t, 1.6);   // densa detrás de la rueda
+			paint(fctx, wisps, t, 1);
+			clearAroundWheel();
+			if (!reduce) requestAnimationFrame(frame);
+		}
+		addEventListener("resize", () => { size(); if (reduce) frame(0); });
+		matchMedia("(prefers-color-scheme: dark)").addEventListener?.("change", () => { sprite = makeSprite(); if (reduce) frame(0); });
+		size(); requestAnimationFrame(frame);
 	})();
 
 	render();
