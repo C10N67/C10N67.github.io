@@ -7,7 +7,7 @@
 	var anchor = wrap.querySelector('.hero-sky-anchor');
 	var ctx = canvas.getContext('2d');
 	var lightMq = window.matchMedia ? window.matchMedia('(prefers-color-scheme: light)') : { matches: false };
-	function starColor() { return lightMq.matches ? '#1e3a8a' : '#cfe6ff'; }
+	function starColor() { return lightMq.matches ? '#6b4a33' : '#f3e3cf'; }   // sepia de día, crema de noche
 
 	// Coordenadas normalizadas (0..1, y hacia abajo) y aristas de cada constelación
 	var CONSTELLATIONS = [

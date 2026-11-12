@@ -5,7 +5,7 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
 	<title>Hermes · Selector de destinos</title>
 	<meta name="description" content="Hermes: el selector de destinos de Daniel Carballo. Elige en la rueda a dónde ir: Aracne, el perfil o cualquier web que añadas." />
-	<meta name="theme-color" content="#0b1120" media="(prefers-color-scheme: dark)" />
+	<meta name="theme-color" content="#1b1714" media="(prefers-color-scheme: dark)" />
 	<meta name="theme-color" content="#f5efe8" media="(prefers-color-scheme: light)" />
 	<link rel="icon" href="/favicon.ico" sizes="48x48" />
 	<link rel="icon" href="/favicon.svg" type="image/svg+xml" />
@@ -15,23 +15,28 @@
 	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 	<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,400;1,500&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
 	<style>
-		/* Hermes: la noche del CV (cian/violeta, mono) tejida con la telaraña y la serif de Aracne.
-		   Modo claro = el crema de Aracne. */
+		/* Hermes: la gama de Aracne (sepia de noche, crema de día), su telaraña y su serif, con el
+		   prompt en mono del CV. */
 		:root {
-			--bg: #0b1120;
-			--bg-2: #0f172a;
-			--text: #e2e8f0;
-			--muted: #94a3b8;
-			--accent: #22d3ee;
-			--accent-2: #a78bfa;
-			--amber: #e3b787;
-			--web: rgba(148, 163, 184, 0.16);
-			--web-strong: rgba(148, 163, 184, 0.34);
-			--seg: rgba(17, 26, 46, 0.72);
-			--seg-line: rgba(148, 163, 184, 0.28);
-			--hub: rgba(11, 17, 32, 0.92);
-			--star: 226, 232, 240;
-			--fog: 120, 138, 168;      /* niebla gris azulada sobre la noche */
+			/* Gama de Aracne (sepia oscuro); los colores de las porciones salen de sus estados */
+			--bg: #1b1714;
+			--bg-2: #241f1b;
+			--text: #efe6dc;
+			--muted: #b3a597;
+			--accent: #d8a77f;
+			--accent-2: #e0b06a;
+			--amber: #e0b06a;
+			--olive: #9cc183;
+			--blue: #7fc0de;
+			--violet: #bba3e6;
+			--rose: #e58a7d;
+			--web: rgba(179, 165, 151, 0.16);
+			--web-strong: rgba(179, 165, 151, 0.34);
+			--seg: rgba(36, 31, 27, 0.74);
+			--seg-line: rgba(179, 165, 151, 0.28);
+			--hub: rgba(27, 23, 20, 0.92);
+			--star: 243, 227, 207;
+			--fog: 150, 135, 120;      /* niebla cálida sobre el sepia */
 			--fog-alpha: .30;
 			--shadow: 0 20px 60px -24px rgba(0, 0, 0, 0.8);
 			--serif: "Cormorant Garamond", Garamond, "Times New Roman", serif;
@@ -45,9 +50,13 @@
 				--bg-2: #ede5db;
 				--text: #2b2421;
 				--muted: #6d6058;
-				--accent: #0e7490;
-				--accent-2: #7c3aed;
-				--amber: #8a5a3c;
+				--accent: #8a5a3c;
+				--accent-2: #a06a24;
+				--amber: #a06a24;
+				--olive: #5d7a46;
+				--blue: #2c6e8f;
+				--violet: #7756a8;
+				--rose: #a6473b;
 				--web: rgba(110, 88, 70, 0.18);
 				--web-strong: rgba(80, 62, 50, 0.36);
 				--seg: rgba(253, 251, 248, 0.82);
@@ -275,9 +284,9 @@
 	/* Destinos fijos. Añade aquí los que quieras en todos tus dispositivos. */
 	const DEFAULTS = [
 		{ id: "aracne", name: "Aracne", url: "../aracne/", desc: "Crawling the web for work: tu panel de ofertas y candidaturas.", icon: "spider", color: "amber" },
-		{ id: "perfil", name: "Perfil", url: "../", desc: "Daniel Carballo Reyes · ingeniero de telecomunicación: CV, proyectos y contacto.", icon: "user", color: "cyan" },
+		{ id: "perfil", name: "Perfil", url: "../", desc: "Daniel Carballo Reyes · ingeniero de telecomunicación: CV, proyectos y contacto.", icon: "user", color: "green" },
 	];
-	const COLORS = { cyan: "var(--accent)", violet: "var(--accent-2)", amber: "var(--amber)", green: "#4ade80", rose: "#fb7185", blue: "#60a5fa" };
+	const COLORS = { cyan: "var(--accent)", violet: "var(--violet)", amber: "var(--amber)", green: "var(--olive)", rose: "var(--rose)", blue: "var(--blue)" };
 	const KEY = "hermes.links";
 	const MAX_CUSTOM = 8;
 	const R_OUT = 100, R_IN = 52, GAP = 1.4;   // unidades del viewBox; GAP en grados

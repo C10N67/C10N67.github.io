@@ -4,9 +4,9 @@
 
    Opciones con atributos en la etiqueta <script>:
      data-density="1"              más (>1) o menos (<1) densa
-     data-dark="120,138,168"       color RGB en modo oscuro
-     data-light="226,232,240"      color RGB en modo claro
-     data-alpha-dark=".30"  data-alpha-light=".45"   opacidad base
+     data-dark="150,135,120"       color RGB en modo oscuro
+     data-light="252,248,242"      color RGB en modo claro
+     data-alpha-dark=".26"  data-alpha-light=".6"   opacidad base
 
    Va en una capa fija detrás del contenido (z-index -1): nunca tapa textos ni botones.
    Deriva despacio, sigue un poco al ratón (paralaje) y se remueve suave donde pasa el
@@ -21,8 +21,8 @@
 
 	function colors() {
 		return dark.matches
-			? { rgb: opt("dark", "120,138,168"), a: parseFloat(opt("alphaDark", ".30")) }
-			: { rgb: opt("light", "226,232,240"), a: parseFloat(opt("alphaLight", ".45")) };
+			? { rgb: opt("dark", "150,135,120"), a: parseFloat(opt("alphaDark", ".26")) }
+			: { rgb: opt("light", "252,248,242"), a: parseFloat(opt("alphaLight", ".6")) };
 	}
 
 	function start() {
