@@ -501,6 +501,7 @@
 		const dx = x - cx, dy = y - cy;
 		const dist = Math.hypot(dx, dy) / (box.width / 2) * 110;   // en unidades del viewBox
 		if (dist < (dead ?? R_IN * 0.55)) return -1;
+		if (dist > R_OUT + 14) return -1;   // lejos de la rueda: no se elige nada (margen de ~14 % alrededor)
 		let deg = Math.atan2(dy, dx) * 180 / Math.PI + 90;
 		deg = (deg + 360 + 180 / items.length) % 360;
 		return Math.floor(deg / (360 / items.length));
