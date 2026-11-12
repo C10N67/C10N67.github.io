@@ -1268,6 +1268,10 @@
 		if (d < 30) return `Hace ${d} d`;
 		return iso;
 	};
+	/* Nombre bonito de cada fuente (las webs de empresa ya vienen con su nombre) */
+	const SOURCE_LABELS = { adzuna: "Adzuna", jooble: "Jooble", infojobs: "InfoJobs", remotive: "Remotive", greenhouse: "Greenhouse",
+		lever: "Lever", linkedin: "LinkedIn", uc3m: "UC3M", careers: "Webs de empresas" };
+	const sourceLabel = (f) => SOURCE_LABELS[(f || "").toLowerCase()] || f || "?";
 	const safeUrl = (u) => (/^https?:\/\//i.test(u || "") ? u : "#");
 	const hostOf = (u) => { try { return new URL(u).hostname.replace(/^www\./, ""); } catch { return ""; } };
 	const searchUrl = (o) => "https://www.google.com/search?q=" +
@@ -1291,7 +1295,7 @@
 		if (prefs.source && o.fuente !== prefs.source) return false;
 		if (prefs.remote && !(o.remoto || "").trim()) return false;
 		const q = $("q").value.trim().toLowerCase();
-		if (q && !`${o.puesto} ${o.empresa} ${o.ubicacion} ${o.notas} ${o.estado} ${o.resumen || ""} ${o.coincidencias || ""}`.toLowerCase().includes(q)) return false;
+		if (q && !`${o.puesto} ${o.empresa} ${o.ubicacion} ${o.notas} ${o.estado} ${o.resumen || ""} ${o.coincidencias || ""} ${sourceLabel(o.fuente)}`.toLowerCase().includes(q)) return false;
 		return true;
 	}
 	function sorted(list) {
@@ -1335,10 +1339,12 @@
 
 	function renderSources() {
 		const sel = $("source");
-		const sources = [...new Set(rows.map((o) => o.fuente).filter(Boolean))].sort();
+		const n = (f) => rows.filter((o) => o.fuente === f).length;
+		const sources = [...new Set(rows.map((o) => o.fuente).filter(Boolean))]
+			.sort((a, b) => sourceLabel(a).localeCompare(sourceLabel(b), "es", { sensitivity: "base" }));
 		const cur = prefs.source;
 		sel.replaceChildren(el("option", { value: "" }, "Todas las fuentes"),
-			...sources.map((s) => el("option", { value: s, selected: s === cur }, s)));
+			...sources.map((s) => el("option", { value: s, selected: s === cur }, `${sourceLabel(s)} (${n(s)})`)));
 	}
 
 	function logoBadge(o) {
@@ -1379,7 +1385,7 @@
 					fact("Modalidad", remote ? "Remoto" : "Presencial o híbrido"),
 					fact("Salario", o.salario || "No indicado"),
 					fact("Puntuación", o.puntos ? `${parseFloat(o.puntos) || 0} puntos` : ""),
-					fact("Fuente", o.fuente),
+					fact("Fuente", sourceLabel(o.fuente)),
 					fact("Publicada", o.publicada ? new Date(o.publicada).toLocaleString("es-ES", { dateStyle: "medium", timeStyle: "short" }) : ""),
 					fact("Encontrada", o.encontrada),
 					fact("Candidatura", applied(o) ? (o.fecha_candidatura ? `Enviada el ${o.fecha_candidatura}` : "Enviada") : "No enviada"))));
@@ -1449,7 +1455,7 @@
 				age
 					? el("span", { class: "it" + (h <= 48 ? " age-fresh" : ""), title: `Publicada el ${new Date(o.publicada).toLocaleString("es-ES")}${o.encontrada ? " · encontrada el " + o.encontrada : ""}` }, icon("clock"), age)
 					: el("span", { class: "it", title: o.encontrada ? `Encontrada el ${o.encontrada}` : "" }, icon("clock"), "Encontrada " + whenLabel(o.encontrada).toLowerCase()),
-				el("span", { class: "mono", style: "color:var(--text-muted)" }, o.fuente || "?")),
+				el("span", { class: "mono", style: "color:var(--text-muted)" }, sourceLabel(o.fuente))),
 			chips.length ? el("div", { class: "chips" }, chips) : null,
 			summaryBox(o),
 			el("div", { class: "links" },
@@ -1461,7 +1467,7 @@
 					: !o.url_original
 						? el("a", { href: searchUrl(o), target: "_blank", rel: "noopener noreferrer", title: "Busca esta oferta fuera del agregador" }, "Buscar en su web ↗")
 						: null,
-				el("a", { href: safeUrl(o.url), target: "_blank", rel: "noopener noreferrer" }, `Ver en ${o.fuente || "la fuente"} ↗`)),
+				el("a", { href: safeUrl(o.url), target: "_blank", rel: "noopener noreferrer" }, `Ver en ${o.fuente ? sourceLabel(o.fuente) : "la fuente"} ↗`)),
 			el("div", { class: "side" },
 				applyBtn,
 				stateSel),
