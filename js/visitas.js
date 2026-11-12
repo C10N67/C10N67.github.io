@@ -5,10 +5,10 @@
    - en cualquier navegador donde hayas abierto la web una vez con «#soy-yo» al final de la
      dirección (p. ej. https://c10n67.github.io/#soy-yo). «#no-soy-yo» lo deshace.
 
-   Las estadísticas se ven en https://<CODIGO>.goatcounter.com (con tu cuenta). */
+   Las estadísticas se ven en https://hermes2121.goatcounter.com (con tu cuenta). */
 (function () {
 	"use strict";
-	var CODIGO = "";   // nombre de tu cuenta de GoatCounter (lo que va antes de .goatcounter.com)
+	var CODIGO = "hermes2121";   // cuenta de GoatCounter: estadísticas en https://hermes2121.goatcounter.com
 
 	var KEY = "visitas.yo";
 	function get(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }
