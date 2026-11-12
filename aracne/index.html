@@ -245,14 +245,54 @@
 		.filters select { border-radius: 999px; padding-inline: 14px; font-size: 14px; }
 		.count { color: var(--text-muted); font-size: 13px; margin-left: auto; }
 
-		.list { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 360px), 1fr)); gap: 20px; }
+		.list { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 360px), 1fr)); gap: 20px; align-items: start; }
 		.job {
 			display: flex; flex-direction: column; gap: 12px; min-width: 0;
 			background: var(--card); border: 1px solid var(--line-soft); border-radius: var(--radius);
 			padding: 22px 22px 18px; box-shadow: var(--shadow);
 		}
-		.job.applied { border-color: color-mix(in srgb, var(--ok) 45%, var(--line-soft)); }
-		.job.discarded { opacity: .6; }
+		/* Estado de la oferta: franja superior + etiqueta del mismo color */
+		.job { --st: var(--text-muted); position: relative; overflow: hidden; }
+		.job:not(.s-pending)::before { content: ""; position: absolute; inset: 0 0 auto 0; height: 4px; background: var(--st); }
+		.s-sent { --st: #8a5a3c; }
+		.s-interview { --st: #2c6e8f; }
+		.s-test { --st: #7756a8; }
+		.s-offer { --st: var(--ok); }
+		.s-rejected { --st: var(--bad); }
+		.s-discarded { --st: #8f8379; }
+		@media (prefers-color-scheme: dark) {
+			.s-sent { --st: #d8a77f; } .s-interview { --st: #7fc0de; } .s-test { --st: #bba3e6; } .s-discarded { --st: #9d9187; }
+		}
+		.job.s-discarded, .job.s-rejected { box-shadow: none; }
+		.job.s-discarded .job-head, .job.s-discarded .meta { opacity: .7; }
+		.status {
+			display: inline-flex; align-items: center; gap: 7px; width: fit-content;
+			padding: 3px 11px 3px 9px; border-radius: 999px; font: 600 12.5px var(--sans); letter-spacing: .01em;
+			color: var(--st); background: color-mix(in srgb, var(--st) 13%, transparent);
+		}
+		.status::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: var(--st); }
+		.s-pending .status { color: var(--text-muted); background: var(--bg-alt); }
+		.s-pending .status::before { background: transparent; box-shadow: inset 0 0 0 1.5px var(--text-muted); }
+		.job-top { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 10px; margin-top: -4px; }
+		.job-top .since { font: 11.5px var(--mono); color: var(--text-muted); }
+
+		/* Resumen desplegable */
+		.sum > summary {
+			list-style: none; cursor: pointer; width: fit-content; display: inline-flex; align-items: center; gap: 6px;
+			font: 500 16px var(--serif); color: var(--text); border-bottom: 1px solid var(--line); padding-bottom: 1px;
+		}
+		.sum > summary::-webkit-details-marker { display: none; }
+		.sum > summary::after { content: "▾"; font-size: 12px; color: var(--text-muted); transition: transform .15s; }
+		.sum[open] > summary::after { transform: rotate(180deg); }
+		.sum > summary:hover { border-bottom-color: var(--text); }
+		.sum-body { margin-top: 10px; padding: 14px 16px; border-radius: 12px; background: var(--surface); border: 1px solid var(--line-soft); display: grid; gap: 12px; }
+		.sum-text { margin: 0; font: 400 18px/1.45 var(--serif); }
+		.sum-text.none { font: italic 16px/1.45 var(--serif); color: var(--text-muted); }
+		.sum-label { font: 600 11px var(--sans); letter-spacing: .08em; text-transform: uppercase; color: var(--text-muted); margin-bottom: 5px; }
+		.facts { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px 16px; margin: 0; }
+		.facts div { min-width: 0; }
+		.facts dt { font-size: 11.5px; color: var(--text-muted); }
+		.facts dd { margin: 0; font-size: 13.5px; overflow-wrap: anywhere; }
 		.job-head { display: grid; grid-template-columns: 56px minmax(0, 1fr) auto; gap: 16px; align-items: start; }
 		.logo {
 			display: grid; place-items: center; width: 56px; height: 56px; border-radius: 50%;
@@ -301,9 +341,6 @@
 		.side .when { flex-basis: 100%; font: 11.5px var(--mono); color: var(--text-muted); }
 		.notes textarea { width: 100%; min-height: 40px; margin-top: 6px; resize: vertical; font-size: 13.5px; }
 		.notes summary { cursor: pointer; color: var(--text-muted); font-size: 13px; width: fit-content; }
-		.st-entrevista, .st-prueba { color: var(--accent); }
-		.st-oferta { color: var(--ok); }
-		.st-rechazada { color: var(--bad); }
 
 		.empty { grid-column: 1 / -1; text-align: center; color: var(--text-muted); padding: 44px 16px; border: 1px dashed var(--line); border-radius: var(--radius); font: italic 20px var(--serif); margin: 0; }
 
@@ -525,6 +562,7 @@
 			<div class="seg" role="group" aria-label="Estado" id="seg">
 				<button type="button" data-view="pending" aria-pressed="true">Pendientes<span class="c"></span></button>
 				<button type="button" data-view="applied" aria-pressed="false">Enviadas<span class="c"></span></button>
+				<button type="button" data-view="rejected" aria-pressed="false">Rechazadas<span class="c"></span></button>
 				<button type="button" data-view="discarded" aria-pressed="false">Descartadas<span class="c"></span></button>
 				<button type="button" data-view="all" aria-pressed="false">Todas<span class="c"></span></button>
 			</div>
@@ -623,7 +661,7 @@
 		["rechazada", "Rechazada"],
 		["descartada", "No me interesa"],
 	];
-	const VIEW_TITLES = { pending: "Ofertas pendientes", applied: "Tus candidaturas", discarded: "Descartadas", all: "Todas las ofertas" };
+	const VIEW_TITLES = { pending: "Ofertas pendientes", applied: "Tus candidaturas", rejected: "Rechazadas", discarded: "Descartadas", all: "Todas las ofertas" };
 	const NOT_APPLIED = new Set(["", "no", "n", "-", "0", "false"]);
 
 	const $ = (id) => document.getElementById(id);
@@ -1127,7 +1165,7 @@
 	/* ---------- Guardado: cola + reintento si el fichero cambió ---------- */
 	const keyOf = (o) => o.id || o.url;
 	let queue = Promise.resolve();
-	function save(key, patch, message) {
+	function save(key, patch, message, done) {
 		const apply = () => {
 			const row = rows.find((o) => keyOf(o) === key);
 			if (!row) throw new Error("La oferta ya no está en ofertas.csv.");
@@ -1143,7 +1181,7 @@
 					await load(); apply(); await commit(message);
 				} else throw e;
 			}
-			toast("Guardado en GitHub");
+			toast(done || "Guardado en GitHub");
 		}).catch(async (e) => {
 			if (e.status === 403) { canWrite = false; toast("Tu token solo permite leer. Dale permiso Contents: Read and write para marcar ofertas.", true); }
 			else toast("No se pudo guardar: " + e.message, true);
@@ -1157,6 +1195,18 @@
 	const applied = (o) => !NOT_APPLIED.has((o.candidatura || "").trim().toLowerCase());
 	const state = (o) => (o.estado || "").trim().toLowerCase();
 	const discarded = (o) => state(o) === "descartada" || state(o) === "descartado";
+	const rejected = (o) => state(o) === "rechazada" || state(o) === "rechazado";
+	/* Estado visible de cada oferta: [clase, etiqueta] */
+	function status(o) {
+		const st = state(o);
+		if (rejected(o)) return ["rejected", "Rechazada"];
+		if (discarded(o)) return ["discarded", "Descartada"];
+		if (st === "oferta") return ["offer", "Oferta recibida"];
+		if (st === "prueba técnica" || st === "prueba tecnica") return ["test", "Prueba técnica"];
+		if (st === "entrevista") return ["interview", "Entrevista"];
+		if (st) return [applied(o) ? "sent" : "pending", o.estado.trim()];
+		return applied(o) ? ["sent", "Enviada"] : ["pending", "Pendiente"];
+	}
 	const today = () => new Date().toLocaleDateString("sv-SE");
 	const daysAgo = (iso) => {
 		if (!iso) return Infinity;
@@ -1187,13 +1237,14 @@
 	}
 
 	function matches(o) {
-		if (prefs.view === "pending" && (applied(o) || discarded(o))) return false;
-		if (prefs.view === "applied" && !applied(o)) return false;
-		if (prefs.view === "discarded" && !discarded(o)) return false;
+		if (prefs.view === "pending" && (applied(o) || discarded(o) || rejected(o))) return false;
+		if (prefs.view === "applied" && (!applied(o) || rejected(o))) return false;
+		if (prefs.view === "rejected" && !rejected(o)) return false;
+		if (prefs.view === "discarded" && (!discarded(o) || rejected(o))) return false;
 		if (prefs.source && o.fuente !== prefs.source) return false;
 		if (prefs.remote && !(o.remoto || "").trim()) return false;
 		const q = $("q").value.trim().toLowerCase();
-		if (q && !`${o.puesto} ${o.empresa} ${o.ubicacion} ${o.notas} ${o.estado}`.toLowerCase().includes(q)) return false;
+		if (q && !`${o.puesto} ${o.empresa} ${o.ubicacion} ${o.notas} ${o.estado} ${o.resumen || ""} ${o.coincidencias || ""}`.toLowerCase().includes(q)) return false;
 		return true;
 	}
 	function sorted(list) {
@@ -1211,12 +1262,15 @@
 		const sent = rows.filter(applied);
 		const inProcess = sent.filter((o) => ["entrevista", "prueba técnica", "oferta"].includes(state(o)));
 		const fresh = rows.filter((o) => daysAgo(o.encontrada) <= 7);
-		const pending = rows.filter((o) => !applied(o) && !discarded(o));
+		const pending = rows.filter((o) => !applied(o) && !discarded(o) && !rejected(o));
+		const nRejected = rows.filter(rejected).length;
 		const b = (n) => el("b", {}, String(n));
 		$("featOffers").replaceChildren(b(pending.length), " pendientes de revisar · ", b(fresh.length), " nuevas esta semana · ", b(rows.length), " guardadas");
-		$("featApplied").replaceChildren(b(sent.length), sent.length === 1 ? " candidatura enviada · " : " candidaturas enviadas · ", b(inProcess.length), " en proceso");
+		$("featApplied").replaceChildren(b(sent.length), sent.length === 1 ? " candidatura enviada · " : " candidaturas enviadas · ",
+			b(inProcess.length), " en proceso · ", b(nRejected), nRejected === 1 ? " rechazada" : " rechazadas");
 
-		const counts = { pending: pending.length, applied: sent.length, discarded: rows.filter(discarded).length, all: rows.length };
+		const counts = { pending: pending.length, applied: sent.filter((o) => !rejected(o)).length, rejected: nRejected,
+			discarded: rows.filter((o) => discarded(o) && !rejected(o)).length, all: rows.length };
 		for (const btn of $("seg").querySelectorAll("button")) {
 			btn.setAttribute("aria-pressed", String(btn.dataset.view === prefs.view));
 			btn.querySelector(".c").textContent = counts[btn.dataset.view];
@@ -1253,6 +1307,33 @@
 		return badge;
 	}
 
+	function summaryBox(o) {
+		const box = el("details", { class: "sum" }, el("summary", {}, "Ver resumen"));
+		// Se construye al abrirla: con muchas ofertas, la lista carga más rápido.
+		box.addEventListener("toggle", () => {
+			if (!box.open || box.querySelector(".sum-body")) return;
+			const remote = (o.remoto || "").trim();
+			const tags = (o.coincidencias || "").split(",").map((t) => t.trim()).filter(Boolean);
+			const fact = (k, v) => v ? el("div", {}, el("dt", {}, k), el("dd", {}, v)) : null;
+			box.append(el("div", { class: "sum-body" },
+				o.resumen
+					? el("p", { class: "sum-text" }, o.resumen)
+					: el("p", { class: "sum-text none" }, "Todavía no hay resumen de esta oferta: Aracne lo guardará si vuelve a aparecer en una búsqueda. Mientras, puedes abrir la oferta original."),
+				tags.length ? el("div", {}, el("div", { class: "sum-label" }, "Encaja por"),
+					el("div", { class: "chips" }, tags.map((t) => el("span", { class: "chip" }, t)))) : null,
+				el("dl", { class: "facts" },
+					fact("Empresa", o.empresa),
+					fact("Ubicación", o.ubicacion || (remote ? "Remoto" : "")),
+					fact("Modalidad", remote ? "Remoto" : "Presencial o híbrido"),
+					fact("Salario", o.salario || "No indicado"),
+					fact("Puntuación", o.puntos ? `${parseFloat(o.puntos) || 0} puntos` : ""),
+					fact("Fuente", o.fuente),
+					fact("Encontrada", o.encontrada),
+					fact("Candidatura", applied(o) ? (o.fecha_candidatura ? `Enviada el ${o.fecha_candidatura}` : "Enviada") : "No enviada"))));
+		});
+		return box;
+	}
+
 	function jobCard(o) {
 		const key = keyOf(o);
 		const pts = parseFloat(o.puntos) || 0;
@@ -1273,8 +1354,13 @@
 
 		const stateSel = el("select", {
 			"aria-label": "Estado", disabled: !canWrite,
-			onchange: (e) => save(key, { estado: e.target.value },
-				`Estado «${e.target.value || "sin estado"}»: ${o.puesto} (${o.empresa || "sin empresa"})`),
+			onchange: (e) => {
+				const v = e.target.value, was = rejected(o);
+				const moved = v === "rechazada" && !was && prefs.view !== "rejected" && prefs.view !== "all"
+					? "Guardado · la oferta pasa a Rechazadas"
+					: was && v !== "rechazada" && prefs.view === "rejected" ? "Guardado · la oferta sale de Rechazadas" : "";
+				save(key, { estado: v }, `Estado «${v || "sin estado"}»: ${o.puesto} (${o.empresa || "sin empresa"})`, moved);
+			},
 		}, ...STATES.map(([v, l]) => el("option", { value: v, selected: v === st }, l)),
 			...(st && !STATES.some(([v]) => v === st) ? [el("option", { value: o.estado, selected: true }, o.estado)] : []));
 
@@ -1288,10 +1374,13 @@
 			remote && o.ubicacion ? el("span", { class: "chip remote" }, "remoto") : null,
 			o.salario ? el("span", { class: "chip sal" }, o.salario) : null,
 			ago <= 1 ? el("span", { class: "chip new" }, "nueva") : null,
-			st && st !== "descartada" ? el("span", { class: "chip st-" + st.split(" ")[0] }, "● " + (STATES.find(([v]) => v === st)?.[1] || o.estado)) : null,
 		].filter(Boolean);
+		const [sKey, sLabel] = status(o);
 
-		return el("article", { class: "job" + (isApplied ? " applied" : "") + (discarded(o) ? " discarded" : "") },
+		return el("article", { class: `job s-${sKey}` },
+			el("div", { class: "job-top" },
+				el("span", { class: "status" }, sLabel),
+				isApplied && o.fecha_candidatura ? el("span", { class: "since" }, `enviada el ${o.fecha_candidatura}`) : null),
 			el("div", { class: "job-head" },
 				logoBadge(o),
 				el("div", {},
@@ -1305,6 +1394,7 @@
 				el("span", { class: "it", title: o.encontrada ? `Encontrada el ${o.encontrada}` : "" }, icon("clock"), whenLabel(o.encontrada)),
 				el("span", { class: "mono", style: "color:var(--text-muted)" }, o.fuente || "?")),
 			chips.length ? el("div", { class: "chips" }, chips) : null,
+			summaryBox(o),
 			el("div", { class: "links" },
 				o.web_empresa
 					? el("a", { href: safeUrl(o.web_empresa), target: "_blank", rel: "noopener noreferrer" }, `${hostOf(o.web_empresa)} ↗`)
@@ -1317,8 +1407,7 @@
 				el("a", { href: safeUrl(o.url), target: "_blank", rel: "noopener noreferrer" }, `Ver en ${o.fuente || "la fuente"} ↗`)),
 			el("div", { class: "side" },
 				applyBtn,
-				stateSel,
-				isApplied && o.fecha_candidatura ? el("span", { class: "when" }, `enviada el ${o.fecha_candidatura}`) : null),
+				stateSel),
 			(o.notas || canWrite) ? el("details", { class: "notes", open: !!o.notas }, el("summary", {}, o.notas ? "Notas" : "Añadir notas"), notes) : null,
 		);
 	}
