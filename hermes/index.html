@@ -256,7 +256,7 @@
 		<form id="lockForm" hidden>
 			<input id="lockToken" type="password" autocomplete="off" spellcheck="false" placeholder="github_pat_…" aria-label="Token de GitHub" required />
 			<button class="btn primary" type="submit" id="lockBtn">Entrar</button>
-			<p class="note">Vale el mismo token que usas en Aracne. Solo se comprueba de quién es: no da acceso a nada más.</p>
+			<p class="note">Usa el mismo token que en Aracne: con él se comprueba que eres tú y se leen tus destinos, que están en tu repo privado.</p>
 		</form>
 		<p class="err" id="lockErr" role="alert"></p>
 	</div>
@@ -299,7 +299,7 @@
 			<div class="colors" id="fColors" role="radiogroup" aria-label="Color"></div>
 		</div>
 		<p class="err" id="fErr" hidden></p>
-		<p class="note">Se guarda en este navegador. Para que esté en todos tus dispositivos, añádela también a <code>DEFAULTS</code> en <code>hermes/index.html</code>.</p>
+		<p class="note">Se guarda en tu repositorio privado (C10N67/aracne): la verás en todos tus dispositivos y nadie más puede verla.</p>
 		<div class="row">
 			<button class="btn" type="button" id="fCancel">Cancelar</button>
 			<button class="btn primary" type="submit">Añadir a la rueda</button>
@@ -336,6 +336,7 @@
 		locked = false;
 		ls.set(OK_KEY, JSON.stringify({ login, t: Date.now() }));
 		document.documentElement.classList.remove("locked");
+		setTimeout(() => loadDestinos(), 0);
 	}
 	function showLock(msg, keepForm) {
 		locked = true;
@@ -350,11 +351,11 @@
 		try { ok = JSON.parse(ls.get(OK_KEY) || "null"); } catch {}
 		const fresh = ok && ok.login === OWNER && Date.now() - ok.t < DAYS * 86400000;
 		const token = ls.get("aracne.token") || ls.get(TOKEN_KEY);
-		if (fresh && token) { locked = false; document.documentElement.classList.remove("locked"); }   // entra ya; se confirma debajo
+		if (fresh && token) { locked = false; document.documentElement.classList.remove("locked"); setTimeout(() => loadDestinos(), 0); }   // entra ya; se confirma debajo
 		if (!token) return showLock();
 		try {
 			const login = await whoami(token);
-			if (login === OWNER) return unlock(login);
+			if (login === OWNER) { if (locked) unlock(login); else ls.set(OK_KEY, JSON.stringify({ login, t: Date.now() })); return; }
 			ls.del(OK_KEY);
 			showLock(`El token guardado es de @${login}, no tuyo.`);
 		} catch (e) {
@@ -380,12 +381,12 @@
 	});
 	gate();
 
-	/* Destinos fijos. Añade aquí los que quieras en todos tus dispositivos. */
-	const DEFAULTS = [
-		{ id: "aracne", name: "Aracne", url: "../aracne/", desc: "Crawling the web for work: tu panel de ofertas y candidaturas.", icon: "spider", color: "amber" },
-		{ id: "perfil", name: "Perfil", url: "../", desc: "Daniel Carballo Reyes · ingeniero de telecomunicación: CV, proyectos y contacto.", icon: "user", color: "green" },
-		{ id: "visitas", name: "Visitas", url: "https://hermes2121.goatcounter.com/", desc: "Quién visita tu web (sin contar tus visitas): páginas, días, de dónde llegan.", icon: "chart", color: "blue" },
-	];
+	/* Los destinos NO están en el código de la web: viven en el repo privado C10N67/aracne
+	   (hermes/destinos.json) y solo se leen con tu token, después del candado. */
+	const DATA_API = "https://api.github.com/repos/C10N67/aracne/contents/hermes/destinos.json";
+	const CACHE_KEY = "hermes.destinos";   // copia en este navegador (ya verificado) para pintar al instante
+	let DEFAULTS = [];                      // destinos «fijo» del archivo
+	let dataSha = null, loaded = false;
 	const COLORS = { cyan: "var(--accent)", violet: "var(--violet)", amber: "var(--amber)", green: "var(--olive)", rose: "var(--rose)", blue: "var(--blue)" };
 	const KEY = "hermes.links";
 	const MAX_CUSTOM = 8;
@@ -398,7 +399,7 @@
 		set(v) { try { localStorage.setItem(KEY, JSON.stringify(v)); return true; } catch { return false; } },
 	};
 
-	let custom = store.get().filter((l) => l && /^https?:\/\//i.test(l.url || "")).slice(0, MAX_CUSTOM);
+	let custom = [];
 	let items = [];
 	let sel = -1;
 	let editing = false;
@@ -419,6 +420,74 @@
 	}
 
 	/* ---------- Rueda ---------- */
+	/* ---------- Destinos en el repo privado ---------- */
+	const ghHeaders = (extra) => Object.assign({ Authorization: `Bearer ${ls.get("aracne.token") || ls.get(TOKEN_KEY)}`,
+		Accept: "application/vnd.github+json", "X-GitHub-Api-Version": "2022-11-28" }, extra || {});
+	function b64decode(b64) {
+		const bin = atob(b64.replace(/\s/g, "")), bytes = new Uint8Array(bin.length);
+		for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+		return new TextDecoder().decode(bytes);
+	}
+	function b64encode(str) {
+		const bytes = new TextEncoder().encode(str); let bin = "";
+		for (let i = 0; i < bytes.length; i += 0x8000) bin += String.fromCharCode.apply(null, bytes.subarray(i, i + 0x8000));
+		return btoa(bin);
+	}
+	const clean = (d) => Object.fromEntries(Object.entries(d).filter(([k]) => !["custom", "fixed", "add"].includes(k)));
+	function applyData(data) {
+		const list = (data && data.destinos) || [];
+		DEFAULTS = list.filter((d) => d.fijo);
+		custom = list.filter((d) => !d.fijo && /^https?:\/\//i.test(d.url || "")).slice(0, MAX_CUSTOM);
+		loaded = true;
+		render();
+		select(-1, true);
+	}
+	async function fetchData() {
+		const r = await fetch(`${DATA_API}?ref=main`, { headers: ghHeaders(), cache: "no-store" });
+		if (r.status === 404 || r.status === 403)
+			throw new Error("Tu token no puede leer C10N67/aracne (o falta hermes/destinos.json). Usa el token de Aracne.");
+		if (!r.ok) throw new Error(`GitHub respondió ${r.status} al leer tus destinos.`);
+		const body = await r.json();
+		dataSha = body.sha;
+		return JSON.parse(b64decode(body.content));
+	}
+	let loading = null;
+	function loadDestinos() { return loading ||= doLoad().finally(() => { loading = null; }); }
+	async function doLoad() {
+		try { const c = JSON.parse(ls.get(CACHE_KEY) || "null"); if (c && !loaded) applyData(c); } catch {}
+		if (!loaded) setHub("Cargando tus destinos…");
+		let data;
+		try { data = await fetchData(); }
+		catch (e) { if (!loaded) setHub(e.message); else toast(e.message); return; }
+		ls.set(CACHE_KEY, JSON.stringify(data));
+		applyData(data);
+		// Webs que se añadieron antes en este navegador (solo en local): pasarlas al repo privado
+		const local = (() => { try { return JSON.parse(localStorage.getItem(KEY) || "[]"); } catch { return []; } })()
+			.filter((l) => l && /^https?:\/\//i.test(l.url || "") && !custom.some((c) => c.url === l.url));
+		if (local.length) {
+			const ok = await saveData((d) => { d.destinos.push(...local.map((l) => ({ ...clean(l), fijo: false }))); }, `Hermes: ${local.length} web(s) de este navegador`);
+			if (ok) { try { localStorage.removeItem(KEY); } catch {} toast(`${local.length} web(s) de este navegador pasadas a tu repo privado`); }
+		} else { try { localStorage.removeItem(KEY); } catch {} }
+	}
+	/* Cambia el archivo (mutate recibe los datos más recientes) y lo guarda; si alguien lo cambió entre medias, recarga y repite */
+	async function saveData(mutate, message) {
+		for (let attempt = 0; attempt < 2; attempt++) {
+			let data;
+			try { data = await fetchData(); } catch (e) { toast(e.message); return false; }
+			data.destinos = data.destinos || [];
+			mutate(data);
+			const r = await fetch(DATA_API, { method: "PUT", headers: ghHeaders({ "Content-Type": "application/json" }),
+				body: JSON.stringify({ message, content: b64encode(JSON.stringify(data, null, 1) + "\n"), sha: dataSha, branch: "main" }) });
+			if (r.ok) { dataSha = (await r.json()).content.sha; ls.set(CACHE_KEY, JSON.stringify(data)); applyData(data); return true; }
+			if (r.status === 403) { toast("Tu token solo permite leer: dale «Contents: Read and write» sobre C10N67/aracne para guardar."); return false; }
+			if (r.status !== 409 && r.status !== 422) { toast(`No se pudo guardar (GitHub ${r.status}).`); return false; }
+		}
+		toast("No se pudo guardar: el archivo cambió a la vez. Prueba otra vez."); return false;
+	}
+	function setHub(text) {
+		$("hubTitle").textContent = "Hermes"; $("hubText").textContent = text; $("hubHost").textContent = ""; $("hubGo").hidden = true;
+	}
+
 	function buildItems() {
 		items = [...DEFAULTS.map((d) => ({ ...d, fixed: true })),
 			...custom.map((c, i) => ({ ...c, id: "c" + i, icon: "site", custom: true }))];
@@ -579,11 +648,12 @@
 		if (!it) return;
 		if (it.add) return openAdd();
 		if (editing) {
-			if (!it.custom) return toast("Aracne y Perfil son fijos: cámbialos en hermes/index.html");
+			if (!it.custom) return toast("Los destinos fijos se cambian en hermes/destinos.json del repo aracne");
 			if (!confirm(`¿Quitar «${it.name}» de la rueda?`)) return;
-			custom.splice(Number(it.id.slice(1)), 1);
-			store.set(custom); sel = -1; render();
-			return toast(`«${it.name}» quitada`);
+			sel = -1;
+			saveData((d) => { d.destinos = d.destinos.filter((x) => x.fijo || x.url !== it.url); }, `Hermes: quitar ${it.name}`)
+				.then((ok) => ok && toast(`«${it.name}» quitada`));
+			return;
 		}
 		document.body.style.transition = "opacity .25s"; document.body.style.opacity = ".35";
 		location.href = new URL(it.url, location.href).href;
@@ -600,6 +670,7 @@
 		const box = $("wheel").getBoundingClientRect();
 		const cx = box.left + box.width / 2, cy = box.top + box.height / 2;
 		const dx = x - cx, dy = y - cy;
+		if (!items.length) return -1;
 		const dist = Math.hypot(dx, dy) / (box.width / 2) * 110;   // en unidades del viewBox
 		if (dist < (dead ?? R_IN * 0.55)) return -1;
 		if (dist > R_OUT + 30) return -1;   // lejos de la rueda: no se elige nada (margen de ~30 % alrededor)
@@ -679,13 +750,12 @@
 		if (icon_url && !/^https?:\/\//i.test(icon_url)) icon_url = "https://" + icon_url;
 		try { if (icon_url && !["http:", "https:"].includes(new URL(icon_url).protocol)) throw 0; }
 		catch { $("fErr").textContent = "La dirección del icono no es válida."; $("fErr").hidden = false; return; }
-		custom.push({ name, url, desc: $("fDesc").value.trim(), color: new FormData(e.target).get("color") || "violet",
-			...(icon_url ? { icon_url } : {}) });
-		if (!store.set(custom)) toast("Este navegador no deja guardar: la web solo durará hasta que cierres la página");
+		const entry = { name, url, desc: $("fDesc").value.trim(), color: new FormData(e.target).get("color") || "violet",
+			...(icon_url ? { icon_url } : {}), fijo: false };
 		$("addDlg").close();
-		render();
-		select(DEFAULTS.length + custom.length - 1);
-		toast(`«${name}» añadida a la rueda`);
+		toast("Guardando en tu repo privado…");
+		saveData((d) => { if (!d.destinos.some((x) => x.url === url)) d.destinos.push(entry); }, `Hermes: añadir ${name}`)
+			.then((ok) => { if (ok) { select(items.findIndex((x) => x.url === url)); toast(`«${name}» añadida a la rueda`); } });
 	});
 	$("editBtn").addEventListener("click", () => {
 		editing = !editing;
@@ -841,6 +911,7 @@
 
 	render();
 	select(-1, true);
+	if (!locked && !loaded) loadDestinos();
 	window.__hermes = { items: () => items, select, aim };
 })();
 </script>
