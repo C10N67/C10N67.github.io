@@ -1,0 +1,550 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+	<meta charset="utf-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+	<title>Hermes · Selector de destinos</title>
+	<meta name="description" content="Hermes: el selector de destinos de Daniel Carballo. Elige en la rueda a dónde ir: Aracne, el perfil o cualquier web que añadas." />
+	<meta name="theme-color" content="#0b1120" media="(prefers-color-scheme: dark)" />
+	<meta name="theme-color" content="#f5efe8" media="(prefers-color-scheme: light)" />
+	<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230b1120'/%3E%3Cg fill='none' stroke='%2322d3ee' stroke-width='3' stroke-linecap='round'%3E%3Ccircle cx='32' cy='32' r='9'/%3E%3Cpath d='M23 30C15 26 10 19 9 12c6 3 11 5 16 10M23 34c-6 1-11 0-15-3M41 30c8-4 13-11 14-18-6 3-11 5-16 10M41 34c6 1 11 0 15-3'/%3E%3C/g%3E%3C/svg%3E" />
+	<link rel="preconnect" href="https://fonts.googleapis.com" />
+	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+	<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,400;1,500&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
+	<style>
+		/* Hermes: la noche del CV (cian/violeta, mono) tejida con la telaraña y la serif de Aracne.
+		   Modo claro = el crema de Aracne. */
+		:root {
+			--bg: #0b1120;
+			--bg-2: #0f172a;
+			--text: #e2e8f0;
+			--muted: #94a3b8;
+			--accent: #22d3ee;
+			--accent-2: #a78bfa;
+			--amber: #e3b787;
+			--web: rgba(148, 163, 184, 0.16);
+			--web-strong: rgba(148, 163, 184, 0.34);
+			--seg: rgba(17, 26, 46, 0.72);
+			--seg-line: rgba(148, 163, 184, 0.28);
+			--hub: rgba(11, 17, 32, 0.92);
+			--star: 226, 232, 240;
+			--shadow: 0 20px 60px -24px rgba(0, 0, 0, 0.8);
+			--serif: "Cormorant Garamond", Garamond, "Times New Roman", serif;
+			--sans: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+			--mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+			color-scheme: dark;
+		}
+		@media (prefers-color-scheme: light) {
+			:root {
+				--bg: #f5efe8;
+				--bg-2: #ede5db;
+				--text: #2b2421;
+				--muted: #6d6058;
+				--accent: #0e7490;
+				--accent-2: #7c3aed;
+				--amber: #8a5a3c;
+				--web: rgba(110, 88, 70, 0.18);
+				--web-strong: rgba(80, 62, 50, 0.36);
+				--seg: rgba(253, 251, 248, 0.82);
+				--seg-line: rgba(110, 88, 70, 0.28);
+				--hub: rgba(253, 251, 248, 0.95);
+				--star: 120, 98, 78;
+				--shadow: 0 20px 50px -24px rgba(60, 40, 25, 0.45);
+				color-scheme: light;
+			}
+		}
+
+		*, *::before, *::after { box-sizing: border-box; }
+		html, body { margin: 0; height: 100%; }
+		body {
+			background: radial-gradient(ellipse at 50% 45%, var(--bg-2), var(--bg) 70%);
+			color: var(--text); font: 15px/1.5 var(--sans);
+			overflow: hidden; touch-action: none; user-select: none; -webkit-user-select: none;
+		}
+		[hidden] { display: none !important; }
+		:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+		.sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+
+		canvas#sky { position: fixed; inset: 0; width: 100%; height: 100%; z-index: 0; pointer-events: none; }
+		svg.backweb { position: fixed; inset: 0; width: 100%; height: 100%; z-index: 0; pointer-events: none; }
+		svg.backweb path { fill: none; stroke: var(--web); stroke-width: 1; vector-effect: non-scaling-stroke; }
+
+		.stage { position: relative; z-index: 1; height: 100%; display: grid; grid-template-rows: auto 1fr auto; padding: max(14px, env(safe-area-inset-top)) 16px max(14px, env(safe-area-inset-bottom)); }
+
+		header.top { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+		.prompt { font: 500 13px var(--mono); color: var(--muted); margin: 0; }
+		.prompt b { color: var(--accent); font-weight: 500; }
+		.cursor { display: inline-block; width: .55em; height: 1em; background: var(--accent); vertical-align: -2px; margin-left: 3px; }
+		@media (prefers-reduced-motion: no-preference) { .cursor { animation: blink 1.1s steps(1) infinite; } @keyframes blink { 50% { opacity: 0; } } }
+		.tools { display: flex; gap: 8px; }
+		.tool {
+			display: inline-flex; align-items: center; gap: 7px; cursor: pointer; font: 500 12.5px var(--mono);
+			color: var(--text); background: var(--seg); border: 1px solid var(--seg-line); border-radius: 999px; padding: 7px 13px;
+			backdrop-filter: blur(6px);
+		}
+		.tool:hover { border-color: var(--accent); }
+		.tool[aria-pressed="true"] { border-color: var(--accent-2); color: var(--accent-2); }
+
+		/* Rueda */
+		.wheel-wrap { position: relative; display: grid; place-items: center; min-height: 0; }
+		.wheel { position: relative; width: min(86vmin, 680px); aspect-ratio: 1; }
+		@media (max-width: 640px) { .wheel { width: min(94vw, 78vh); } }
+		.wheel svg { width: 100%; height: 100%; overflow: visible; display: block; }
+		.ring { fill: none; stroke: var(--web-strong); stroke-width: 1; vector-effect: non-scaling-stroke; }
+		.thread { fill: none; stroke: var(--web); stroke-width: 1; vector-effect: non-scaling-stroke; }
+		.seg { cursor: pointer; outline: none; }
+		.seg .shape { fill: var(--seg); stroke: var(--seg-line); stroke-width: 1.2; vector-effect: non-scaling-stroke; transition: fill .15s, stroke .15s; }
+		.seg .glow { fill: var(--c); opacity: 0; transition: opacity .15s; }
+		.seg .ic { color: var(--muted); transition: color .15s; }
+		.seg .ic svg, .seg .ic img { width: 100%; height: 100%; }
+		.seg .chip { fill: #f8fafc; stroke: var(--seg-line); stroke-width: .6; }
+		/* Tamaños en unidades del viewBox (220 de ancho): escalan con la rueda */
+		.seg .num { font: 600 5px var(--mono); fill: var(--muted); opacity: .75; }
+		.seg .lbl { font: 600 8.2px var(--serif); fill: var(--text); opacity: .88; letter-spacing: .02em; }
+		.seg.on .shape { stroke: var(--c); stroke-width: 2.2; }
+		.seg.on .glow { opacity: .22; }
+		.seg.on .ic { color: var(--c); }
+		.seg.on .lbl { opacity: 1; fill: var(--c); }
+		.seg.add .shape { stroke-dasharray: 5 5; }
+		.seg g.move { transition: transform .18s cubic-bezier(.3,1.4,.5,1); }
+		@media (prefers-reduced-motion: reduce) { .seg g.move, .seg .shape, .seg .glow { transition: none; } }
+		.seg .del { opacity: 0; pointer-events: none; }
+		body.editing .seg.custom .del { opacity: 1; }
+		.del circle { fill: #e5484d; }
+		.del path { stroke: #fff; stroke-width: 2.2; stroke-linecap: round; }
+		body.editing .seg.custom .shape { stroke: #e5484d; stroke-dasharray: 3 4; }
+
+		/* Centro */
+		.hub {
+			position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); width: 46%; aspect-ratio: 1; border-radius: 50%;
+			min-height: 0; overflow: hidden;
+			display: grid; place-items: center; text-align: center; pointer-events: none;
+			background: radial-gradient(circle at 50% 35%, color-mix(in srgb, var(--c, var(--accent)) 14%, var(--hub)), var(--hub) 70%);
+			box-shadow: var(--shadow), inset 0 0 0 1px var(--seg-line);
+			transition: background .2s;
+		}
+		.hub-in { width: 78%; display: grid; gap: 6px; justify-items: center; }
+		.hub .wing { width: 46%; color: var(--c, var(--accent)); transition: color .2s; }
+		.hub h1, .hub h2 { margin: 0; font: 500 clamp(30px, 6.4vmin, 50px)/1 var(--serif); letter-spacing: .01em; }
+		.hub h1 { letter-spacing: .14em; text-transform: uppercase; font-size: clamp(26px, 5.6vmin, 44px); }
+		.hub p { margin: 0; color: var(--muted); font-size: clamp(12px, 1.9vmin, 14px); line-height: 1.4; max-width: 24ch; }
+		.hub .host { font: 500 clamp(10.5px, 1.6vmin, 12px) var(--mono); color: var(--c, var(--accent)); overflow-wrap: anywhere; }
+		.hub .go { font: 500 11px var(--mono); color: var(--muted); letter-spacing: .08em; text-transform: uppercase; }
+
+		footer.hint { display: flex; flex-wrap: wrap; justify-content: center; gap: 6px 18px; font: 12px var(--mono); color: var(--muted); }
+		footer.hint kbd { font: 600 11px var(--mono); padding: 1px 6px; border: 1px solid var(--seg-line); border-radius: 5px; background: var(--seg); color: var(--text); }
+		footer.hint .pad { color: var(--accent-2); }
+		@media (max-width: 640px) {
+			footer.hint .k { display: none; }
+			.tool .t { display: none; }
+			.tool { padding: 7px 11px; }
+			.prompt { font-size: 12px; }
+			.hub .wing { width: 34%; }
+			.hub .go { display: none; }
+			.hub p { font-size: 11px; -webkit-line-clamp: 2; display: -webkit-box; -webkit-box-orient: vertical; overflow: hidden; }
+			.hub h1 { font-size: 22px; }
+			.hub h1 { max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+		}
+
+		/* Diálogo «Añadir web» */
+		dialog {
+			width: min(440px, calc(100% - 24px)); border: 1px solid var(--seg-line); border-radius: 18px; padding: 0;
+			background: var(--hub); color: var(--text); box-shadow: var(--shadow);
+		}
+		dialog::backdrop { background: rgba(5, 8, 18, .55); backdrop-filter: blur(3px); }
+		dialog form { display: grid; gap: 14px; padding: 22px; }
+		dialog h2 { margin: 0; font: 500 30px/1.1 var(--serif); }
+		dialog label { display: grid; gap: 5px; font: 500 12px var(--mono); color: var(--muted); text-transform: uppercase; letter-spacing: .06em; }
+		dialog input {
+			font: 15px var(--sans); color: var(--text); background: transparent; border: 1px solid var(--seg-line);
+			border-radius: 10px; padding: 10px 12px; text-transform: none; letter-spacing: 0;
+		}
+		dialog input:focus { outline: none; border-color: var(--accent); }
+		.colors { display: flex; gap: 8px; }
+		.colors input { appearance: none; -webkit-appearance: none; width: 26px; height: 26px; border-radius: 50%; padding: 0; border: 2px solid transparent; background: var(--c); cursor: pointer; }
+		.colors input:checked { border-color: var(--text); box-shadow: 0 0 0 2px var(--hub) inset; }
+		.row { display: flex; justify-content: flex-end; gap: 8px; }
+		.btn { font: 500 14px var(--sans); cursor: pointer; border-radius: 999px; padding: 9px 18px; border: 1px solid var(--seg-line); background: transparent; color: var(--text); }
+		.btn.primary { background: var(--accent); border-color: var(--accent); color: var(--bg); font-weight: 600; }
+		.err { margin: 0; color: #e5484d; font-size: 13px; }
+		.note { margin: 0; color: var(--muted); font-size: 12.5px; }
+		.toast {
+			position: fixed; left: 50%; bottom: max(18px, env(safe-area-inset-bottom)); transform: translateX(-50%); z-index: 5;
+			background: var(--hub); border: 1px solid var(--seg-line); color: var(--text); padding: 9px 16px; border-radius: 999px;
+			font: 13px var(--mono); box-shadow: var(--shadow); max-width: calc(100% - 32px); text-align: center;
+		}
+	</style>
+</head>
+<body>
+
+<canvas id="sky" aria-hidden="true"></canvas>
+<svg class="backweb" id="backweb" aria-hidden="true" preserveAspectRatio="xMidYMid slice" viewBox="-100 -100 200 200"></svg>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+	<symbol id="i-spider" viewBox="-26 -26 52 52">
+		<g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+			<path d="M-3-7Q-11-18-19-14M-4-4Q-15-9-23-4M-4 0Q-15 1-22 9M-3 3Q-11 10-15 21" />
+			<path d="M3-7Q11-18 19-14M4-4Q15-9 23-4M4 0Q15 1 22 9M3 3Q11 10 15 21" />
+		</g>
+		<circle cx="0" cy="-7" r="4.6" fill="currentColor" /><ellipse cx="0" cy="5" rx="7" ry="9.5" fill="currentColor" />
+	</symbol>
+	<symbol id="i-user" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><circle cx="12" cy="8" r="4" /><path d="M4 21c1.2-4 4.3-6 8-6s6.8 2 8 6" /></g></symbol>
+	<symbol id="i-globe" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="12" r="9" /><path d="M3 12h18M12 3c2.6 2.6 3.8 5.6 3.8 9S14.6 18.4 12 21c-2.6-2.6-3.8-5.6-3.8-9S9.4 5.6 12 3Z" /></g></symbol>
+	<symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" /></symbol>
+	<symbol id="i-wings" viewBox="0 0 64 40">
+		<g fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+			<circle cx="32" cy="22" r="7" />
+			<path d="M24 19C16 15 9 8 6 1c7 3 13 6 19 12M24 23C15 23 7 20 2 14c7 1 14 2 21 5M25 27c-7 3-14 3-19 0 6-1 12-2 18-4" />
+			<path d="M40 19c8-4 15-11 18-18-7 3-13 6-19 12M40 23c9 0 17-3 22-9-7 1-14 2-21 5M39 27c7 3 14 3 19 0-6-1-12-2-18-4" />
+		</g>
+	</symbol>
+</svg>
+
+<div class="stage">
+	<header class="top">
+		<p class="prompt"><b>~/hermes</b> $ select --destino<span class="cursor" aria-hidden="true"></span></p>
+		<div class="tools">
+			<button class="tool" type="button" id="addBtn" title="Añadir una web a la rueda (tecla +)" aria-label="Añadir web">＋<span class="t"> Añadir web</span></button>
+			<button class="tool" type="button" id="editBtn" aria-pressed="false" title="Quitar webs añadidas">Editar</button>
+		</div>
+	</header>
+
+	<main class="wheel-wrap">
+		<nav class="wheel" id="wheel" aria-label="Destinos">
+			<svg id="svg" viewBox="-110 -110 220 220" role="presentation"></svg>
+			<div class="hub" id="hub" aria-live="polite">
+				<div class="hub-in">
+					<svg class="wing" viewBox="0 0 64 40" aria-hidden="true"><use href="#i-wings" width="64" height="40" /></svg>
+					<h1 id="hubTitle">Hermes</h1>
+					<p id="hubText">Apunta a un destino y haz clic para entrar.</p>
+					<span class="host" id="hubHost"></span>
+					<span class="go" id="hubGo" hidden>Clic · Enter · Ⓐ</span>
+				</div>
+			</div>
+		</nav>
+	</main>
+
+	<footer class="hint">
+		<span>Apunta con el ratón o el dedo</span>
+		<span class="k"><kbd>←</kbd> <kbd>→</kbd> girar · <kbd>1</kbd>–<kbd>9</kbd> elegir · <kbd>Enter</kbd> entrar · <kbd>+</kbd> añadir</span>
+		<span class="pad" id="padHint" hidden>🎮 mando conectado: stick izquierdo + Ⓐ</span>
+	</footer>
+</div>
+
+<dialog id="addDlg" aria-labelledby="addTitle">
+	<form id="addForm" method="dialog" novalidate>
+		<h2 id="addTitle">Añadir una web</h2>
+		<label>Nombre<input id="fName" maxlength="24" placeholder="GitHub" autocomplete="off" required /></label>
+		<label>Dirección<input id="fUrl" type="url" placeholder="https://github.com/C10N67" autocomplete="off" required /></label>
+		<label>Descripción (opcional)<input id="fDesc" maxlength="70" placeholder="Mis repositorios" autocomplete="off" /></label>
+		<div>
+			<label style="margin-bottom:6px">Color</label>
+			<div class="colors" id="fColors" role="radiogroup" aria-label="Color"></div>
+		</div>
+		<p class="err" id="fErr" hidden></p>
+		<p class="note">Se guarda en este navegador. Para que esté en todos tus dispositivos, añádela también a <code>DEFAULTS</code> en <code>hermes/index.html</code>.</p>
+		<div class="row">
+			<button class="btn" type="button" id="fCancel">Cancelar</button>
+			<button class="btn primary" type="submit">Añadir a la rueda</button>
+		</div>
+	</form>
+</dialog>
+
+<div class="toast" id="toast" role="status" hidden></div>
+
+<script>
+(() => {
+	"use strict";
+
+	/* Destinos fijos. Añade aquí los que quieras en todos tus dispositivos. */
+	const DEFAULTS = [
+		{ id: "aracne", name: "Aracne", url: "../aracne/", desc: "Crawling the web for work: tu panel de ofertas y candidaturas.", icon: "spider", color: "amber" },
+		{ id: "perfil", name: "Perfil", url: "../", desc: "Daniel Carballo Reyes · ingeniero de telecomunicación: CV, proyectos y contacto.", icon: "user", color: "cyan" },
+	];
+	const COLORS = { cyan: "var(--accent)", violet: "var(--accent-2)", amber: "var(--amber)", green: "#4ade80", rose: "#fb7185", blue: "#60a5fa" };
+	const KEY = "hermes.links";
+	const MAX_CUSTOM = 8;
+	const R_OUT = 100, R_IN = 52, GAP = 1.4;   // unidades del viewBox; GAP en grados
+
+	const $ = (id) => document.getElementById(id);
+	const NS = "http://www.w3.org/2000/svg";
+	const store = {
+		get() { try { return JSON.parse(localStorage.getItem(KEY) || "[]"); } catch { return []; } },
+		set(v) { try { localStorage.setItem(KEY, JSON.stringify(v)); return true; } catch { return false; } },
+	};
+
+	let custom = store.get().filter((l) => l && /^https?:\/\//i.test(l.url || "")).slice(0, MAX_CUSTOM);
+	let items = [];
+	let sel = -1;
+	let editing = false;
+
+	function svgEl(tag, attrs, ...kids) {
+		const n = document.createElementNS(NS, tag);
+		for (const [k, v] of Object.entries(attrs || {})) if (v != null) n.setAttribute(k, v);
+		n.append(...kids);
+		return n;
+	}
+	const rad = (deg) => (deg - 90) * Math.PI / 180;   // 0° = arriba
+	const pt = (r, deg) => [r * Math.cos(rad(deg)), r * Math.sin(rad(deg))];
+	function sector(a0, a1, r0, r1) {
+		const [x0, y0] = pt(r1, a0), [x1, y1] = pt(r1, a1), [x2, y2] = pt(r0, a1), [x3, y3] = pt(r0, a0);
+		const big = a1 - a0 > 180 ? 1 : 0;
+		const f = (n) => n.toFixed(2);
+		return `M${f(x0)} ${f(y0)}A${r1} ${r1} 0 ${big} 1 ${f(x1)} ${f(y1)}L${f(x2)} ${f(y2)}A${r0} ${r0} 0 ${big} 0 ${f(x3)} ${f(y3)}Z`;
+	}
+
+	/* ---------- Rueda ---------- */
+	function buildItems() {
+		items = [...DEFAULTS.map((d) => ({ ...d, fixed: true })),
+			...custom.map((c, i) => ({ ...c, id: "c" + i, icon: "site", custom: true }))];
+		if (custom.length < MAX_CUSTOM) items.push({ id: "add", name: "Añadir web", desc: "Pon cualquier web en la rueda.", icon: "plus", color: "violet", add: true });
+	}
+
+	function hostOf(u) { try { return new URL(u, location.href).host || "c10n67.github.io"; } catch { return ""; } }
+
+	function render() {
+		buildItems();
+		const svg = $("svg");
+		svg.replaceChildren();
+		const n = items.length, step = 360 / n;
+		// Hilos de telaraña: anillos y radios que atraviesan la rueda
+		for (const r of [R_IN - 6, (R_IN + R_OUT) / 2, R_OUT + 6]) svg.append(svgEl("circle", { class: "ring", r }));
+		for (let i = 0; i < n; i++) {
+			const [x0, y0] = pt(R_IN - 6, i * step - step / 2), [x1, y1] = pt(R_OUT + 9, i * step - step / 2);
+			svg.append(svgEl("path", { class: "thread", d: `M${x0} ${y0}L${x1} ${y1}` }));
+		}
+		items.forEach((it, i) => {
+			const mid = i * step, a0 = mid - step / 2 + GAP / 2, a1 = mid + step / 2 - GAP / 2;
+			const [mx, my] = pt(6, mid);   // desplazamiento al seleccionarla
+			// Icono encima y nombre debajo, centrados en la porción (sirve en cualquier ángulo)
+			const [cx0, cy0] = pt((R_IN + R_OUT) / 2 + 3, mid);
+			const [ix, iy] = [cx0, cy0 - 6];
+			const [lx, ly] = [cx0, cy0 + 9];
+			const [nx, ny] = pt(R_IN + 6, mid);
+			const [dx, dy] = pt(R_OUT - 4, mid + step / 2 - 9);
+			const size = Math.min(13, step * 0.32);
+			const icon = svgEl("g", { class: "ic" });
+			if (it.icon === "site") {
+				icon.append(svgEl("circle", { class: "chip", cx: ix, cy: iy, r: size / 2 + 2.2 }));
+				const fo = svgEl("foreignObject", { x: ix - size / 2, y: iy - size / 2, width: size, height: size });
+				const img = document.createElement("img");
+				img.alt = ""; img.referrerPolicy = "no-referrer"; img.loading = "lazy";
+				img.src = `${new URL(it.url).origin}/favicon.ico`;
+				img.style.cssText = "width:100%;height:100%;object-fit:contain;border-radius:4px";
+				img.addEventListener("error", () => { icon.querySelector(".chip")?.remove(); fo.replaceWith(useIcon("globe", ix, iy, size)); });
+				fo.append(img);
+				icon.append(fo);
+			} else icon.append(useIcon(it.icon, ix, iy, size));
+			const a = svgEl("a", {
+				class: "seg" + (it.add ? " add" : "") + (it.custom ? " custom" : ""), href: it.add ? "#" : it.url,
+				"data-i": i, "aria-label": it.add ? "Añadir una web a la rueda" : `${it.name}: ${it.desc || hostOf(it.url)}`,
+				style: `--c:${COLORS[it.color] || COLORS.cyan}`, role: it.add ? "button" : null,
+			},
+				svgEl("g", { class: "move", "data-dx": mx, "data-dy": my },
+					svgEl("path", { class: "shape", d: sector(a0, a1, R_IN, R_OUT) }),
+					svgEl("path", { class: "glow", d: sector(a0, a1, R_IN, R_OUT) }),
+					icon,
+					svgEl("text", { class: "lbl", x: lx, y: ly + 3, "text-anchor": "middle" }, it.name.length > 12 ? it.name.slice(0, 11) + "…" : it.name),
+					i < 9 ? svgEl("text", { class: "num", x: nx, y: ny + 1.8, "text-anchor": "middle" }, String(i + 1)) : "",
+					it.custom ? svgEl("g", { class: "del", transform: `translate(${dx} ${dy})` },
+						svgEl("circle", { r: 6.5 }), svgEl("path", { d: "M-2.6-2.6L2.6 2.6M2.6-2.6L-2.6 2.6" })) : ""));
+			a.addEventListener("focus", () => select(i));
+			a.addEventListener("click", (e) => { e.preventDefault(); activate(i); });
+			svg.append(a);
+		});
+		select(Math.min(sel, items.length - 1), true);
+	}
+	function useIcon(name, x, y, size) {
+		return svgEl("use", { href: "#i-" + name, x: x - size / 2, y: y - size / 2, width: size, height: size });
+	}
+
+	function select(i, quiet) {
+		if (i === sel && !quiet) return;
+		sel = i;
+		for (const a of $("svg").querySelectorAll(".seg")) {
+			const on = Number(a.dataset.i) === i;
+			a.classList.toggle("on", on);
+			const g = a.querySelector(".move");
+			g.style.transform = on ? `translate(${g.dataset.dx}px, ${g.dataset.dy}px)` : "";
+		}
+		const it = items[i];
+		const hub = $("hub");
+		if (!it) {
+			hub.style.removeProperty("--c");
+			$("hubTitle").textContent = "Hermes";
+			$("hubText").textContent = "Apunta a un destino y haz clic para entrar.";
+			$("hubHost").textContent = ""; $("hubGo").hidden = true;
+			return;
+		}
+		hub.style.setProperty("--c", COLORS[it.color] || COLORS.cyan);
+		$("hubTitle").textContent = it.name;
+		$("hubText").textContent = editing && it.custom ? "Haz clic para quitarla de la rueda." : (it.desc || "");
+		$("hubHost").textContent = it.add ? "" : hostOf(it.url);
+		$("hubGo").hidden = false;
+		$("hubGo").textContent = it.add ? "Clic para añadir" : editing && it.custom ? "Clic para quitar" : "Clic · Enter · Ⓐ";
+	}
+
+	function activate(i) {
+		const it = items[i];
+		if (!it) return;
+		if (it.add) return openAdd();
+		if (editing) {
+			if (!it.custom) return toast("Aracne y Perfil son fijos: cámbialos en hermes/index.html");
+			if (!confirm(`¿Quitar «${it.name}» de la rueda?`)) return;
+			custom.splice(Number(it.id.slice(1)), 1);
+			store.set(custom); sel = -1; render();
+			return toast(`«${it.name}» quitada`);
+		}
+		document.body.style.transition = "opacity .25s"; document.body.style.opacity = ".35";
+		location.href = new URL(it.url, location.href).href;
+	}
+
+	/* ---------- Apuntar: ratón, dedo, teclado y mando ---------- */
+	function aim(x, y, dead) {
+		const box = $("wheel").getBoundingClientRect();
+		const cx = box.left + box.width / 2, cy = box.top + box.height / 2;
+		const dx = x - cx, dy = y - cy;
+		const dist = Math.hypot(dx, dy) / (box.width / 2) * 110;   // en unidades del viewBox
+		if (dist < (dead ?? R_IN * 0.55)) return -1;
+		let deg = Math.atan2(dy, dx) * 180 / Math.PI + 90;
+		deg = (deg + 360 + 180 / items.length) % 360;
+		return Math.floor(deg / (360 / items.length));
+	}
+	document.addEventListener("pointermove", (e) => {
+		if ($("addDlg").open) return;
+		select(aim(e.clientX, e.clientY));
+	});
+	// Táctil: al tocar se ilumina la porción; el «click» del enlace hace el resto
+	document.addEventListener("pointerdown", (e) => {
+		if ($("addDlg").open || e.target.closest(".tools") || e.pointerType === "mouse") return;
+		select(aim(e.clientX, e.clientY));
+	});
+
+	document.addEventListener("keydown", (e) => {
+		if ($("addDlg").open || e.altKey || e.ctrlKey || e.metaKey) return;
+		const n = items.length;
+		if (e.key === "ArrowRight" || e.key === "ArrowDown") { e.preventDefault(); select(((sel < 0 ? -1 : sel) + 1) % n); }
+		else if (e.key === "ArrowLeft" || e.key === "ArrowUp") { e.preventDefault(); select(((sel < 0 ? 0 : sel) - 1 + n) % n); }
+		else if (/^[1-9]$/.test(e.key) && Number(e.key) <= n) select(Number(e.key) - 1);
+		else if ((e.key === "Enter" || e.key === " ") && sel >= 0 && !(document.activeElement instanceof SVGAElement)) { e.preventDefault(); activate(sel); }
+		else if (e.key === "+") { e.preventDefault(); openAdd(); }
+		else if (e.key === "Escape") { select(-1); document.activeElement?.blur?.(); }
+		else return;
+		const a = $("svg").querySelector(`.seg[data-i="${sel}"]`);
+		if (a && document.activeElement !== a && e.key !== "Escape") a.focus({ preventScroll: true });
+	});
+
+	// Mando: stick izquierdo para apuntar, Ⓐ (botón 0) para entrar
+	let padLoop = 0, padWasA = false;
+	function pollPad() {
+		const pad = [...(navigator.getGamepads?.() || [])].find(Boolean);
+		if (!pad) { padLoop = 0; $("padHint").hidden = true; return; }
+		const [x, y] = pad.axes;
+		if (Math.hypot(x, y) > 0.5) {
+			let deg = (Math.atan2(y, x) * 180 / Math.PI + 90 + 360 + 180 / items.length) % 360;
+			select(Math.floor(deg / (360 / items.length)));
+		}
+		const a = pad.buttons[0]?.pressed;
+		if (a && !padWasA && sel >= 0 && !$("addDlg").open) activate(sel);
+		padWasA = a;
+		padLoop = requestAnimationFrame(pollPad);
+	}
+	window.addEventListener("gamepadconnected", () => { $("padHint").hidden = false; if (!padLoop) padLoop = requestAnimationFrame(pollPad); });
+
+	/* ---------- Añadir y editar ---------- */
+	const swatches = Object.keys(COLORS);
+	$("fColors").replaceChildren(...swatches.map((c, i) => {
+		const r = document.createElement("input");
+		r.type = "radio"; r.name = "color"; r.value = c; r.checked = i === 1;
+		r.style.setProperty("--c", COLORS[c]); r.setAttribute("aria-label", c);
+		return r;
+	}));
+	function openAdd() {
+		if (custom.length >= MAX_CUSTOM) return toast(`Caben ${MAX_CUSTOM} webs añadidas: quita alguna en «Editar»`);
+		$("addForm").reset(); $("fErr").hidden = true;
+		$("fColors").querySelectorAll("input")[1 + (custom.length % (swatches.length - 1))].checked = true;
+		$("addDlg").showModal();
+		$("fName").focus();
+	}
+	$("addBtn").addEventListener("click", openAdd);
+	$("fCancel").addEventListener("click", () => $("addDlg").close());
+	$("addForm").addEventListener("submit", (e) => {
+		e.preventDefault();
+		const name = $("fName").value.trim();
+		let url = $("fUrl").value.trim();
+		if (url && !/^[a-z]+:\/\//i.test(url)) url = "https://" + url;
+		let ok = false;
+		try { ok = ["http:", "https:"].includes(new URL(url).protocol) && !!new URL(url).hostname.includes("."); } catch {}
+		const err = !name ? "Ponle un nombre." : !ok ? "La dirección no es válida (ejemplo: https://github.com)." : "";
+		if (err) { $("fErr").textContent = err; $("fErr").hidden = false; return; }
+		custom.push({ name, url, desc: $("fDesc").value.trim(), color: new FormData(e.target).get("color") || "violet" });
+		if (!store.set(custom)) toast("Este navegador no deja guardar: la web solo durará hasta que cierres la página");
+		$("addDlg").close();
+		render();
+		select(DEFAULTS.length + custom.length - 1);
+		toast(`«${name}» añadida a la rueda`);
+	});
+	$("editBtn").addEventListener("click", () => {
+		editing = !editing;
+		document.body.classList.toggle("editing", editing);
+		$("editBtn").setAttribute("aria-pressed", String(editing));
+		$("editBtn").textContent = editing ? "Listo" : "Editar";
+		if (editing && !custom.length) toast("Aún no has añadido webs: usa «＋ Añadir web»");
+		select(sel, true);
+	});
+
+	let toastT;
+	function toast(msg) {
+		const t = $("toast"); t.textContent = msg; t.hidden = false;
+		clearTimeout(toastT); toastT = setTimeout(() => { t.hidden = true; }, 2600);
+	}
+
+	/* ---------- Fondo: cielo del CV + telaraña de Aracne ---------- */
+	(function backWeb() {
+		const svg = $("backweb"), spokes = 16, rings = 9;
+		let d = "";
+		for (let i = 0; i < spokes; i++) {
+			const [x, y] = pt(150, i * 360 / spokes);
+			d += `M0 0L${x.toFixed(1)} ${y.toFixed(1)}`;
+		}
+		for (let k = 1; k <= rings; k++) {
+			const r = 150 * Math.pow(k / rings, 1.2);
+			for (let i = 0; i < spokes; i++) {
+				const a0 = i * 360 / spokes, a1 = (i + 1) * 360 / spokes;
+				const [x0, y0] = pt(r, a0), [x1, y1] = pt(r, a1), [cx, cy] = pt(r * 0.9, (a0 + a1) / 2);
+				d += `${i ? "" : `M${x0.toFixed(1)} ${y0.toFixed(1)}`}Q${cx.toFixed(1)} ${cy.toFixed(1)} ${x1.toFixed(1)} ${y1.toFixed(1)}`;
+			}
+		}
+		svg.append(svgEl("path", { d }));
+	})();
+	(function sky() {
+		const c = $("sky"), ctx = c.getContext("2d");
+		const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+		let stars = [], W = 0, H = 0;
+		const rgb = () => getComputedStyle(document.documentElement).getPropertyValue("--star").trim() || "226,232,240";
+		function size() {
+			const dpr = Math.min(devicePixelRatio || 1, 2);
+			W = innerWidth; H = innerHeight; c.width = W * dpr; c.height = H * dpr; ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+			stars = Array.from({ length: Math.round(W * H / 5200) }, () => ({ x: Math.random() * W, y: Math.random() * H, r: Math.random() * 1.2 + 0.2, p: Math.random() * 6.28, s: 0.4 + Math.random() }));
+		}
+		function draw(t) {
+			ctx.clearRect(0, 0, W, H);
+			const col = rgb();
+			for (const s of stars) {
+				const a = reduce ? 0.55 : 0.35 + 0.35 * Math.sin(s.p + t / 1000 * s.s);
+				ctx.fillStyle = `rgba(${col},${a.toFixed(3)})`;
+				ctx.beginPath(); ctx.arc(s.x, s.y, s.r, 0, 6.283); ctx.fill();
+			}
+			if (!reduce) requestAnimationFrame(draw);
+		}
+		addEventListener("resize", () => { size(); if (reduce) draw(0); });
+		size(); requestAnimationFrame(draw);
+	})();
+
+	render();
+	select(-1, true);
+	window.__hermes = { items: () => items, select, aim };
+})();
+</script>
+</body>
+</html>
