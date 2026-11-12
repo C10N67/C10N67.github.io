@@ -6,70 +6,86 @@
 	<title>Aracne · Panel de candidaturas</title>
 	<meta name="robots" content="noindex, nofollow" />
 	<meta name="referrer" content="no-referrer" />
-	<meta name="theme-color" content="#0b1120" />
-	<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230b1120'/%3E%3Ctext x='50%25' y='54%25' text-anchor='middle' dominant-baseline='middle' font-family='monospace' font-weight='700' font-size='28' fill='%2322d3ee'%3EAR%3C/text%3E%3C/svg%3E" />
+	<meta name="theme-color" content="#f5efe8" media="(prefers-color-scheme: light)" />
+	<meta name="theme-color" content="#1b1714" media="(prefers-color-scheme: dark)" />
+	<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23f5efe8'/%3E%3Cg fill='none' stroke='%232b2421' stroke-width='2.4'%3E%3Cpath d='M32 8v48M8 32h48M15 15l34 34M49 15 15 49'/%3E%3Ccircle cx='32' cy='32' r='8'/%3E%3Ccircle cx='32' cy='32' r='16'/%3E%3Ccircle cx='32' cy='32' r='23'/%3E%3C/g%3E%3C/svg%3E" />
 	<link rel="preconnect" href="https://fonts.googleapis.com" />
 	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-	<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
+	<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
 	<style>
-		/* Panel de una sola columna: resumen → filtros → lista de ofertas. Tokens del portfolio. */
+		/* Estética «Aracne»: crema y sepia, serif clásica para titulares, sans para la interfaz. */
 		:root {
-			--bg: #0b1120;
-			--bg-alt: #0f172a;
-			--surface: #111a2e;
-			--surface-2: #16213a;
-			--border: rgba(51, 65, 99, 0.6);
-			--text: #e2e8f0;
-			--text-muted: #94a3b8;
-			--accent: #22d3ee;
-			--accent-2: #a78bfa;
-			--accent-soft: rgba(34, 211, 238, 0.12);
-			--ok: #4ade80;
-			--ok-soft: rgba(74, 222, 128, 0.12);
-			--warn: #fbbf24;
-			--warn-soft: rgba(251, 191, 36, 0.12);
-			--bad: #f87171;
-			--bad-soft: rgba(248, 113, 113, 0.12);
-			--radius: 14px;
-			--maxw: 1120px;
-			--font: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+			--bg: #f5efe8;
+			--bg-alt: #ede5db;
+			--surface: #faf6f1;
+			--card: #fdfbf8;
+			--line: #ddd2c5;
+			--line-soft: rgba(120, 98, 78, 0.16);
+			--text: #2b2421;
+			--text-muted: #6d6058;
+			--ink: #2b2421;          /* botones principales */
+			--on-ink: #faf6f1;
+			--moon: #e7ddd2;         /* círculo del héroe, fondos de iconos */
+			--web: rgba(110, 88, 70, 0.30);
+			--web-strong: rgba(80, 62, 50, 0.55);
+			--accent: #8a5a3c;       /* enlaces */
+			--ok: #5d7a46;
+			--ok-soft: rgba(93, 122, 70, 0.13);
+			--warn: #a06a24;
+			--warn-soft: rgba(160, 106, 36, 0.12);
+			--bad: #a6473b;
+			--bad-soft: rgba(166, 71, 59, 0.10);
+			--shadow: 0 1px 2px rgba(60, 40, 25, 0.05), 0 12px 28px -18px rgba(60, 40, 25, 0.35);
+			--radius: 16px;
+			--maxw: 1240px;
+			--serif: "Cormorant Garamond", "EB Garamond", Garamond, "Times New Roman", serif;
+			--sans: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
 			--mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
-			color-scheme: dark;
+			color-scheme: light;
 		}
-		@media (prefers-color-scheme: light) {
+		@media (prefers-color-scheme: dark) {
 			:root {
-				--bg: #f8fafc;
-				--bg-alt: #f1f5f9;
-				--surface: #ffffff;
-				--surface-2: #f1f5f9;
-				--border: rgba(203, 213, 225, 0.9);
-				--text: #0f172a;
-				--text-muted: #475569;
-				--accent: #0891b2;
-				--accent-2: #7c3aed;
-				--accent-soft: rgba(8, 145, 178, 0.1);
-				--ok: #16a34a;
-				--ok-soft: rgba(22, 163, 74, 0.1);
-				--warn: #b45309;
-				--warn-soft: rgba(180, 83, 9, 0.1);
-				--bad: #dc2626;
-				--bad-soft: rgba(220, 38, 38, 0.08);
-				color-scheme: light;
+				--bg: #1b1714;
+				--bg-alt: #221d19;
+				--surface: #241f1b;
+				--card: #2a2420;
+				--line: #3d342d;
+				--line-soft: rgba(230, 210, 190, 0.12);
+				--text: #efe6dc;
+				--text-muted: #b3a597;
+				--ink: #efe6dc;
+				--on-ink: #1b1714;
+				--moon: #2f2823;
+				--web: rgba(230, 210, 190, 0.20);
+				--web-strong: rgba(230, 210, 190, 0.45);
+				--accent: #d8a77f;
+				--ok: #9cc183;
+				--ok-soft: rgba(156, 193, 131, 0.13);
+				--warn: #e0b06a;
+				--warn-soft: rgba(224, 176, 106, 0.12);
+				--bad: #e58a7d;
+				--bad-soft: rgba(229, 138, 125, 0.12);
+				--shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 12px 28px -18px rgba(0, 0, 0, 0.7);
+				color-scheme: dark;
 			}
 		}
 
 		*, *::before, *::after { box-sizing: border-box; }
 		html, body { margin: 0; }
+		html { scroll-behavior: smooth; }
+		@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
 		body {
 			background: var(--bg);
 			color: var(--text);
-			font: 15px/1.55 var(--font);
+			font: 15px/1.55 var(--sans);
 			padding-block: env(safe-area-inset-top, 0px) env(safe-area-inset-bottom, 0px);
+			overflow-x: hidden;
 		}
 		a { color: var(--accent); }
 		[hidden] { display: none !important; }
 		button, input, select, textarea { font: inherit; color: inherit; }
 		:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+		svg.i { width: 18px; height: 18px; flex: none; fill: none; stroke: currentColor; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
 
 		.wrap {
 			max-width: var(--maxw);
@@ -77,168 +93,352 @@
 			padding-left: max(16px, env(safe-area-inset-left, 0px));
 			padding-right: max(16px, env(safe-area-inset-right, 0px));
 		}
+		@media (min-width: 900px) { .wrap { padding-left: 40px; padding-right: 40px; } }
 
-		/* Cabecera */
-		header.top { border-bottom: 1px solid var(--border); background: var(--bg-alt); }
-		header.top .wrap { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 20px; padding-block: 14px; }
-		.brand { display: flex; align-items: center; gap: 10px; text-decoration: none; color: var(--text); }
-		.brand-mark {
-			display: grid; place-items: center; width: 34px; height: 34px; border-radius: 9px;
-			background: var(--accent-soft); color: var(--accent); font: 700 14px var(--mono);
+		/* Visible solo conectado / desconectado */
+		body:not(.connected) .if-on { display: none !important; }
+		body.connected .if-off { display: none !important; }
+
+		/* ---------- Cabecera ---------- */
+		header.top { position: relative; z-index: 2; border-bottom: 1px solid var(--line); }
+		header.top .wrap { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 28px; min-height: 84px; padding-block: 12px; }
+		.brand { display: flex; align-items: center; gap: 14px; text-decoration: none; color: var(--text); }
+		.brand svg { width: 52px; height: 52px; }
+		.brand svg path { fill: none; stroke: currentColor; stroke-width: .7; }
+		.brand span { font: 500 27px/1 var(--serif); letter-spacing: .22em; text-transform: uppercase; }
+		nav.menu { display: flex; align-items: center; gap: 4px 30px; margin-inline: auto; }
+		nav.menu a {
+			display: inline-flex; align-items: center; gap: 6px; padding: 10px 2px 8px;
+			font: 500 18.5px var(--serif); color: var(--text); text-decoration: none;
+			border-bottom: 1.5px solid transparent;
 		}
-		.brand b { font-weight: 700; }
-		.brand small { display: block; color: var(--text-muted); font: 12px var(--mono); }
-		.top-actions { margin-left: auto; display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
-		.stamp { color: var(--text-muted); font: 12px var(--mono); }
+		nav.menu a:hover { border-bottom-color: var(--line); }
+		nav.menu a[aria-current="true"] { border-bottom-color: var(--text); padding-inline: 12px; }
+		.top-actions { display: flex; gap: 8px; align-items: center; }
 
 		.btn {
-			display: inline-flex; align-items: center; gap: 6px; cursor: pointer;
-			border: 1px solid var(--border); background: var(--surface); color: var(--text);
-			padding: 7px 12px; border-radius: 9px; font-size: 14px; font-weight: 500; text-decoration: none;
+			display: inline-flex; align-items: center; justify-content: center; gap: 8px; cursor: pointer;
+			border: 1px solid var(--text); background: transparent; color: var(--text);
+			padding: 9px 18px; border-radius: 999px; font: 500 17px/1.2 var(--serif); text-decoration: none; white-space: nowrap;
 		}
-		.btn:hover { border-color: var(--accent); }
-		.btn.primary { background: var(--accent); border-color: var(--accent); color: var(--bg); }
-		.btn.ghost { background: transparent; }
+		.btn:hover { background: color-mix(in srgb, var(--text) 6%, transparent); }
+		.btn.soft { border-color: var(--line); }
+		.btn.primary { background: var(--ink); border-color: var(--ink); color: var(--on-ink); }
+		.btn.primary:hover { background: color-mix(in srgb, var(--ink) 86%, var(--bg)); }
+		.btn.sm { padding: 6px 14px; font-size: 16px; }
 		.btn:disabled { opacity: .55; cursor: progress; }
 
-		main { padding-block: 24px 64px; display: grid; grid-template-columns: minmax(0, 1fr); gap: 22px; }
-		main > * { min-width: 0; }
-		.panel-grid { display: grid; grid-template-columns: minmax(0, 1fr); gap: 18px; }
-
-		/* Conexión */
-		.connect {
-			max-width: 640px; background: var(--surface); border: 1px solid var(--border);
-			border-radius: var(--radius); padding: 22px; display: grid; gap: 14px;
+		@media (max-width: 860px) {
+			header.top .wrap { min-height: 0; gap: 6px 12px; }
+			.brand svg { width: 40px; height: 40px; }
+			.brand span { font-size: 22px; }
+			.top-actions { margin-left: auto; }
+			nav.menu { order: 3; width: 100%; margin: 0; gap: 18px; overflow-x: auto; scrollbar-width: none; }
+			nav.menu a { font-size: 17px; flex: none; }
+			.top-actions .btn .lbl { display: none; }
+			.top-actions .btn { padding: 9px 11px; }
 		}
-		.connect h1 { margin: 0; font-size: 22px; text-wrap: balance; }
+
+		/* ---------- Héroe ---------- */
+		.hero { position: relative; overflow: hidden; }
+		.hero .wrap { position: relative; z-index: 1; min-height: 430px; display: flex; flex-direction: column; justify-content: center; padding-block: 56px 60px; }
+		.hero-copy { max-width: 600px; }
+		.hero h1 { margin: 0; font: 500 clamp(76px, 11vw, 136px)/.92 var(--serif); letter-spacing: -.012em; }
+		.hero .tagline { margin: 10px 0 0; font: italic 400 clamp(27px, 3.3vw, 38px)/1.15 var(--serif); }
+		.hero .lede { margin: 22px 0 0; font: 500 clamp(19px, 1.8vw, 22px)/1.45 var(--serif); max-width: 30em; }
+		.searchbar {
+			margin-top: 30px; display: flex; align-items: center; max-width: 572px;
+			background: var(--card); border: 1px solid var(--line); border-radius: 999px; padding: 4px 4px 4px 20px;
+			box-shadow: var(--shadow);
+		}
+		.searchbar svg { width: 20px; height: 20px; color: var(--text-muted); }
+		.searchbar input {
+			flex: 1; min-width: 0; border: 0; background: transparent; outline: 0; padding: 12px 12px; font-size: 15.5px;
+		}
+		.searchbar input::placeholder { color: var(--text-muted); }
+		.searchbar:focus-within { border-color: var(--text-muted); }
+		.searchbar .btn { padding: 12px 34px; font-size: 18px; }
+		.art { position: absolute; inset: 0 0 0 auto; width: min(64%, 860px); pointer-events: none; color: var(--text); }
+		.art svg { width: 100%; height: 100%; }
+		.art .moon { fill: var(--moon); }
+		.art .webs { fill: none; stroke: var(--web); stroke-width: 1; }
+		.art .thread { stroke: var(--web-strong); stroke-width: 1; }
+		@media (max-width: 860px) {
+			.hero .wrap { min-height: 0; padding-block: 40px 44px; }
+			.art { width: 100%; opacity: .55; inset: 0 -30% 0 auto; }
+			.art .spider-g { display: none; }
+			.searchbar .btn { padding: 11px 20px; }
+		}
+		@media (prefers-reduced-motion: no-preference) {
+			.art .spider-g { animation: dangle 6s ease-in-out infinite alternate; transform-origin: 300px 0; }
+			@keyframes dangle { from { transform: rotate(-1.2deg); } to { transform: rotate(1.2deg); } }
+		}
+
+		/* ---------- Franja de características ---------- */
+		.features { background: var(--surface); border-block: 1px solid var(--line-soft); }
+		.features .wrap { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); padding-block: 36px; }
+		.feat { display: flex; gap: 22px; align-items: flex-start; padding: 4px 32px; min-width: 0; }
+		.feat + .feat { border-left: 1px solid var(--line); }
+		.feat:first-child { padding-left: 0; }
+		.feat .ic { flex: none; display: grid; place-items: center; width: 80px; height: 80px; border-radius: 50%; background: var(--moon); }
+		.feat .ic svg { width: 32px; height: 32px; stroke-width: 1.3; }
+		.feat h2 { margin: 6px 0 4px; font: 500 24px/1.2 var(--serif); }
+		.feat p { margin: 0; color: var(--text-muted); font-size: 14.5px; }
+		.feat p b { color: var(--text); font-weight: 600; font-variant-numeric: tabular-nums; }
+		.feat .row { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 14px; margin-top: 12px; }
+		.runstatus .dot { display: inline-block; vertical-align: middle; margin: -2px 8px 0 0; }
+		.runstatus a { text-decoration: none; white-space: nowrap; margin-left: 6px; }
+		.runstatus a:hover { text-decoration: underline; }
+		.dot { flex: none; width: 8px; height: 8px; border-radius: 50%; background: var(--text-muted); }
+		.dot.ok { background: var(--ok); }
+		.dot.bad { background: var(--bad); }
+		.dot.run { background: var(--accent); box-shadow: 0 0 0 0 var(--accent); }
+		@media (prefers-reduced-motion: no-preference) {
+			.dot.run { animation: pulse 1.4s ease-out infinite; }
+			@keyframes pulse { 70% { box-shadow: 0 0 0 7px transparent; } 100% { box-shadow: 0 0 0 0 transparent; } }
+		}
+		.linkbtn { border: 0; background: none; padding: 0; cursor: pointer; color: var(--accent); font-size: 14px; }
+		.linkbtn:hover { text-decoration: underline; }
+		label.chk { display: inline-flex; gap: 6px; align-items: center; font-size: 14px; color: var(--text-muted); cursor: pointer; }
+		label.chk input { accent-color: var(--ink); }
+		@media (max-width: 960px) {
+			.features .wrap { grid-template-columns: minmax(0, 1fr); padding-block: 12px; }
+			.feat { padding: 18px 0; }
+			.feat + .feat { border-left: 0; border-top: 1px solid var(--line); }
+			.feat .ic { width: 60px; height: 60px; }
+			.feat .ic svg { width: 26px; height: 26px; }
+		}
+
+		main { padding-block: 44px 72px; }
+
+		/* ---------- Conexión ---------- */
+		.connect {
+			max-width: 680px; margin: 0 auto; background: var(--card); border: 1px solid var(--line-soft);
+			border-radius: var(--radius); padding: 28px; display: grid; gap: 14px; box-shadow: var(--shadow);
+		}
+		.connect h2 { margin: 0; font: 500 30px/1.15 var(--serif); text-wrap: balance; }
 		.connect p { margin: 0; color: var(--text-muted); }
 		.connect ol { margin: 0; padding-left: 20px; display: grid; gap: 6px; }
-		.connect code, .mono { font-family: var(--mono); font-size: .9em; }
+		.connect code, .mono { font-family: var(--mono); font-size: .86em; }
 		.connect form { display: flex; flex-wrap: wrap; gap: 8px; }
 		.connect input { flex: 1 1 260px; min-width: 0; }
-		input[type="password"], input[type="search"], select, textarea {
-			background: var(--bg); border: 1px solid var(--border); border-radius: 9px; padding: 8px 10px;
+		input[type="password"], select, textarea {
+			background: var(--card); border: 1px solid var(--line); border-radius: 10px; padding: 9px 12px;
 		}
+		input[type="password"] { border-radius: 999px; padding-inline: 18px; }
 		.note { font-size: 13px; color: var(--text-muted); }
-		.error { color: var(--bad); background: var(--bad-soft); border-radius: 9px; padding: 8px 12px; margin: 0; }
+		.error { color: var(--bad); background: var(--bad-soft); border-radius: 10px; padding: 9px 13px; margin: 0; }
 
-		/* Resumen */
-		.stats { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 10px; }
-		.stat { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 12px 14px; }
-		.stat .n { font: 700 26px/1.1 var(--mono); font-variant-numeric: tabular-nums; }
-		.stat .l { color: var(--text-muted); font-size: 12px; letter-spacing: .04em; text-transform: uppercase; }
-		.stat.ok .n { color: var(--ok); }
-		.stat.acc .n { color: var(--accent); }
-		.stat.warn .n { color: var(--warn); }
-		@media (max-width: 760px) { .stats { grid-template-columns: repeat(2, minmax(0, 1fr)); } .stat:first-child { grid-column: 1 / -1; } }
+		/* ---------- Ofertas ---------- */
+		.sec-head { display: flex; align-items: center; gap: 24px; margin-bottom: 22px; }
+		.sec-head h2 { margin: 0; font: 500 clamp(32px, 3.4vw, 40px)/1 var(--serif); }
+		.sec-head .rule { flex: 1; height: 1px; background: var(--line); }
+		.sec-head .more { display: inline-flex; gap: 8px; align-items: center; border: 0; background: none; cursor: pointer; font: 500 18px var(--serif); color: var(--text); padding: 4px 0; }
+		.sec-head .more:hover { text-decoration: underline; }
+		@media (max-width: 560px) { .sec-head { gap: 14px; } }
 
-		/* Filtros */
-		.filters { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
-		.filters input[type="search"] { flex: 1 1 240px; min-width: 0; }
-		.seg { display: inline-flex; max-width: 100%; overflow-x: auto; border: 1px solid var(--border); border-radius: 9px; background: var(--surface); }
-		.seg button { flex: none; border: 0; background: transparent; padding: 7px 12px; cursor: pointer; font-size: 14px; color: var(--text-muted); }
-		.seg button[aria-pressed="true"] { background: var(--accent-soft); color: var(--accent); font-weight: 600; }
-		.seg .c { font: 12px var(--mono); margin-left: 4px; opacity: .8; }
-		label.chk { display: inline-flex; gap: 6px; align-items: center; font-size: 14px; color: var(--text-muted); cursor: pointer; }
-		.count { color: var(--text-muted); font-size: 13px; }
+		.filters { display: flex; flex-wrap: wrap; gap: 10px 12px; align-items: center; margin-bottom: 22px; }
+		.seg { display: inline-flex; max-width: 100%; overflow-x: auto; border: 1px solid var(--line); border-radius: 999px; background: var(--card); padding: 3px; }
+		.seg button { flex: none; border: 0; background: transparent; padding: 6px 14px; border-radius: 999px; cursor: pointer; font: 500 16.5px var(--serif); color: var(--text-muted); }
+		.seg button[aria-pressed="true"] { background: var(--ink); color: var(--on-ink); }
+		.seg .c { font: 11.5px var(--mono); margin-left: 5px; opacity: .75; }
+		.filters select { border-radius: 999px; padding-inline: 14px; font-size: 14px; }
+		.count { color: var(--text-muted); font-size: 13px; margin-left: auto; }
 
-		/* Ofertas */
-		.list { display: grid; gap: 8px; }
+		.list { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 360px), 1fr)); gap: 20px; }
 		.job {
-			display: grid; grid-template-columns: 52px minmax(0, 1fr) auto; gap: 4px 14px; align-items: start;
-			background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 12px 14px;
+			display: flex; flex-direction: column; gap: 12px; min-width: 0;
+			background: var(--card); border: 1px solid var(--line-soft); border-radius: var(--radius);
+			padding: 22px 22px 18px; box-shadow: var(--shadow);
 		}
-		.job.applied { border-color: color-mix(in srgb, var(--ok) 45%, var(--border)); }
+		.job.applied { border-color: color-mix(in srgb, var(--ok) 45%, var(--line-soft)); }
 		.job.discarded { opacity: .6; }
-		.score {
-			grid-row: span 2; display: grid; place-items: center; height: 40px; border-radius: 9px;
-			font: 700 16px var(--mono); font-variant-numeric: tabular-nums;
-			background: var(--surface-2); color: var(--text-muted);
+		.job-head { display: grid; grid-template-columns: 56px minmax(0, 1fr) auto; gap: 16px; align-items: start; }
+		.logo {
+			display: grid; place-items: center; width: 56px; height: 56px; border-radius: 50%;
+			background: hsl(var(--h) 32% 90%); color: hsl(var(--h) 38% 30%);
+			font: 600 21px var(--serif); letter-spacing: .02em; box-shadow: inset 0 0 0 1px hsl(var(--h) 25% 80%);
 		}
-		.score.hi { background: var(--accent-soft); color: var(--accent); }
-		.score.mid { background: color-mix(in srgb, var(--accent-2) 14%, transparent); color: var(--accent-2); }
-		.job h3 { margin: 0; font-size: 15.5px; font-weight: 600; line-height: 1.35; overflow-wrap: anywhere; }
+		@media (prefers-color-scheme: dark) { .logo { background: hsl(var(--h) 18% 22%); color: hsl(var(--h) 45% 80%); box-shadow: inset 0 0 0 1px hsl(var(--h) 15% 32%); } }
+		.job h3 { margin: 2px 0 2px; font: 500 23px/1.18 var(--serif); overflow-wrap: anywhere; }
 		.job h3 a { color: var(--text); text-decoration: none; }
-		.job h3 a:hover { color: var(--accent); text-decoration: underline; }
-		.meta { display: flex; flex-wrap: wrap; gap: 4px 12px; color: var(--text-muted); font-size: 13px; }
-		.meta .co { color: var(--text); font-weight: 500; }
-		.meta a.co { text-decoration: none; }
-		.meta a.co:hover { color: var(--accent); text-decoration: underline; }
-		.links { grid-column: 2 / -1; display: flex; flex-wrap: wrap; gap: 4px 14px; font-size: 13px; }
+		.job h3 a:hover { text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 3px; }
+		.job .co { color: var(--text-muted); font-size: 14px; text-decoration: none; }
+		.job a.co:hover { color: var(--accent); text-decoration: underline; }
+		.score {
+			min-width: 40px; text-align: center; padding: 3px 8px; border-radius: 999px;
+			font: 500 12.5px var(--mono); font-variant-numeric: tabular-nums;
+			background: var(--bg-alt); color: var(--text-muted);
+		}
+		.score.hi { background: var(--ink); color: var(--on-ink); }
+		.score.mid { background: var(--moon); color: var(--text); }
+		.meta { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 18px; color: var(--text); font-size: 14px; }
+		.meta .it { display: inline-flex; align-items: center; gap: 7px; }
+		.meta svg.i { width: 16px; height: 16px; color: var(--text-muted); }
+		.chips { display: flex; flex-wrap: wrap; gap: 6px; }
+		.chip { display: inline-block; font: 500 11.5px var(--mono); padding: 2px 9px; border-radius: 99px; background: var(--bg-alt); color: var(--text-muted); }
+		.chip.remote { background: var(--moon); color: var(--text); }
+		.chip.new { background: var(--warn-soft); color: var(--warn); }
+		.chip.sal { background: var(--ok-soft); color: var(--ok); }
+		.links { display: flex; flex-wrap: wrap; gap: 4px 16px; font-size: 13.5px; padding-top: 10px; border-top: 1px solid var(--line-soft); }
 		.links a { color: var(--accent); text-decoration: none; }
 		.links a:hover { text-decoration: underline; }
 		.links .muted { color: var(--text-muted); }
-		.chip { display: inline-block; font: 500 11.5px var(--mono); padding: 1px 7px; border-radius: 99px; background: var(--surface-2); color: var(--text-muted); }
-		.chip.remote { background: var(--accent-soft); color: var(--accent); }
-		.chip.new { background: var(--warn-soft); color: var(--warn); }
-		.chip.sal { background: var(--ok-soft); color: var(--ok); }
-		.side { grid-row: span 2; display: flex; flex-direction: column; gap: 6px; align-items: stretch; min-width: 170px; }
+		.side { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-top: auto; }
 		.apply {
-			cursor: pointer; border: 1px solid var(--border); background: transparent; color: var(--text);
-			border-radius: 9px; padding: 6px 10px; font-size: 13.5px; font-weight: 600; text-align: left;
+			flex: 1 1 170px; cursor: pointer; border: 1px solid var(--text); background: transparent; color: var(--text);
+			border-radius: 999px; padding: 7px 14px; font: 500 16px var(--serif);
 		}
-		.apply:hover { border-color: var(--ok); }
+		.apply:hover:not(:disabled) { background: color-mix(in srgb, var(--text) 6%, transparent); }
 		.apply[aria-pressed="true"] { background: var(--ok-soft); border-color: var(--ok); color: var(--ok); }
-		.side select { font-size: 13.5px; padding: 5px 8px; }
-		.side .when { font: 11.5px var(--mono); color: var(--text-muted); }
-		.notes { grid-column: 2 / -1; }
-		.notes textarea { width: 100%; min-height: 38px; resize: vertical; font-size: 13.5px; }
+		.apply:disabled, .side select:disabled { opacity: .5; cursor: not-allowed; }
+		.side select { flex: 1 1 150px; font-size: 13.5px; padding: 7px 12px; border-radius: 999px; }
+		.side .when { flex-basis: 100%; font: 11.5px var(--mono); color: var(--text-muted); }
+		.notes textarea { width: 100%; min-height: 40px; margin-top: 6px; resize: vertical; font-size: 13.5px; }
 		.notes summary { cursor: pointer; color: var(--text-muted); font-size: 13px; width: fit-content; }
-		.job .stateline { display: flex; gap: 6px; flex-wrap: wrap; }
 		.st-entrevista, .st-prueba { color: var(--accent); }
 		.st-oferta { color: var(--ok); }
 		.st-rechazada { color: var(--bad); }
-		@media (max-width: 640px) {
-			.job { grid-template-columns: 44px minmax(0, 1fr); }
-			.score { grid-row: auto; height: 34px; font-size: 14px; }
-			.meta { grid-column: 1 / -1; }
-			.links { grid-column: 1 / -1; }
-			.side { order: 5; grid-row: auto; grid-column: 1 / -1; flex-direction: row; flex-wrap: wrap; min-width: 0; margin-top: 4px; }
-			.side > * { flex: 1 1 140px; }
-			.notes { order: 6; grid-column: 1 / -1; }
-		}
 
-		.empty { text-align: center; color: var(--text-muted); padding: 40px 16px; border: 1px dashed var(--border); border-radius: var(--radius); }
+		.empty { grid-column: 1 / -1; text-align: center; color: var(--text-muted); padding: 44px 16px; border: 1px dashed var(--line); border-radius: var(--radius); font: italic 20px var(--serif); margin: 0; }
+
+		/* ---------- Pie ---------- */
+		footer.foot { position: relative; overflow: hidden; background: var(--bg-alt); border-top: 1px solid var(--line-soft); padding: 26px 16px 30px; text-align: center; }
+		footer.foot .corner { position: absolute; bottom: 0; width: 220px; height: 220px; fill: none; stroke: var(--web); stroke-width: 1; }
+		footer.foot .corner.l { left: 0; }
+		footer.foot .corner.r { right: 0; }
+		.foot-mark { display: flex; align-items: center; justify-content: center; gap: 28px; color: var(--text); }
+		.foot-mark .rule { width: min(240px, 26vw); height: 1px; background: var(--text-muted); opacity: .6; }
+		.foot-mark svg { width: 54px; height: 54px; }
+		footer.foot p { position: relative; margin: 10px 0 0; font: italic 400 clamp(18px, 2vw, 21px)/1.35 var(--serif); }
+		footer.foot small { position: relative; display: block; margin-top: 10px; color: var(--text-muted); font-size: 12.5px; }
 
 		/* Aviso flotante */
 		.toast {
 			position: fixed; left: 50%; transform: translateX(-50%);
 			bottom: calc(18px + env(safe-area-inset-bottom, 0px));
-			background: var(--surface-2); border: 1px solid var(--border); color: var(--text);
-			padding: 9px 16px; border-radius: 10px; font-size: 14px; box-shadow: 0 10px 30px -12px rgba(0,0,0,.5);
-			max-width: calc(100% - 32px); z-index: 20;
+			background: var(--ink); color: var(--on-ink);
+			padding: 10px 18px; border-radius: 999px; font-size: 14px; box-shadow: 0 12px 30px -12px rgba(0,0,0,.5);
+			max-width: calc(100% - 32px); z-index: 20; text-align: center;
 		}
-		.toast.bad { border-color: var(--bad); color: var(--bad); }
+		.toast.bad { background: var(--bad); color: #fff; }
 		@media (prefers-reduced-motion: no-preference) { .toast { animation: up .18s ease-out; } @keyframes up { from { opacity: 0; translate: 0 8px; } } }
 	</style>
 </head>
 <body>
 
+<!-- Iconos y figuras reutilizables -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+	<symbol id="spider" viewBox="-26 -26 52 52">
+		<g fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round">
+			<path d="M-3-7Q-11-18-19-14M-4-4Q-15-9-23-4M-4 0Q-15 1-22 9M-3 3Q-11 10-15 21" />
+			<path d="M3-7Q11-18 19-14M4-4Q15-9 23-4M4 0Q15 1 22 9M3 3Q11 10 15 21" />
+		</g>
+		<circle cx="0" cy="-7" r="4.6" fill="currentColor" />
+		<ellipse cx="0" cy="5" rx="7" ry="9.5" fill="currentColor" />
+	</symbol>
+	<symbol id="i-home" viewBox="0 0 24 24"><path d="M3 10.5 12 3l9 7.5" /><path d="M5 9.5V21h5v-6h4v6h5V9.5" /></symbol>
+	<symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7" /><path d="m20 20-3.5-3.5" /></symbol>
+	<symbol id="i-pin" viewBox="0 0 24 24"><path d="M12 21s-7-6.1-7-11.5a7 7 0 0 1 14 0C19 14.9 12 21 12 21Z" /><circle cx="12" cy="9.5" r="2.5" /></symbol>
+	<symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" /><path d="M12 7v5l3 2" /></symbol>
+	<symbol id="i-bolt" viewBox="0 0 24 24"><path d="M13 2 4 14h7l-1 8 9-12h-7l1-8Z" /></symbol>
+	<symbol id="i-filter" viewBox="0 0 24 24"><path d="M3 4h18l-7 8.5V19l-4 2v-8.5L3 4Z" /></symbol>
+	<symbol id="i-bookmark" viewBox="0 0 24 24"><path d="M6 3h12v18l-6-4.5L6 21V3Z" /></symbol>
+	<symbol id="i-user" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4" /><path d="M4 21c1.2-4 4.3-6 8-6s6.8 2 8 6" /></symbol>
+	<symbol id="i-arrow" viewBox="0 0 24 24"><path d="M4 12h16M14 6l6 6-6 6" /></symbol>
+	<symbol id="i-refresh" viewBox="0 0 24 24"><path d="M20 11a8 8 0 0 0-14.5-4.5L4 8" /><path d="M4 3v5h5" /><path d="M4 13a8 8 0 0 0 14.5 4.5L20 16" /><path d="M20 21v-5h-5" /></symbol>
+</svg>
+
 <header class="top">
 	<div class="wrap">
-		<a class="brand" href="https://github.com/C10N67/aracne" target="_blank" rel="noopener">
-			<span class="brand-mark">AR</span>
-			<span><b>Aracne</b><small>panel de candidaturas</small></span>
+		<a class="brand" href="https://github.com/C10N67/aracne" target="_blank" rel="noopener" aria-label="Aracne en GitHub">
+			<svg viewBox="0 0 40 40" aria-hidden="true"><path d="M20.0 20.0L19.4 2.0M20.0 20.0L32.8 7.3M20.0 20.0L38.0 19.7M20.0 20.0L32.6 32.9M20.0 20.0L19.7 38.0M20.0 20.0L8.0 33.4M20.0 20.0L2.0 21.1M20.0 20.0L7.8 6.8M19.9 16.4Q21.1 17.4 22.7 17.4Q22.8 18.9 23.8 19.9Q22.7 21.1 22.6 22.5Q21.1 22.7 19.9 23.8Q18.9 22.8 17.5 22.8Q17.3 21.3 16.3 20.2Q17.3 18.9 17.5 17.3Q18.9 17.3 19.9 16.4M19.8 12.3Q22.5 14.2 26.0 14.3Q26.1 17.5 28.3 19.9Q26.1 22.5 25.8 26.1Q22.4 26.2 19.9 28.4Q17.6 26.3 14.6 26.3Q14.1 22.9 11.6 20.5Q14.1 17.7 14.7 14.2Q17.6 14.2 19.8 12.3M19.6 7.2Q23.8 10.6 29.3 11.1Q29.6 16.1 32.9 19.8Q29.4 23.9 28.9 29.3Q23.7 29.8 19.8 33.5Q16.1 30.1 11.2 30.0Q10.5 24.6 6.6 20.8Q10.4 16.4 11.1 10.8Q16.0 10.5 19.6 7.2M19.4 1.2Q25.5 6.4 33.3 7.3Q33.6 14.4 38.4 19.7Q33.5 25.5 33.0 33.0Q25.5 33.0 19.7 37.2Q14.5 33.4 7.5 34.0Q7.2 26.5 2.8 21.1Q7.4 15.0 7.9 7.2Q14.5 6.4 19.4 1.2" /></svg>
+			<span>Aracne</span>
 		</a>
-		<div class="top-actions" id="topActions" hidden>
-			<span class="stamp" id="stamp"></span>
-			<a class="btn ghost" href="https://github.com/C10N67/aracne/blob/main/reports/latest.md" target="_blank" rel="noopener">Último informe</a>
-			<button class="btn" id="refresh" type="button">Actualizar</button>
-			<button class="btn ghost" id="logout" type="button">Desconectar</button>
+		<nav class="menu if-on" aria-label="Secciones">
+			<a href="#inicio" aria-current="true" aria-label="Inicio"><svg class="i"><use href="#i-home" /></svg></a>
+			<a href="#ofertas" data-goto="pending">Ofertas</a>
+			<a href="#ofertas" data-goto="applied">Candidaturas</a>
+			<a href="https://github.com/C10N67/aracne/blob/main/reports/latest.md" target="_blank" rel="noopener">Último informe</a>
+		</nav>
+		<div class="top-actions if-on">
+			<button class="btn soft" id="refresh" type="button" title="Volver a leer las ofertas de GitHub"><svg class="i"><use href="#i-refresh" /></svg><span class="lbl">Actualizar</span></button>
+			<button class="btn" id="logout" type="button" title="Borrar el token de este navegador"><svg class="i"><use href="#i-user" /></svg><span class="lbl">Desconectar</span></button>
 		</div>
 	</div>
 </header>
+
+<section class="hero" id="inicio">
+	<div class="art" aria-hidden="true">
+		<svg viewBox="0 0 640 520" preserveAspectRatio="xMaxYMid slice">
+			<circle class="moon" cx="330" cy="300" r="238" />
+			<path class="webs" d="M470.0 210.0L799.9 203.0M470.0 210.0L784.6 309.8M470.0 210.0L718.9 426.7M470.0 210.0L649.4 487.0M470.0 210.0L525.9 535.2M470.0 210.0L417.9 535.9M470.0 210.0L320.4 504.1M470.0 210.0L217.0 421.9M470.0 210.0L166.6 339.9M470.0 210.0L140.0 212.6M470.0 210.0L154.5 113.3M470.0 210.0L207.1 10.5M470.0 210.0L302.4 -74.3M470.0 210.0L425.5 -117.0M470.0 210.0L512.6 -117.2M470.0 210.0L625.4 -81.1M470.0 210.0L726.0 1.8M470.0 210.0L785.7 113.9M491.1 209.6Q488.9 212.5 490.9 216.0Q486.8 218.8 486.4 223.5Q482.3 223.7 481.0 226.9Q476.5 227.2 473.5 231.3Q470.1 229.0 466.8 230.8Q464.2 227.7 460.4 228.4Q458.4 224.1 453.9 222.9Q454.5 219.4 451.6 218.0Q452.1 213.7 448.7 210.2Q451.6 207.3 450.4 203.8Q453.7 201.6 453.4 197.6Q457.6 196.1 459.1 191.6Q463.8 192.3 467.2 189.1Q470.0 190.9 472.7 188.5Q475.8 192.2 480.1 191.9Q482.2 196.1 487.0 197.3Q486.6 201.5 489.9 203.7Q488.4 207.0 491.1 209.6M514.8 209.0Q509.2 216.0 512.2 224.3Q505.2 230.3 506.0 240.7Q498.0 241.0 496.2 248.3Q485.4 248.0 478.0 256.2Q470.3 251.4 462.6 255.7Q456.9 250.0 448.2 253.3Q444.2 243.1 434.5 240.3Q435.6 232.0 429.2 228.7Q430.4 218.6 422.9 210.4Q428.2 204.2 424.1 196.7Q432.9 191.2 433.4 181.4Q443.4 179.2 447.5 170.1Q457.2 172.1 463.9 165.7Q469.9 168.8 475.7 162.7Q482.1 170.7 491.1 170.0Q495.5 178.3 505.7 179.6Q505.2 190.3 512.6 196.5Q509.3 203.5 514.8 209.0M544.4 208.4Q536.3 219.7 542.9 233.2Q527.4 242.1 524.6 258.2Q512.4 260.7 509.7 274.5Q493.8 270.7 483.1 280.4Q470.8 273.7 458.7 281.2Q450.2 271.7 437.3 275.9Q429.5 260.6 412.7 256.4Q415.1 243.9 405.3 238.9Q408.0 223.3 396.9 210.6Q403.8 200.3 396.0 187.9Q410.1 179.7 410.9 164.7Q426.2 162.2 431.7 149.0Q448.1 148.6 459.6 134.6Q469.8 142.0 479.9 134.4Q490.0 146.9 504.5 145.3Q510.4 159.6 525.2 162.6Q525.3 179.4 537.8 189.4Q534.0 200.0 544.4 208.4M570.1 207.9Q558.6 222.5 566.7 239.8Q546.8 252.8 543.9 275.3Q527.5 277.8 523.8 295.4Q501.7 295.8 486.6 315.4Q470.1 301.6 453.5 308.2Q442.1 294.9 424.4 300.5Q414.4 279.4 392.0 273.7Q390.8 257.8 371.9 252.6Q379.6 229.5 367.2 210.8Q381.2 197.3 375.5 181.0Q391.1 169.6 389.2 149.1Q409.3 144.0 415.9 124.2Q439.7 123.3 456.8 103.2Q470.0 117.6 483.3 111.4Q497.9 126.6 518.8 123.3Q528.0 140.3 550.2 141.8Q552.1 165.6 572.2 179.4Q561.0 195.3 570.1 207.9M600.1 207.2Q583.8 227.4 592.8 251.4Q570.6 269.1 570.8 299.9Q547.4 299.4 541.2 318.7Q512.5 320.9 493.3 347.7Q470.7 333.0 448.2 345.6Q432.2 325.8 407.7 331.6Q397.2 303.3 370.6 295.7Q370.9 271.1 349.3 260.0Q358.5 233.0 343.0 211.0Q356.9 192.6 345.7 170.2Q364.1 156.0 359.0 129.9Q388.3 119.8 399.4 89.6Q429.8 97.2 451.2 79.7Q469.1 93.5 486.7 81.5Q504.9 100.8 530.9 95.9Q544.5 119.3 574.7 122.5Q576.4 153.2 601.8 171.3Q587.9 191.3 600.1 207.2M636.8 206.4Q612.6 231.1 620.2 260.5Q595.6 282.7 599.1 321.0Q569.3 321.9 561.6 347.6Q523.3 346.9 496.9 376.7Q470.7 360.2 444.5 377.2Q423.4 350.5 392.0 355.0Q378.7 324.8 345.2 320.2Q344.3 287.8 315.5 272.6Q329.3 238.7 311.8 211.3Q325.2 188.2 306.5 160.4Q339.6 141.5 343.7 107.4Q373.8 99.1 382.5 66.2Q420.8 71.6 448.2 46.4Q469.4 66.6 490.4 54.9Q515.7 74.0 551.1 62.8Q564.0 95.1 597.8 101.8Q597.8 139.0 626.2 160.4Q615.4 186.1 636.8 206.4M672.6 206.0Q643.2 234.3 652.4 268.1Q617.0 294.6 614.2 340.0Q581.7 342.0 574.1 373.4Q531.3 374.1 502.0 411.3Q470.7 387.4 439.5 403.0Q415.9 378.7 380.3 392.0Q362.5 351.0 320.8 341.3Q321.7 303.9 289.6 287.5Q300.3 245.5 273.3 211.5Q297.6 185.6 283.5 154.3Q319.2 130.0 321.4 87.8Q359.8 79.2 373.6 41.4Q414.4 46.1 442.9 14.5Q469.0 34.3 494.9 15.0Q523.0 42.2 562.9 32.0Q577.6 73.8 616.2 85.4Q618.2 128.8 653.0 154.2Q643.5 183.1 672.6 206.0M705.0 205.2Q674.5 239.8 689.4 281.0Q649.6 309.2 649.7 359.4Q607.5 363.7 595.8 402.1Q544.1 399.9 508.8 439.8Q471.3 415.4 434.1 436.7Q407.3 407.8 366.5 422.9Q342.9 374.4 291.1 362.4Q290.7 318.2 250.4 297.9Q267.6 250.4 239.8 211.9Q264.6 181.8 243.8 145.4Q289.3 119.0 294.6 72.5Q341.0 61.7 358.8 18.0Q406.7 19.9 440.5 -20.6Q470.4 0.1 500.4 -25.9Q530.5 11.1 574.0 3.8Q598.0 54.6 650.3 70.8Q653.4 116.0 697.3 140.3Q678.0 176.5 705.0 205.2M724.6 204.2Q695.8 243.0 717.2 289.1Q674.5 325.6 677.3 387.7Q625.2 388.2 607.6 428.4Q551.9 422.6 514.5 464.1Q472.0 438.6 429.9 464.0Q397.3 424.3 348.6 432.3Q324.5 385.3 268.1 377.2Q276.0 330.9 240.8 311.4Q247.5 256.6 204.8 212.1Q242.8 174.7 230.4 129.5Q265.6 99.2 255.3 44.2Q315.9 36.2 342.2 -10.4Q397.3 -9.3 436.3 -56.8Q469.7 -22.7 503.0 -40.2Q540.0 -10.9 592.4 -30.6Q619.5 29.1 679.7 48.7Q673.2 101.6 711.9 130.5Q693.4 171.6 724.6 204.2M767.8 203.6Q725.6 245.6 740.3 295.5Q693.9 335.2 697.3 402.7Q641.5 413.3 623.9 469.1Q562.1 461.7 520.8 510.3Q472.7 481.2 425.3 512.4Q392.2 469.0 341.7 483.2Q310.7 417.0 244.3 396.8Q245.5 348.7 196.7 331.4Q217.0 265.6 181.1 212.3Q212.4 173.0 186.5 125.6Q240.5 94.3 243.6 37.3Q303.6 21.1 326.6 -37.2Q387.8 -30.5 430.9 -77.3Q470.0 -48.5 509.1 -77.1Q550.3 -32.8 609.3 -42.5Q634.3 16.5 695.9 32.4Q695.8 93.2 745.9 128.1Q728.1 170.3 767.8 203.6M807.6 203.0Q759.1 251.6 774.8 309.5Q724.0 348.4 729.7 418.1Q670.2 427.4 655.2 485.1Q578.5 485.0 525.9 546.1Q472.0 508.0 418.5 536.1Q378.2 495.5 317.6 518.3Q289.4 447.3 221.0 428.9Q218.6 367.8 160.4 341.7Q183.6 270.4 143.2 212.6Q187.3 169.3 168.6 116.9Q221.1 76.2 218.4 5.7Q283.2 -5.5 306.5 -64.7Q377.2 -65.8 427.3 -128.1Q470.7 -91.9 514.2 -122.8Q558.3 -67.4 622.0 -73.6Q651.2 -10.9 720.7 2.6Q720.0 73.7 774.9 114.5Q759.1 163.9 807.6 203.0" />
+			<g class="spider-g">
+				<line class="thread" x1="300" y1="0" x2="300" y2="322" />
+				<use href="#spider" x="276" y="314" width="48" height="48" />
+			</g>
+		</svg>
+	</div>
+	<div class="wrap">
+		<div class="hero-copy">
+			<h1>Aracne</h1>
+			<p class="tagline">Tejemos oportunidades para ti</p>
+			<p class="lede">Un scraper de trabajos que recolecta cada mañana las mejores ofertas de empleo y las reúne en un solo lugar.</p>
+			<form class="searchbar if-on" id="searchForm" role="search">
+				<svg class="i"><use href="#i-search" /></svg>
+				<input type="search" id="q" placeholder="Busca un puesto, empresa o palabra clave…" aria-label="Buscar ofertas" autocomplete="off" />
+				<button class="btn primary" type="submit">Buscar</button>
+			</form>
+		</div>
+	</div>
+</section>
+
+<section class="features" aria-label="Resumen">
+	<div class="wrap">
+		<div class="feat">
+			<span class="ic"><svg class="i"><use href="#i-bolt" /></svg></span>
+			<div>
+				<h2>Rastreo automático</h2>
+				<p class="if-off">Recolectamos ofertas de múltiples portales de empleo cada mañana.</p>
+				<div class="if-on">
+					<p class="runstatus" id="runStatus" aria-live="polite"><span class="dot"></span><span>Consultando la última búsqueda…</span></p>
+					<div class="row">
+						<button class="btn primary sm" id="runBtn" type="button">Buscar ahora</button>
+						<label class="chk" title="Abrir el issue y enviar el email con las ofertas nuevas"><input type="checkbox" id="notify" /> Enviar avisos</label>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="feat">
+			<span class="ic"><svg class="i"><use href="#i-filter" /></svg></span>
+			<div>
+				<h2>Filtros a tu medida</h2>
+				<p class="if-off">Puntuamos cada oferta según tu perfil para que encuentres exactamente lo que buscas.</p>
+				<p class="if-on" id="featOffers"></p>
+			</div>
+		</div>
+		<div class="feat">
+			<span class="ic"><svg class="i"><use href="#i-bookmark" /></svg></span>
+			<div>
+				<h2>Sigue tus candidaturas</h2>
+				<p class="if-off">No pierdas de vista las oportunidades a las que te has presentado.</p>
+				<p class="if-on" id="featApplied"></p>
+			</div>
+		</div>
+	</div>
+</section>
 
 <main class="wrap">
 
 	<!-- Conexión con GitHub -->
 	<section class="connect" id="connect" hidden>
-		<h1>Conecta el panel con tu repositorio Aracne</h1>
+		<h2>Conecta el panel con tu repositorio</h2>
 		<p>Las ofertas están en un repositorio privado. Este panel las lee directamente de GitHub con un token que solo vive en este navegador. La página no contiene ningún dato.</p>
 		<ol>
 			<li>Abre <a href="https://github.com/settings/personal-access-tokens/new" target="_blank" rel="noopener">crear token (fine-grained)</a>.</li>
 			<li><b>Repository access</b>: <i>Only select repositories</i> → <code>C10N67/aracne</code>.</li>
 			<li><b>Permissions → Repository → Contents</b>: <i>Read and write</i>. Con <i>Read-only</i> podrás ver las ofertas, pero no marcarlas.</li>
+			<li>Opcional, para lanzar la búsqueda desde aquí: <b>Permissions → Repository → Actions</b>: <i>Read and write</i>.</li>
 			<li>Genera el token y pégalo aquí.</li>
 		</ol>
 		<form id="tokenForm">
@@ -251,33 +451,42 @@
 
 	<!-- Panel -->
 	<section id="panel" hidden>
-		<div class="panel-grid">
-			<div class="stats" id="stats"></div>
-
-			<div class="filters">
-				<input type="search" id="q" placeholder="Buscar puesto, empresa, ubicación…" aria-label="Buscar" />
-				<div class="seg" role="group" aria-label="Estado" id="seg">
-					<button type="button" data-view="pending" aria-pressed="true">Pendientes<span class="c"></span></button>
-					<button type="button" data-view="applied" aria-pressed="false">Enviadas<span class="c"></span></button>
-					<button type="button" data-view="discarded" aria-pressed="false">Descartadas<span class="c"></span></button>
-					<button type="button" data-view="all" aria-pressed="false">Todas<span class="c"></span></button>
-				</div>
-				<select id="sort" aria-label="Ordenar">
-					<option value="score">Más puntos</option>
-					<option value="date">Más recientes</option>
-					<option value="company">Empresa (A–Z)</option>
-				</select>
-				<select id="source" aria-label="Fuente"><option value="">Todas las fuentes</option></select>
-				<label class="chk"><input type="checkbox" id="remote" /> Solo remoto</label>
-				<span class="count" id="count"></span>
-			</div>
-
-			<div class="list" id="list"></div>
+		<div class="sec-head" id="ofertas">
+			<h2 id="listTitle">Ofertas pendientes</h2>
+			<span class="rule"></span>
+			<button class="more" id="seeAll" type="button">Ver todas <svg class="i"><use href="#i-arrow" /></svg></button>
 		</div>
+
+		<div class="filters">
+			<div class="seg" role="group" aria-label="Estado" id="seg">
+				<button type="button" data-view="pending" aria-pressed="true">Pendientes<span class="c"></span></button>
+				<button type="button" data-view="applied" aria-pressed="false">Enviadas<span class="c"></span></button>
+				<button type="button" data-view="discarded" aria-pressed="false">Descartadas<span class="c"></span></button>
+				<button type="button" data-view="all" aria-pressed="false">Todas<span class="c"></span></button>
+			</div>
+			<select id="sort" aria-label="Ordenar">
+				<option value="score">Más puntos</option>
+				<option value="date">Más recientes</option>
+				<option value="company">Empresa (A–Z)</option>
+			</select>
+			<select id="source" aria-label="Fuente"><option value="">Todas las fuentes</option></select>
+			<label class="chk"><input type="checkbox" id="remote" /> Solo remoto</label>
+			<span class="count"><span id="count"></span> <span class="mono" id="stamp"></span></span>
+		</div>
+
+		<div class="list" id="list"></div>
 	</section>
 
 	<p class="empty" id="loading">Cargando ofertas…</p>
 </main>
+
+<footer class="foot">
+	<svg class="corner l" viewBox="0 0 200 200" aria-hidden="true"><path d="M0.0 200.0L0.0 0.0M0.0 200.0L51.8 6.8M0.0 200.0L100.0 26.8M0.0 200.0L141.4 58.6M0.0 200.0L173.2 100.0M0.0 200.0L193.2 148.2M0.0 200.0L200.0 200.0M0.0 178.1Q2.5 180.9 5.7 178.5Q7.3 182.1 10.9 180.7Q11.1 184.9 14.4 185.0Q14.8 188.6 19.3 189.2Q17.9 192.9 21.4 194.7Q18.8 197.7 21.3 200.0M0.0 152.3Q5.1 159.5 11.7 155.6Q15.3 161.6 23.2 157.3Q25.3 167.0 34.4 167.7Q33.7 175.7 42.2 177.2Q38.9 184.8 46.3 188.2Q40.2 194.8 45.0 200.0M0.0 126.7Q9.0 134.5 20.5 124.4Q25.3 136.6 36.9 131.6Q39.8 146.0 53.6 145.7Q51.5 158.8 63.4 160.6Q60.6 173.7 74.3 179.6Q67.2 191.0 78.5 200.0M0.0 98.4Q11.5 112.6 26.2 102.9Q34.2 116.8 51.5 108.1Q53.7 126.3 70.6 124.4Q70.5 144.0 89.5 148.5Q85.5 165.4 104.7 172.9Q91.5 188.1 103.1 200.0M0.0 70.2Q16.2 87.9 36.8 75.1Q46.8 91.5 69.6 78.3Q70.9 103.0 91.4 101.2Q91.3 126.4 116.1 131.6Q106.0 155.1 124.8 166.4Q112.7 185.2 131.5 200.0M0.0 28.2Q19.9 50.1 45.2 31.0Q56.2 62.8 82.5 57.0Q88.5 83.5 118.7 78.3Q113.6 108.7 139.4 114.2Q134.6 142.5 166.6 155.1Q143.6 180.2 159.7 200.0M0.0 3.2Q23.0 24.8 52.3 -1.3Q66.3 32.0 98.4 19.4Q105.8 59.5 142.1 61.2Q137.3 96.4 170.0 103.2Q156.2 135.4 185.0 150.1Q171.1 178.0 203.8 200.0" /></svg>
+	<svg class="corner r" viewBox="0 0 200 200" aria-hidden="true"><path d="M200.0 200.0L0.0 200.0M200.0 200.0L6.8 148.2M200.0 200.0L26.8 100.0M200.0 200.0L58.6 58.6M200.0 200.0L100.0 26.8M200.0 200.0L148.2 6.8M200.0 200.0L200.0 0.0M178.7 200.0Q181.9 197.5 180.1 194.3Q183.5 192.8 182.4 189.3Q185.4 188.9 184.3 185.5Q188.4 185.4 189.3 181.3Q193.0 182.8 194.7 179.6Q197.7 181.7 200.0 178.8M151.6 200.0Q159.1 194.8 155.5 188.2Q162.3 184.0 159.0 175.3Q167.1 174.0 166.2 165.6Q174.8 166.4 176.6 158.0Q184.5 161.8 188.2 155.2Q194.8 159.0 200.0 151.6M125.1 200.0Q135.7 191.7 128.8 181.0Q140.5 174.5 136.1 161.1Q149.1 158.5 148.2 144.6Q160.0 148.1 160.8 137.5Q174.3 140.5 180.7 127.1Q191.5 135.0 200.0 125.1M90.6 200.0Q106.8 188.5 97.5 173.8Q114.5 164.5 108.3 145.4Q127.9 144.9 127.9 129.3Q146.1 128.7 149.6 108.6Q166.5 117.0 174.1 102.7Q188.6 109.0 200.0 90.5M65.3 200.0Q82.2 185.2 67.0 166.3Q89.3 156.3 81.4 134.3Q105.1 126.9 102.9 99.6Q128.7 103.8 135.1 81.7Q155.8 92.3 164.5 73.4Q184.4 81.6 200.0 57.5M24.1 200.0Q50.0 180.1 34.9 154.7Q65.2 142.8 58.8 115.3Q88.1 111.3 87.0 83.1Q112.8 84.2 114.8 53.6Q142.9 67.3 155.5 44.9Q180.4 55.4 200.0 26.4M-1.7 200.0Q27.1 176.1 8.7 145.7Q39.1 134.2 25.5 104.8Q59.1 97.0 54.3 61.0Q92.2 64.8 100.7 31.8Q133.6 42.5 148.5 10.2Q177.4 27.3 200.0 -2.6" /></svg>
+	<div class="foot-mark" aria-hidden="true"><span class="rule"></span><svg><use href="#spider" /></svg><span class="rule"></span></div>
+	<p>Como Aracne, tejemos conexiones entre tu talento y el mundo laboral.</p>
+	<small>Datos privados en <a href="https://github.com/C10N67/aracne" target="_blank" rel="noopener">C10N67/aracne</a> · el token solo se guarda en este navegador</small>
+</footer>
 
 <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
 
@@ -289,6 +498,8 @@
 	const BRANCH = "main";
 	const PATH = "data/ofertas.csv";
 	const API = `https://api.github.com/repos/${REPO}/contents/${PATH}`;
+	const WORKFLOW = "buscar.yml";
+	const WF_API = `https://api.github.com/repos/${REPO}/actions/workflows/${WORKFLOW}`;
 	const TOKEN_KEY = "aracne.token";
 	const PREFS_KEY = "aracne.prefs";
 	const STATES = [
@@ -299,6 +510,7 @@
 		["rechazada", "Rechazada"],
 		["descartada", "No me interesa"],
 	];
+	const VIEW_TITLES = { pending: "Ofertas pendientes", applied: "Tus candidaturas", discarded: "Descartadas", all: "Todas las ofertas" };
 	const NOT_APPLIED = new Set(["", "no", "n", "-", "0", "false"]);
 
 	const $ = (id) => document.getElementById(id);
@@ -311,7 +523,7 @@
 	let token = store.get(TOKEN_KEY);
 	let header = [], rows = [], sha = null;
 	let canWrite = true;
-	const prefs = Object.assign({ view: "pending", sort: "score", source: "", remote: false },
+	const prefs = Object.assign({ view: "pending", sort: "score", source: "", remote: false, notify: false },
 		(() => { try { return JSON.parse(store.get(PREFS_KEY) || "{}"); } catch { return {}; } })());
 
 	/* ---------- CSV (compatible con el módulo csv de Python) ---------- */
@@ -404,6 +616,148 @@
 		throw err;
 	}
 
+	/* ---------- Utilidades de DOM ---------- */
+	function el(tag, attrs, ...kids) {
+		const n = document.createElement(tag);
+		for (const [k, v] of Object.entries(attrs || {})) {
+			if (v == null || v === false) continue;
+			if (k === "class") n.className = v;
+			else if (k === "style") n.style.cssText = v;
+			else if (k.startsWith("on")) n.addEventListener(k.slice(2), v);
+			else n.setAttribute(k, v === true ? "" : v);
+		}
+		for (const k of kids.flat()) if (k != null && k !== false) n.append(k);
+		return n;
+	}
+	const SVGNS = "http://www.w3.org/2000/svg";
+	function icon(name) {
+		const s = document.createElementNS(SVGNS, "svg");
+		s.setAttribute("class", "i"); s.setAttribute("aria-hidden", "true");
+		const u = document.createElementNS(SVGNS, "use");
+		u.setAttribute("href", "#i-" + name);
+		s.append(u);
+		return s;
+	}
+
+	/* ---------- Scraper: lanzar buscar.yml y seguir la ejecución ---------- */
+	const run = { last: null, waitingSince: 0, baseline: 0, tracking: null, timer: 0, error: "" };
+	function explainActions(status, body) {
+		if (status === 403 || status === 404) {
+			const m = (body && body.message) || "";
+			if (/rate limit/i.test(m)) return "Has superado el límite de peticiones de GitHub. Prueba dentro de un rato.";
+			return "Tu token no puede usar GitHub Actions. Edítalo en GitHub y añade Permissions → Actions: Read and write.";
+		}
+		return explain(status, body);
+	}
+	async function latestRun() {
+		const r = await fetch(`${WF_API}/runs?branch=${BRANCH}&per_page=1`, { headers: headers(), cache: "no-store" });
+		const body = await r.json().catch(() => null);
+		if (!r.ok) throw new Error(explainActions(r.status, body));
+		return (body.workflow_runs || [])[0] || null;
+	}
+	const isRunning = (w) => !!w && w.status !== "completed";
+	function ago(iso) {
+		const s = Math.max(0, Math.round((Date.now() - Date.parse(iso)) / 1000));
+		if (s < 60) return "hace un momento";
+		if (s < 3600) return `hace ${Math.round(s / 60)} min`;
+		if (s < 86400) return `hace ${Math.round(s / 3600)} h`;
+		return `hace ${Math.round(s / 86400)} d`;
+	}
+	function elapsed(iso) {
+		const s = Math.max(0, Math.round((Date.now() - Date.parse(iso)) / 1000));
+		return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, "0")}`;
+	}
+	function renderRun() {
+		const w = run.last;
+		let dot = "", text, link = null;
+		if (run.error) { dot = "bad"; text = [run.error]; }
+		else if (run.waitingSince) { dot = "run"; text = [el("b", {}, "Lanzando la búsqueda…"), " esperando a GitHub Actions"]; }
+		else if (!w) { text = ["Todavía no se ha ejecutado ninguna búsqueda."]; }
+		else if (isRunning(w)) {
+			dot = "run";
+			text = w.status === "in_progress"
+				? [el("b", {}, "Buscando ofertas…"), ` ${elapsed(w.run_started_at || w.created_at)}`]
+				: [el("b", {}, "En cola…"), " esperando a GitHub"];
+			link = w.html_url;
+		} else {
+			const ok = w.conclusion === "success";
+			dot = ok ? "ok" : "bad";
+			const how = w.event === "schedule" ? "automática" : "manual";
+			text = [ok ? "Última búsqueda " : "La última búsqueda falló ", el("b", {}, ago(w.updated_at || w.created_at)), ` · ${how}`];
+			link = w.html_url;
+		}
+		$("runStatus").replaceChildren(el("span", { class: "dot " + dot }), el("span", {}, ...text),
+			...(link ? [el("a", { href: safeUrl(link), target: "_blank", rel: "noopener noreferrer" }, "Ver registro ↗")] : []));
+		const busy = run.waitingSince || isRunning(w);
+		const btn = $("runBtn");
+		btn.disabled = !!busy;
+		btn.textContent = busy ? "Buscando…" : "Buscar ahora";
+		btn.title = busy ? "Ya hay una búsqueda en marcha" : "Ejecuta ahora el workflow «Buscar empleo» en GitHub Actions";
+	}
+	function schedulePoll(ms) {
+		clearTimeout(run.timer);
+		run.timer = setTimeout(pollRun, ms);
+	}
+	async function pollRun() {
+		if (!token) return;
+		let w;
+		try { w = await latestRun(); }
+		catch (e) {
+			run.error = e.message; run.waitingSince = 0; renderRun();
+			if (run.tracking) schedulePoll(15000);
+			return;
+		}
+		run.error = "";
+		if (run.waitingSince) {
+			if (!w || w.id <= run.baseline) {          // la ejecución aún no aparece
+				if (Date.now() - run.waitingSince > 120000) {
+					run.waitingSince = 0; run.error = "GitHub aceptó la orden, pero la ejecución no aparece. Revisa la pestaña Actions del repositorio.";
+					renderRun(); return;
+				}
+				renderRun(); return schedulePoll(3000);
+			}
+			run.waitingSince = 0;
+			run.tracking = w.id;
+		}
+		run.last = w;
+		if (isRunning(w)) {
+			run.tracking = w.id;
+			renderRun();
+			return schedulePoll(w.status === "in_progress" ? 5000 : 4000);
+		}
+		renderRun();
+		if (w && run.tracking === w.id) {            // acaba de terminar la que seguíamos
+			run.tracking = null;
+			if (w.conclusion !== "success") return toast(`La búsqueda terminó con estado «${w.conclusion}». Mira el registro en GitHub.`, true);
+			const before = new Set(rows.map(keyOf));
+			try {
+				await queue; await load(); renderSources(); render();
+				const n = rows.filter((o) => !before.has(keyOf(o))).length;
+				toast(n ? `Búsqueda terminada: ${n} oferta${n === 1 ? "" : "s"} nueva${n === 1 ? "" : "s"}` : "Búsqueda terminada: sin ofertas nuevas");
+			} catch (e) { toast(e.message, true); }
+		}
+	}
+	async function launch() {
+		const btn = $("runBtn");
+		btn.disabled = true;
+		run.error = "";
+		run.baseline = run.last ? run.last.id : 0;
+		try {
+			const r = await fetch(`${WF_API}/dispatches`, {
+				method: "POST", headers: headers({ "Content-Type": "application/json" }),
+				body: JSON.stringify({ ref: BRANCH, inputs: { notify: String(!!prefs.notify) } }),
+			});
+			if (!r.ok) throw new Error(explainActions(r.status, await r.json().catch(() => null)));
+		} catch (e) {
+			run.error = e.message; renderRun(); toast(e.message, true);
+			return;
+		}
+		run.waitingSince = Date.now();
+		renderRun();
+		toast("Búsqueda lanzada en GitHub Actions");
+		schedulePoll(2500);
+	}
+
 	/* ---------- Guardado: cola + reintento si el fichero cambió ---------- */
 	const keyOf = (o) => o.id || o.url;
 	let queue = Promise.resolve();
@@ -443,10 +797,28 @@
 		const d = new Date(iso + "T00:00:00");
 		return Math.floor((Date.now() - d.getTime()) / 86400000);
 	};
+	const whenLabel = (iso) => {
+		const d = daysAgo(iso);
+		if (!isFinite(d)) return "sin fecha";
+		if (d <= 0) return "Hoy";
+		if (d === 1) return "Ayer";
+		if (d < 30) return `Hace ${d} d`;
+		return iso;
+	};
 	const safeUrl = (u) => (/^https?:\/\//i.test(u || "") ? u : "#");
 	const hostOf = (u) => { try { return new URL(u).hostname.replace(/^www\./, ""); } catch { return ""; } };
 	const searchUrl = (o) => "https://www.google.com/search?q=" +
 		encodeURIComponent(`"${o.puesto}" ${o.empresa || ""} empleo`.trim());
+	function initials(name) {
+		const words = (name || "").replace(/\b(S\.?L\.?U?|S\.?A\.?|Inc|Ltd|GmbH)\.?\b/gi, "").split(/[\s\-–·,.&]+/).filter((w) => /[\p{L}\p{N}]/u.test(w));
+		if (!words.length) return "?";
+		return (words.length === 1 ? words[0].slice(0, 2) : words[0][0] + words[1][0]).toUpperCase();
+	}
+	function hue(name) {
+		let h = 0;
+		for (const ch of name || "") h = (h * 31 + ch.codePointAt(0)) % 360;
+		return h;
+	}
 
 	function matches(o) {
 		if (prefs.view === "pending" && (applied(o) || discarded(o))) return false;
@@ -469,40 +841,24 @@
 	}
 
 	/* ---------- Render ---------- */
-	function el(tag, attrs, ...kids) {
-		const n = document.createElement(tag);
-		for (const [k, v] of Object.entries(attrs || {})) {
-			if (v == null || v === false) continue;
-			if (k === "class") n.className = v;
-			else if (k.startsWith("on")) n.addEventListener(k.slice(2), v);
-			else n.setAttribute(k, v === true ? "" : v);
-		}
-		for (const k of kids.flat()) if (k != null && k !== false) n.append(k);
-		return n;
-	}
-
 	function renderStats() {
 		const sent = rows.filter(applied);
 		const inProcess = sent.filter((o) => ["entrevista", "prueba técnica", "oferta"].includes(state(o)));
 		const fresh = rows.filter((o) => daysAgo(o.encontrada) <= 7);
 		const pending = rows.filter((o) => !applied(o) && !discarded(o));
-		const tiles = [
-			["Ofertas guardadas", rows.length, ""],
-			["Nuevas esta semana", fresh.length, "warn"],
-			["Pendientes", pending.length, "acc"],
-			["Candidaturas", sent.length, "ok"],
-			["En proceso", inProcess.length, "ok"],
-		];
-		$("stats").replaceChildren(...tiles.map(([l, n, c]) =>
-			el("div", { class: "stat " + c }, el("div", { class: "n" }, String(n)), el("div", { class: "l" }, l))));
+		const b = (n) => el("b", {}, String(n));
+		$("featOffers").replaceChildren(b(pending.length), " pendientes de revisar · ", b(fresh.length), " nuevas esta semana · ", b(rows.length), " guardadas");
+		$("featApplied").replaceChildren(b(sent.length), sent.length === 1 ? " candidatura enviada · " : " candidaturas enviadas · ", b(inProcess.length), " en proceso");
 
 		const counts = { pending: pending.length, applied: sent.length, discarded: rows.filter(discarded).length, all: rows.length };
-		for (const b of $("seg").querySelectorAll("button")) {
-			b.setAttribute("aria-pressed", String(b.dataset.view === prefs.view));
-			b.querySelector(".c").textContent = counts[b.dataset.view];
+		for (const btn of $("seg").querySelectorAll("button")) {
+			btn.setAttribute("aria-pressed", String(btn.dataset.view === prefs.view));
+			btn.querySelector(".c").textContent = counts[btn.dataset.view];
 		}
+		$("listTitle").textContent = VIEW_TITLES[prefs.view] || VIEW_TITLES.all;
+		$("seeAll").hidden = prefs.view === "all";
 		const maxDate = rows.reduce((m, o) => (o.encontrada > m ? o.encontrada : m), "");
-		$("stamp").textContent = maxDate ? `datos hasta ${maxDate}` : "";
+		$("stamp").textContent = maxDate ? `· datos hasta ${maxDate}` : "";
 	}
 
 	function renderSources() {
@@ -538,31 +894,36 @@
 		}, ...STATES.map(([v, l]) => el("option", { value: v, selected: v === st }, l)),
 			...(st && !STATES.some(([v]) => v === st) ? [el("option", { value: o.estado, selected: true }, o.estado)] : []));
 
-		const notes = el("textarea", { "aria-label": "Notas", placeholder: "Contacto, salario, próximos pasos…", disabled: !canWrite },);
+		const notes = el("textarea", { "aria-label": "Notas", placeholder: "Contacto, salario, próximos pasos…", disabled: !canWrite });
 		notes.value = o.notas || "";
 		notes.addEventListener("change", () => save(key, { notas: notes.value.trim() },
 			`Notas: ${o.puesto} (${o.empresa || "sin empresa"})`));
 
+		const remote = (o.remoto || "").trim();
+		const chips = [
+			remote && o.ubicacion ? el("span", { class: "chip remote" }, "remoto") : null,
+			o.salario ? el("span", { class: "chip sal" }, o.salario) : null,
+			ago <= 1 ? el("span", { class: "chip new" }, "nueva") : null,
+			st && st !== "descartada" ? el("span", { class: "chip st-" + st.split(" ")[0] }, "● " + (STATES.find(([v]) => v === st)?.[1] || o.estado)) : null,
+		].filter(Boolean);
+
 		return el("article", { class: "job" + (isApplied ? " applied" : "") + (discarded(o) ? " discarded" : "") },
-			el("div", { class: "score" + (pts >= 15 ? " hi" : pts >= 9 ? " mid" : ""), title: "Puntuación según tu perfil" }, o.puntos ? String(pts) : "–"),
-			el("h3", {}, el("a", { href: safeUrl(o.url_original || o.url), target: "_blank", rel: "noopener noreferrer" }, o.puesto || "(sin título)")),
-			el("div", { class: "side" },
-				applyBtn,
-				stateSel,
-				isApplied && o.fecha_candidatura ? el("span", { class: "when" }, `enviada el ${o.fecha_candidatura}`) : null),
+			el("div", { class: "job-head" },
+				el("span", { class: "logo", style: `--h:${hue(o.empresa)}`, "aria-hidden": "true" }, initials(o.empresa)),
+				el("div", {},
+					el("h3", {}, el("a", { href: safeUrl(o.url_original || o.url), target: "_blank", rel: "noopener noreferrer" }, o.puesto || "(sin título)")),
+					o.empresa ? (o.web_empresa
+						? el("a", { class: "co", href: safeUrl(o.web_empresa), target: "_blank", rel: "noopener noreferrer", title: "Web oficial de la empresa" }, o.empresa)
+						: el("span", { class: "co" }, o.empresa)) : null),
+				el("span", { class: "score" + (pts >= 15 ? " hi" : pts >= 9 ? " mid" : ""), title: "Puntuación según tu perfil" }, o.puntos ? `${pts} pts` : "–")),
 			el("div", { class: "meta" },
-				o.empresa ? (o.web_empresa
-					? el("a", { class: "co", href: safeUrl(o.web_empresa), target: "_blank", rel: "noopener noreferrer", title: "Web oficial de la empresa" }, o.empresa)
-					: el("span", { class: "co" }, o.empresa)) : null,
-				o.ubicacion ? el("span", {}, o.ubicacion) : null,
-				(o.remoto || "").trim() ? el("span", { class: "chip remote" }, "remoto") : null,
-				o.salario ? el("span", { class: "chip sal" }, o.salario) : null,
-				ago <= 1 ? el("span", { class: "chip new" }, "nueva") : null,
-				el("span", { class: "mono" }, `${o.fuente || "?"} · ${o.encontrada || "?"}`),
-				st && st !== "descartada" ? el("span", { class: "st-" + st.split(" ")[0] }, "● " + (STATES.find(([v]) => v === st)?.[1] || o.estado)) : null),
+				el("span", { class: "it" }, icon("pin"), o.ubicacion || (remote ? "Remoto" : "Sin ubicación")),
+				el("span", { class: "it", title: o.encontrada ? `Encontrada el ${o.encontrada}` : "" }, icon("clock"), whenLabel(o.encontrada)),
+				el("span", { class: "mono", style: "color:var(--text-muted)" }, o.fuente || "?")),
+			chips.length ? el("div", { class: "chips" }, chips) : null,
 			el("div", { class: "links" },
 				o.web_empresa
-					? el("a", { href: safeUrl(o.web_empresa), target: "_blank", rel: "noopener noreferrer" }, `Web de la empresa (${hostOf(o.web_empresa)}) ↗`)
+					? el("a", { href: safeUrl(o.web_empresa), target: "_blank", rel: "noopener noreferrer" }, `${hostOf(o.web_empresa)} ↗`)
 					: el("span", { class: "muted" }, "Web de la empresa: no encontrada"),
 				o.url_original && o.url_original !== o.url
 					? el("a", { href: safeUrl(o.url_original), target: "_blank", rel: "noopener noreferrer" }, "Oferta original ↗")
@@ -570,6 +931,10 @@
 						? el("a", { href: searchUrl(o), target: "_blank", rel: "noopener noreferrer", title: "Busca esta oferta fuera del agregador" }, "Buscar en su web ↗")
 						: null,
 				el("a", { href: safeUrl(o.url), target: "_blank", rel: "noopener noreferrer" }, `Ver en ${o.fuente || "la fuente"} ↗`)),
+			el("div", { class: "side" },
+				applyBtn,
+				stateSel,
+				isApplied && o.fecha_candidatura ? el("span", { class: "when" }, `enviada el ${o.fecha_candidatura}`) : null),
 			(o.notas || canWrite) ? el("details", { class: "notes", open: !!o.notas }, el("summary", {}, o.notas ? "Notas" : "Añadir notas"), notes) : null,
 		);
 	}
@@ -580,7 +945,7 @@
 		$("count").textContent = `${visible.length} de ${rows.length}`;
 		const list = $("list");
 		if (!rows.length) {
-			list.replaceChildren(el("p", { class: "empty" }, "Todavía no hay ofertas en ofertas.csv. Aparecerán tras la próxima búsqueda diaria."));
+			list.replaceChildren(el("p", { class: "empty" }, "Todavía no hay ofertas en ofertas.csv. Aparecerán tras la próxima búsqueda."));
 		} else if (!visible.length) {
 			list.replaceChildren(el("p", { class: "empty" }, prefs.view === "pending"
 				? "No te queda ninguna oferta pendiente con estos filtros."
@@ -598,12 +963,14 @@
 		t.className = "toast" + (bad ? " bad" : "");
 		t.hidden = false;
 		clearTimeout(toastTimer);
-		toastTimer = setTimeout(() => { t.hidden = true; }, bad ? 7000 : 2200);
+		toastTimer = setTimeout(() => { t.hidden = true; }, bad ? 7000 : 2400);
 	}
 	function savePrefs() { store.set(PREFS_KEY, JSON.stringify(prefs)); }
+	function setView(v) { prefs.view = v; savePrefs(); render(); }
 
 	function showConnect(msg) {
-		$("panel").hidden = true; $("topActions").hidden = true; $("loading").hidden = true;
+		document.body.classList.remove("connected");
+		$("panel").hidden = true; $("loading").hidden = true;
 		$("connect").hidden = false;
 		$("connectError").hidden = !msg;
 		$("connectError").textContent = msg || "";
@@ -616,9 +983,11 @@
 		} catch (e) {
 			return showConnect(e.message);
 		}
-		$("loading").hidden = true; $("panel").hidden = false; $("topActions").hidden = false;
+		document.body.classList.add("connected");
+		$("loading").hidden = true; $("panel").hidden = false;
 		renderSources();
 		render();
+		pollRun();
 	}
 
 	$("tokenForm").addEventListener("submit", (e) => {
@@ -632,19 +1001,32 @@
 	});
 	$("logout").addEventListener("click", () => {
 		store.del(TOKEN_KEY); token = null; rows = []; header = []; sha = null;
+		clearTimeout(run.timer); Object.assign(run, { last: null, waitingSince: 0, baseline: 0, tracking: null, error: "" });
 		showConnect();
 		toast("Token borrado de este navegador");
 	});
 	$("refresh").addEventListener("click", async (e) => {
 		const b = e.currentTarget; b.disabled = true;
-		try { await queue; await load(); renderSources(); render(); toast("Actualizado"); }
+		try {
+			await queue; await load(); renderSources(); render(); toast("Actualizado");
+			if (!run.tracking && !run.waitingSince) pollRun();
+		}
 		catch (err) { toast(err.message, true); }
 		finally { b.disabled = false; }
 	});
 	$("seg").addEventListener("click", (e) => {
 		const b = e.target.closest("button[data-view]");
-		if (!b) return;
-		prefs.view = b.dataset.view; savePrefs(); render();
+		if (b) setView(b.dataset.view);
+	});
+	$("seeAll").addEventListener("click", () => setView("all"));
+	for (const a of document.querySelectorAll("nav.menu a[data-goto]")) {
+		a.addEventListener("click", () => setView(a.dataset.goto));
+	}
+	$("searchForm").addEventListener("submit", (e) => {
+		e.preventDefault();
+		if ($("q").value.trim() && prefs.view !== "all" && !rows.some(matches)) setView("all");
+		else render();
+		$("ofertas").scrollIntoView({ block: "start" });
 	});
 	$("sort").value = prefs.sort;
 	$("sort").addEventListener("change", (e) => { prefs.sort = e.target.value; savePrefs(); render(); });
@@ -652,6 +1034,13 @@
 	$("remote").checked = !!prefs.remote;
 	$("remote").addEventListener("change", (e) => { prefs.remote = e.target.checked; savePrefs(); render(); });
 	$("q").addEventListener("input", render);
+	$("notify").checked = !!prefs.notify;
+	$("notify").addEventListener("change", (e) => { prefs.notify = e.target.checked; savePrefs(); });
+	$("runBtn").addEventListener("click", launch);
+	// Al volver a la pestaña, refrescar el estado si no hay nada en seguimiento.
+	document.addEventListener("visibilitychange", () => {
+		if (!document.hidden && token && !run.tracking && !run.waitingSince) pollRun();
+	});
 
 	// Expuesto solo para las pruebas automáticas del CSV.
 	window.__aracne = { parseCSV, toCSV };
