@@ -297,7 +297,6 @@
 	function buildItems() {
 		items = [...DEFAULTS.map((d) => ({ ...d, fixed: true })),
 			...custom.map((c, i) => ({ ...c, id: "c" + i, icon: "site", custom: true }))];
-		if (custom.length < MAX_CUSTOM) items.push({ id: "add", name: "Añadir web", desc: "Pon cualquier web en la rueda.", icon: "plus", color: "violet", add: true });
 	}
 
 	function hostOf(u) { try { return new URL(u, location.href).host || "c10n67.github.io"; } catch { return ""; } }
