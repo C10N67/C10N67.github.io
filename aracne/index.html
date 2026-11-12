@@ -355,6 +355,10 @@
 		.links a { color: var(--accent); text-decoration: none; }
 		.links a:hover { text-decoration: underline; }
 		.links .muted { color: var(--text-muted); }
+		.also { display: flex; flex-wrap: wrap; gap: 2px 12px; font-size: 13px; padding-top: 6px; }
+		.also .muted { color: var(--text-muted); }
+		.also a { color: var(--accent); text-decoration: none; }
+		.also a:hover { text-decoration: underline; }
 		.side { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
 		.apply {
 			flex: 1 1 170px; cursor: pointer; border: 1px solid var(--text); background: transparent; color: var(--text);
@@ -1278,6 +1282,14 @@
 	const SOURCE_LABELS = { adzuna: "Adzuna", jooble: "Jooble", infojobs: "InfoJobs", remotive: "Remotive", greenhouse: "Greenhouse",
 		lever: "Lever", linkedin: "LinkedIn", uc3m: "UC3M", careers: "Webs de empresas" };
 	const sourceLabel = (f) => SOURCE_LABELS[(f || "").toLowerCase()] || f || "?";
+	/* La misma oferta en otras webs (columna otras_fuentes: «LinkedIn https://… | adzuna https://…») */
+	function alsoOn(o) {
+		return (o.otras_fuentes || "").split(" | ").map((p) => {
+			const i = p.trim().lastIndexOf(" ");
+			return i > 0 ? [p.trim().slice(0, i), p.trim().slice(i + 1)] : null;
+		}).filter((x) => x && /^https?:\/\//.test(x[1]));
+	}
+	const sourcesOf = (o) => [o.fuente, ...alsoOn(o).map(([s]) => s)].filter(Boolean);
 	const safeUrl = (u) => (/^https?:\/\//i.test(u || "") ? u : "#");
 	const hostOf = (u) => { try { return new URL(u).hostname.replace(/^www\./, ""); } catch { return ""; } };
 	const searchUrl = (o) => "https://www.google.com/search?q=" +
@@ -1316,7 +1328,7 @@
 		if (prefs.view === "applied" && (!applied(o) || rejected(o))) return false;
 		if (prefs.view === "rejected" && !rejected(o)) return false;
 		if (prefs.view === "discarded" && (!discarded(o) || rejected(o))) return false;
-		if (prefs.source && o.fuente !== prefs.source) return false;
+		if (prefs.source && !sourcesOf(o).includes(prefs.source)) return false;
 		if (prefs.remote && !(o.remoto || "").trim()) return false;
 		const q = $("q").value.trim().toLowerCase();
 		if (q && !`${o.puesto} ${o.empresa} ${o.ubicacion} ${o.notas} ${o.estado} ${o.resumen || ""} ${o.coincidencias || ""} ${sourceLabel(o.fuente)}`.toLowerCase().includes(q)) return false;
@@ -1364,8 +1376,8 @@
 
 	function renderSources() {
 		const sel = $("source");
-		const n = (f) => rows.filter((o) => o.fuente === f).length;
-		const sources = [...new Set(rows.map((o) => o.fuente).filter(Boolean))]
+		const n = (f) => rows.filter((o) => sourcesOf(o).includes(f)).length;
+		const sources = [...new Set(rows.flatMap(sourcesOf).filter(Boolean))]
 			.sort((a, b) => sourceLabel(a).localeCompare(sourceLabel(b), "es", { sensitivity: "base" }));
 		const cur = prefs.source;
 		sel.replaceChildren(el("option", { value: "" }, "Todas las fuentes"),
@@ -1493,6 +1505,8 @@
 						? el("a", { href: searchUrl(o), target: "_blank", rel: "noopener noreferrer", title: "Busca esta oferta fuera del agregador" }, "Buscar en su web ↗")
 						: null,
 				el("a", { href: safeUrl(o.url), target: "_blank", rel: "noopener noreferrer" }, `Ver en ${o.fuente ? sourceLabel(o.fuente) : "la fuente"} ↗`)),
+			alsoOn(o).length ? el("div", { class: "also" }, el("span", { class: "muted" }, "También en:"),
+				alsoOn(o).map(([src, url]) => el("a", { href: safeUrl(url), target: "_blank", rel: "noopener noreferrer" }, `${sourceLabel(src)} ↗`))) : null,
 			el("div", { class: "side" },
 				applyBtn,
 				stateSel),
