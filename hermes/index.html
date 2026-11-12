@@ -146,7 +146,6 @@
 		}
 		.hub-in { width: 76%; max-height: 82%; display: grid; gap: 6px; justify-items: center; overflow: hidden; }
 		.hub-in > * { max-width: 100%; }
-		.hub .wing { width: 46%; color: var(--c, var(--accent)); transition: color .2s; }
 		.hub h1 {
 			margin: 0; font: 500 var(--fs, clamp(26px, 5.6vmin, 44px))/1.05 var(--serif); letter-spacing: .14em; text-transform: uppercase;
 			overflow-wrap: anywhere; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow: hidden;
@@ -167,7 +166,6 @@
 			.tool .t { display: none; }
 			.tool { padding: 7px 11px; }
 			.prompt { font-size: 12px; }
-			.hub .wing { width: 34%; }
 			.hub .go { display: none; }
 			.hub p { font-size: 11px; -webkit-line-clamp: 2; display: -webkit-box; -webkit-box-orient: vertical; overflow: hidden; }
 			.hub h1 { font-size: var(--fs, 22px); }
@@ -245,7 +243,6 @@
 			<svg id="svg" viewBox="-110 -110 220 220" role="presentation"></svg>
 			<div class="hub" id="hub" aria-live="polite">
 				<div class="hub-in">
-					<svg class="wing" viewBox="0 0 64 40" aria-hidden="true"><use href="#i-wings" width="64" height="40" /></svg>
 					<h1 id="hubTitle">Hermes</h1>
 					<p id="hubText">Apunta a un destino y haz clic para entrar.</p>
 					<span class="host" id="hubHost"></span>
