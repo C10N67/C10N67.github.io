@@ -478,6 +478,12 @@
 		document.body.style.transition = "opacity .25s"; document.body.style.opacity = ".35";
 		location.href = new URL(it.url, location.href).href;
 	}
+	// Al volver con «atrás» el navegador restaura la página tal cual la dejamos (atenuada): devolverla a su estado
+	addEventListener("pageshow", () => {
+		document.body.style.transition = "none";
+		document.body.style.opacity = "";
+		requestAnimationFrame(() => { document.body.style.transition = ""; });
+	});
 
 	/* ---------- Apuntar: ratón, dedo, teclado y mando ---------- */
 	function aim(x, y, dead) {
