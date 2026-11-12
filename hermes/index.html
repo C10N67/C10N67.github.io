@@ -101,8 +101,8 @@
 		.seg .ic { color: var(--muted); transition: color .15s; }
 		.seg .ic svg, .seg .ic img { width: 100%; height: 100%; }
 		/* Logos de webs, tal cual; un contorno claro muy suave para que los oscuros (GitHub…) no se pierdan en modo oscuro */
-		.seg .ic img { filter: drop-shadow(0 0 .6px rgba(255, 255, 255, .55)) drop-shadow(0 0 .6px rgba(255, 255, 255, .35)); }
-		@media (prefers-color-scheme: light) { .seg .ic img { filter: none; } }
+		.seg .ic image.logo { filter: drop-shadow(0 0 .35px rgba(255, 255, 255, .6)); }
+		@media (prefers-color-scheme: light) { .seg .ic image.logo { filter: none; } }
 		/* Tamaños en unidades del viewBox (220 de ancho): escalan con la rueda */
 		.seg .num { font: 600 5px var(--mono); fill: var(--muted); opacity: .75; }
 		.seg .lbl { font: 600 8.2px var(--serif); fill: var(--text); opacity: .88; letter-spacing: .02em; }
@@ -339,14 +339,11 @@
 			const size = Math.min(13, step * 0.32);
 			const icon = svgEl("g", { class: "ic" });
 			if (it.icon === "site") {
-				const fo = svgEl("foreignObject", { x: ix - size / 2, y: iy - size / 2, width: size, height: size });
-				const img = document.createElement("img");
-				img.alt = ""; img.referrerPolicy = "no-referrer"; img.loading = "lazy";
-				img.src = `${new URL(it.url).origin}/favicon.ico`;
-				img.style.cssText = "width:100%;height:100%;object-fit:contain;border-radius:4px";
-				img.addEventListener("error", () => fo.replaceWith(useIcon("globe", ix, iy, size)));
-				fo.append(img);
-				icon.append(fo);
+				// Imagen SVG nativa: el logo entero, sin recortes (un foreignObject recortaba bordes y esquinas)
+				const img = svgEl("image", { class: "logo", x: ix - size / 2, y: iy - size / 2, width: size, height: size,
+					href: `${new URL(it.url).origin}/favicon.ico`, preserveAspectRatio: "xMidYMid meet" });
+				img.addEventListener("error", () => img.replaceWith(useIcon("globe", ix, iy, size)));
+				icon.append(img);
 			} else icon.append(useIcon(it.icon, ix, iy, size));
 			const a = svgEl("a", {
 				class: "seg" + (it.add ? " add" : "") + (it.custom ? " custom" : ""), href: it.add ? "#" : it.url,
