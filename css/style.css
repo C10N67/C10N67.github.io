@@ -4,12 +4,12 @@
 
 :root {
 	/* Gama de Aracne: sepia oscuro de noche, crema de día; acentos marrón, ámbar y oliva */
-	--bg: #1b1714;
-	--bg-alt: #221d19;
+	--bg: #1a1c21;        /* fondo: un toque azul grisáceo bajo la gama de Aracne */
+	--bg-alt: #202329;
 	--surface: rgba(36, 31, 27, 0.82);
 	--surface-2: rgba(42, 36, 32, 0.88);
 	--border: rgba(110, 90, 74, 0.45);
-	--veil: rgba(20, 16, 13, 0.74);
+	--veil: rgba(21, 23, 29, 0.74);
 	--text: #efe6dc;
 	--text-muted: #b3a597;
 	--accent: #d8a77f;
@@ -26,12 +26,12 @@
 
 @media (prefers-color-scheme: light) {
 	:root {
-		--bg: #f5efe8;
-		--bg-alt: #ede5db;
+		--bg: #eceef1;
+		--bg-alt: #e2e5e9;
 		--surface: rgba(253, 251, 248, 0.86);
 		--surface-2: rgba(237, 229, 219, 0.9);
 		--border: rgba(221, 210, 197, 0.9);
-		--veil: rgba(245, 239, 232, 0.86);
+		--veil: rgba(236, 238, 241, 0.86);
 		--text: #2b2421;
 		--text-muted: #6d6058;
 		--accent: #8a5a3c;
@@ -71,7 +71,7 @@ body::after { content: ""; position: fixed; pointer-events: none; }
 body::before {
 	inset: -24px; z-index: -3;
 	background: url("../images/space-bg.jpg") center / cover no-repeat;
-	filter: blur(3px) sepia(.65) saturate(.85);   /* la foto del espacio, en sepia */
+	filter: blur(3px) sepia(.2) saturate(.55);   /* la foto del espacio, apagada: gris azulado bajo el velo */
 }
 body::after {
 	inset: 0; z-index: -2;
