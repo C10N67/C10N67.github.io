@@ -39,7 +39,7 @@
 	// Si la página ya estaba abierta y solo cambias el final de la dirección, no se recarga: escuchar el cambio
 	addEventListener("hashchange", function () { marca(false); });
 
-	var soyYo = get(KEY) === "1" || !!get("aracne.token");
+	var soyYo = get(KEY) === "1" || !!get("aracne.token") || !!get("hermes.token");
 	if (!CODIGO || soyYo) return;
 
 	var s = document.createElement("script");

@@ -1,9 +1,10 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="es" class="locked">
 <head>
 	<meta charset="utf-8" />
 	<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
 	<title>Hermes · Selector de destinos</title>
+	<meta name="robots" content="noindex, nofollow" />
 	<meta name="description" content="Hermes: el selector de destinos de Daniel Carballo. Elige en la rueda a dónde ir: Aracne, el perfil o cualquier web que añadas." />
 	<meta name="theme-color" content="#1b1714" media="(prefers-color-scheme: dark)" />
 	<meta name="theme-color" content="#f5efe8" media="(prefers-color-scheme: light)" />
@@ -78,6 +79,25 @@
 			overflow: hidden; touch-action: none; user-select: none; -webkit-user-select: none;
 		}
 		[hidden] { display: none !important; }
+
+		/* Candado: hasta comprobar con GitHub que eres tú, la rueda no se ve ni responde */
+		html.locked .stage { visibility: hidden; }
+		html:not(.locked) #lock { display: none; }
+		#lock { position: fixed; inset: 0; z-index: 10; display: grid; place-items: center; padding: 16px; }
+		.lock-card {
+			width: min(420px, 100%); display: grid; gap: 14px; padding: 26px 24px; border-radius: 20px;
+			background: var(--hub); border: 1px solid var(--seg-line); box-shadow: var(--shadow); text-align: center;
+		}
+		.lock-card h1 { margin: 0; font: 500 34px/1 var(--serif); letter-spacing: .14em; text-transform: uppercase; }
+		.lock-card p { margin: 0; color: var(--muted); font-size: 14px; }
+		.lock-card form { display: grid; gap: 10px; }
+		.lock-card input {
+			font: 14px var(--mono); color: var(--text); background: transparent; border: 1px solid var(--seg-line);
+			border-radius: 999px; padding: 11px 16px; text-align: center;
+		}
+		.lock-card input:focus { outline: none; border-color: var(--accent); }
+		.lock-card .err { min-height: 1.2em; }
+		.lock-card .wait { color: var(--muted); font: 13px var(--mono); }
 		:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
 		.sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 
@@ -229,6 +249,19 @@
 	</symbol>
 </svg>
 
+<section id="lock" aria-labelledby="lockTitle">
+	<div class="lock-card">
+		<h1 id="lockTitle">Hermes</h1>
+		<p id="lockText">Comprobando con GitHub que eres tú…</p>
+		<form id="lockForm" hidden>
+			<input id="lockToken" type="password" autocomplete="off" spellcheck="false" placeholder="github_pat_…" aria-label="Token de GitHub" required />
+			<button class="btn primary" type="submit" id="lockBtn">Entrar</button>
+			<p class="note">Vale el mismo token que usas en Aracne. Solo se comprueba de quién es: no da acceso a nada más.</p>
+		</form>
+		<p class="err" id="lockErr" role="alert"></p>
+	</div>
+</section>
+
 <div class="stage">
 	<header class="top">
 		<p class="prompt"><b>~/hermes</b> $ select --destino<span class="cursor" aria-hidden="true"></span></p>
@@ -279,6 +312,73 @@
 <script>
 (() => {
 	"use strict";
+
+	/* ---------- Candado: solo entra la cuenta de GitHub del dueño ----------
+	   Se pregunta a GitHub (GET /user) de quién es el token: el de Aracne si ya está en este navegador,
+	   o uno que se pide aquí. Se recuerda 30 días y se vuelve a comprobar en cada visita. Ojo: la web
+	   es estática, así que esto impide usar Hermes, no ver su código. */
+	const OWNER = "c10n67";
+	const OK_KEY = "hermes.ok", TOKEN_KEY = "hermes.token", DAYS = 30;
+	let locked = true;
+	const ls = {
+		get(k) { try { return localStorage.getItem(k); } catch { return null; } },
+		set(k, v) { try { localStorage.setItem(k, v); } catch {} },
+		del(k) { try { localStorage.removeItem(k); } catch {} },
+	};
+	async function whoami(token) {
+		const r = await fetch("https://api.github.com/user", {
+			headers: { Authorization: `Bearer ${token}`, Accept: "application/vnd.github+json" }, cache: "no-store" });
+		if (r.status === 401) throw Object.assign(new Error("Ese token no es válido o ha caducado."), { bad: true });
+		if (!r.ok) throw new Error(`GitHub respondió ${r.status}.`);
+		return ((await r.json()).login || "").toLowerCase();
+	}
+	function unlock(login) {
+		locked = false;
+		ls.set(OK_KEY, JSON.stringify({ login, t: Date.now() }));
+		document.documentElement.classList.remove("locked");
+	}
+	function showLock(msg, keepForm) {
+		locked = true;
+		document.documentElement.classList.add("locked");
+		document.getElementById("lockText").textContent = "Solo para Daniel. Entra con tu token de GitHub.";
+		document.getElementById("lockForm").hidden = false;
+		document.getElementById("lockErr").textContent = msg || "";
+		if (!keepForm) setTimeout(() => document.getElementById("lockToken").focus(), 50);
+	}
+	async function gate() {
+		let ok = null;
+		try { ok = JSON.parse(ls.get(OK_KEY) || "null"); } catch {}
+		const fresh = ok && ok.login === OWNER && Date.now() - ok.t < DAYS * 86400000;
+		const token = ls.get("aracne.token") || ls.get(TOKEN_KEY);
+		if (fresh && token) { locked = false; document.documentElement.classList.remove("locked"); }   // entra ya; se confirma debajo
+		if (!token) return showLock();
+		try {
+			const login = await whoami(token);
+			if (login === OWNER) return unlock(login);
+			ls.del(OK_KEY);
+			showLock(`El token guardado es de @${login}, no tuyo.`);
+		} catch (e) {
+			if (e.bad) { ls.del(OK_KEY); return showLock(e.message); }
+			if (!fresh) showLock("No se pudo comprobar con GitHub (¿sin conexión?). Prueba otra vez.");
+		}
+	}
+	document.getElementById("lockForm").addEventListener("submit", async (e) => {
+		e.preventDefault();
+		const input = document.getElementById("lockToken"), btn = document.getElementById("lockBtn");
+		const token = input.value.trim();
+		if (!token) return;
+		btn.disabled = true; document.getElementById("lockErr").textContent = "";
+		try {
+			const login = await whoami(token);
+			if (login !== OWNER) return showLock(`Ese token es de @${login}. Hermes solo se abre con la cuenta de Daniel.`, true);
+			ls.set(TOKEN_KEY, token);
+			input.value = "";
+			unlock(login);
+		} catch (err) {
+			showLock(err.message, true);
+		} finally { btn.disabled = false; }
+	});
+	gate();
 
 	/* Destinos fijos. Añade aquí los que quieras en todos tus dispositivos. */
 	const DEFAULTS = [
@@ -474,6 +574,7 @@
 	addEventListener("resize", () => fitTitle());
 
 	function activate(i) {
+		if (locked) return;
 		const it = items[i];
 		if (!it) return;
 		if (it.add) return openAdd();
@@ -501,13 +602,13 @@
 		const dx = x - cx, dy = y - cy;
 		const dist = Math.hypot(dx, dy) / (box.width / 2) * 110;   // en unidades del viewBox
 		if (dist < (dead ?? R_IN * 0.55)) return -1;
-		if (dist > R_OUT + 14) return -1;   // lejos de la rueda: no se elige nada (margen de ~14 % alrededor)
+		if (dist > R_OUT + 30) return -1;   // lejos de la rueda: no se elige nada (margen de ~30 % alrededor)
 		let deg = Math.atan2(dy, dx) * 180 / Math.PI + 90;
 		deg = (deg + 360 + 180 / items.length) % 360;
 		return Math.floor(deg / (360 / items.length));
 	}
 	document.addEventListener("pointermove", (e) => {
-		if ($("addDlg").open) return;
+		if (locked || $("addDlg").open) return;
 		select(aim(e.clientX, e.clientY));
 	});
 	// Táctil: al tocar se ilumina la porción; el «click» del enlace hace el resto
@@ -517,7 +618,7 @@
 	});
 
 	document.addEventListener("keydown", (e) => {
-		if ($("addDlg").open || e.altKey || e.ctrlKey || e.metaKey) return;
+		if (locked || $("addDlg").open || e.altKey || e.ctrlKey || e.metaKey) return;
 		const n = items.length;
 		if (e.key === "ArrowRight" || e.key === "ArrowDown") { e.preventDefault(); select(((sel < 0 ? -1 : sel) + 1) % n); }
 		else if (e.key === "ArrowLeft" || e.key === "ArrowUp") { e.preventDefault(); select(((sel < 0 ? 0 : sel) - 1 + n) % n); }
@@ -535,6 +636,7 @@
 	function pollPad() {
 		const pad = [...(navigator.getGamepads?.() || [])].find(Boolean);
 		if (!pad) { padLoop = 0; return; }
+		if (locked) { padLoop = requestAnimationFrame(pollPad); return; }
 		const [x, y] = pad.axes;
 		if (Math.hypot(x, y) > 0.5) {
 			let deg = (Math.atan2(y, x) * 180 / Math.PI + 90 + 360 + 180 / items.length) % 360;
