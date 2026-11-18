@@ -248,6 +248,11 @@
 		.seg .c { font: 11.5px var(--mono); margin-left: 5px; opacity: .75; }
 		.filters select { border-radius: 999px; padding-inline: 14px; font-size: 14px; }
 		.count { color: var(--text-muted); font-size: 13px; margin-left: auto; }
+		/* España / Internacional */
+		.scopes { display: flex; flex-wrap: wrap; gap: 10px 14px; align-items: center; margin: -6px 0 16px; }
+		.scopes .seg button { font-size: 17.5px; }
+		.scopes .hint { font-size: 13px; color: var(--text-muted); }
+		.country { font-weight: 600; color: var(--text); }
 
 		.list { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 360px), 1fr)); gap: 20px; align-items: stretch; }   /* todas las tarjetas de una fila, tan altas como la más alta */
 		.job {
@@ -489,6 +494,7 @@
 			<a href="#inicio" aria-current="true" aria-label="Inicio"><svg class="i"><use href="#i-home" /></svg></a>
 			<a href="#ofertas" data-goto="pending">Ofertas</a>
 			<a href="#ofertas" data-goto="applied">Candidaturas</a>
+			<a href="#ofertas" data-scope="intl">Internacional</a>
 			<a href="#ajustes" data-tune>Ajustes</a>
 			<a href="https://github.com/C10N67/aracne/blob/main/reports/latest.md" target="_blank" rel="noopener">Último informe</a>
 		</nav>
@@ -586,6 +592,16 @@
 			<h2 id="listTitle">Ofertas pendientes</h2>
 			<span class="rule"></span>
 			<button class="more" id="seeAll" type="button">Ver todas <svg class="i"><use href="#i-arrow" /></svg></button>
+		</div>
+
+		<div class="scopes">
+			<div class="seg" role="group" aria-label="Dónde" id="scopeSeg">
+				<button type="button" data-scope="es" aria-pressed="true">🇪🇸 España<span class="c"></span></button>
+				<button type="button" data-scope="intl" aria-pressed="false">🌍 Internacional<span class="c"></span></button>
+				<button type="button" data-scope="all" aria-pressed="false">Todo<span class="c"></span></button>
+			</div>
+			<select id="country" aria-label="País" hidden><option value="">Todos los países</option></select>
+			<span class="hint" id="scopeHint" hidden>Países angloparlantes o donde se trabaja en inglés</span>
 		</div>
 
 		<div class="filters">
@@ -706,7 +722,7 @@
 	let token = store.get(TOKEN_KEY);
 	let header = [], rows = [], sha = null;
 	let canWrite = true;
-	const prefs = Object.assign({ view: "pending", sort: "score", source: "", remote: false, notify: false },
+	const prefs = Object.assign({ view: "pending", sort: "score", source: "", remote: false, notify: false, scope: "es", country: "" },
 		(() => { try { return JSON.parse(store.get(PREFS_KEY) || "{}"); } catch { return {}; } })());
 
 	/* ---------- CSV (compatible con el módulo csv de Python) ---------- */
@@ -1290,6 +1306,12 @@
 		}).filter((x) => x && /^https?:\/\//.test(x[1]));
 	}
 	const sourcesOf = (o) => [o.fuente, ...alsoOn(o).map(([s]) => s)].filter(Boolean);
+	/* País de la oferta (columnas pais / codigo_pais). Sin código o «ES» = España. */
+	const countryCode = (o) => (o.codigo_pais || "").trim().toUpperCase();
+	const isIntl = (o) => !["", "ES"].includes(countryCode(o));
+	const inScope = (o) => prefs.scope === "all" || (prefs.scope === "intl") === isIntl(o);
+	const flag = (code) => /^[A-Z]{2}$/.test(code || "") ? String.fromCodePoint(...[...code].map((c) => 0x1F1A5 + c.charCodeAt(0))) : "";
+	const countryLabel = (o) => (o.pais || "").trim() || countryCode(o) || (isIntl(o) ? "" : "España");
 	const safeUrl = (u) => (/^https?:\/\//i.test(u || "") ? u : "#");
 	const hostOf = (u) => { try { return new URL(u).hostname.replace(/^www\./, ""); } catch { return ""; } };
 	const searchUrl = (o) => "https://www.google.com/search?q=" +
@@ -1324,6 +1346,8 @@
 
 	function matches(o) {
 		if (tooOld(o)) return false;
+		if (!inScope(o)) return false;
+		if (prefs.scope !== "es" && prefs.country && countryCode(o) !== prefs.country) return false;
 		if (prefs.view === "pending" && (applied(o) || discarded(o) || rejected(o))) return false;
 		if (prefs.view === "applied" && (!applied(o) || rejected(o))) return false;
 		if (prefs.view === "rejected" && !rejected(o)) return false;
@@ -1331,7 +1355,7 @@
 		if (prefs.source && !sourcesOf(o).includes(prefs.source)) return false;
 		if (prefs.remote && !(o.remoto || "").trim()) return false;
 		const q = $("q").value.trim().toLowerCase();
-		if (q && !`${o.puesto} ${o.empresa} ${o.ubicacion} ${o.notas} ${o.estado} ${o.resumen || ""} ${o.coincidencias || ""} ${sourceLabel(o.fuente)}`.toLowerCase().includes(q)) return false;
+		if (q && !`${o.puesto} ${o.empresa} ${o.ubicacion} ${o.notas} ${o.estado} ${o.resumen || ""} ${o.coincidencias || ""} ${sourceLabel(o.fuente)} ${o.pais || ""}`.toLowerCase().includes(q)) return false;
 		return true;
 	}
 	function sorted(list) {
@@ -1362,19 +1386,49 @@
 		$("featApplied").replaceChildren(b(sent.length), sent.length === 1 ? " candidatura enviada · " : " candidaturas enviadas · ",
 			b(inProcess.length), " en proceso · ", b(nRejected), nRejected === 1 ? " rechazada" : " rechazadas");
 
-		const counts = { pending: pending.length, applied: sent.filter((o) => !rejected(o)).length, rejected: nRejected,
-			discarded: rows.filter((o) => discarded(o) && !rejected(o)).length, all: rows.length - hiddenOld };
+		// Los contadores de estado, del apartado elegido (España / Internacional / Todo)
+		const sc = rows.filter((o) => inScope(o) && (prefs.scope === "es" || !prefs.country || countryCode(o) === prefs.country));
+		const counts = { pending: sc.filter((o) => !applied(o) && !discarded(o) && !rejected(o) && !tooOld(o)).length,
+			applied: sc.filter((o) => applied(o) && !rejected(o)).length, rejected: sc.filter(rejected).length,
+			discarded: sc.filter((o) => discarded(o) && !rejected(o)).length, all: sc.filter((o) => !tooOld(o)).length };
+		const live = (o) => !applied(o) && !discarded(o) && !rejected(o) && !tooOld(o);
+		const scopeCounts = { es: rows.filter((o) => !isIntl(o) && live(o)).length, intl: rows.filter((o) => isIntl(o) && live(o)).length,
+			all: rows.filter(live).length };
+		for (const btn of $("scopeSeg").querySelectorAll("button")) {
+			btn.setAttribute("aria-pressed", String(btn.dataset.scope === prefs.scope));
+			btn.querySelector(".c").textContent = scopeCounts[btn.dataset.scope];
+			btn.title = "Pendientes de revisar";
+		}
+		$("country").hidden = prefs.scope === "es";
+		$("scopeHint").hidden = prefs.scope !== "intl";
 		for (const btn of $("seg").querySelectorAll("button")) {
 			btn.setAttribute("aria-pressed", String(btn.dataset.view === prefs.view));
 			btn.querySelector(".c").textContent = counts[btn.dataset.view];
 		}
-		$("listTitle").textContent = VIEW_TITLES[prefs.view] || VIEW_TITLES.all;
+		$("listTitle").textContent = (VIEW_TITLES[prefs.view] || VIEW_TITLES.all) +
+			(prefs.scope === "intl" ? (prefs.country ? ` · ${flag(prefs.country)} ${countryNames()[prefs.country] || prefs.country}` : " en el extranjero")
+				: prefs.scope === "es" ? " en España" : "");
 		$("seeAll").hidden = prefs.view === "all";
 		const maxDate = rows.reduce((m, o) => (o.encontrada > m ? o.encontrada : m), "");
 		$("stamp").textContent = maxDate ? `· datos hasta ${maxDate}` : "";
 	}
 
+	function countryNames() {
+		const names = {};
+		for (const o of rows) if (isIntl(o)) names[countryCode(o)] = names[countryCode(o)] || countryLabel(o);
+		return names;
+	}
+	function renderCountries() {
+		const names = countryNames();
+		const n = (c) => rows.filter((o) => countryCode(o) === c && !tooOld(o)).length;
+		const codes = Object.keys(names).sort((a, b) => names[a].localeCompare(names[b], "es"));
+		if (prefs.country && !names[prefs.country]) { prefs.country = ""; savePrefs(); }
+		$("country").replaceChildren(el("option", { value: "" }, "Todos los países"),
+			...codes.map((c) => el("option", { value: c, selected: c === prefs.country }, `${flag(c)} ${names[c]} (${n(c)})`)));
+	}
+
 	function renderSources() {
+		renderCountries();
 		const sel = $("source");
 		const n = (f) => rows.filter((o) => sourcesOf(o).includes(f)).length;
 		const sources = [...new Set(rows.flatMap(sourcesOf).filter(Boolean))]
@@ -1418,6 +1472,7 @@
 					el("div", { class: "chips" }, tags.map((t) => el("span", { class: "chip" }, t)))) : null,
 				el("dl", { class: "facts" },
 					fact("Empresa", o.empresa),
+					fact("País", countryLabel(o) ? `${flag(countryCode(o) || "ES")} ${countryLabel(o)}` : ""),
 					fact("Ubicación", o.ubicacion || (remote ? "Remoto" : "")),
 					fact("Modalidad", remote ? "Remoto" : "Presencial o híbrido"),
 					fact("Salario", o.salario || "No indicado"),
@@ -1488,7 +1543,10 @@
 						: el("span", { class: "co" }, o.empresa)) : null),
 				el("span", { class: "score" + (pts >= 15 ? " hi" : pts >= 9 ? " mid" : ""), title: "Puntuación según tu perfil" }, o.puntos ? `${pts} pts` : "–")),
 			el("div", { class: "meta" },
-				el("span", { class: "it" }, icon("pin"), o.ubicacion || (remote ? "Remoto" : "Sin ubicación")),
+				el("span", { class: "it" }, icon("pin"), isIntl(o)
+					? el("span", {}, el("span", { class: "country", title: "País de la oferta" }, `${flag(countryCode(o))} ${countryLabel(o)}`),
+						o.ubicacion ? ` · ${o.ubicacion}` : (remote ? " · Remoto" : ""))
+					: o.ubicacion || (remote ? "Remoto" : "Sin ubicación")),
 				age
 					? el("span", { class: "it" + (h <= 48 ? " age-fresh" : ""), title: `Publicada el ${new Date(o.publicada).toLocaleString("es-ES")}${o.encontrada ? " · encontrada el " + o.encontrada : ""}` }, icon("clock"), age)
 					: el("span", { class: "it", title: o.encontrada ? `Encontrada el ${o.encontrada}` : "" }, icon("clock"), "Encontrada " + whenLabel(o.encontrada).toLowerCase()),
@@ -1517,12 +1575,15 @@
 	function render() {
 		renderStats();
 		const visible = sorted(rows.filter(matches));
-		const old = rows.filter(tooOld).length;
-		$("count").textContent = `${visible.length} de ${rows.length - old}` +
+		const scoped = rows.filter(inScope);
+		const old = scoped.filter(tooOld).length;
+		$("count").textContent = `${visible.length} de ${scoped.length - old}` +
 			(old ? ` · ${old} pendiente${old === 1 ? "" : "s"} de más de ${maxAgeDays} días oculta${old === 1 ? "" : "s"}` : "");
 		const list = $("list");
 		if (!rows.length) {
 			list.replaceChildren(el("p", { class: "empty" }, "Todavía no hay ofertas en ofertas.csv. Aparecerán tras la próxima búsqueda."));
+		} else if (prefs.scope === "intl" && !rows.some(isIntl)) {
+			list.replaceChildren(el("p", { class: "empty" }, "Todavía no hay ofertas del extranjero. Aparecerán tras la próxima búsqueda (la internacional se hace una vez al día, o al pulsar Buscar ahora)."));
 		} else if (!visible.length) {
 			list.replaceChildren(el("p", { class: "empty" }, prefs.view === "pending"
 				? "No te queda ninguna oferta pendiente con estos filtros."
@@ -1597,6 +1658,15 @@
 		if (b) setView(b.dataset.view);
 	});
 	$("seeAll").addEventListener("click", () => setView("all"));
+	function setScope(sc) { prefs.scope = sc; savePrefs(); renderSources(); render(); }
+	$("scopeSeg").addEventListener("click", (e) => {
+		const b = e.target.closest("button[data-scope]");
+		if (b) setScope(b.dataset.scope);
+	});
+	for (const a of document.querySelectorAll("nav.menu a[data-scope]")) {
+		a.addEventListener("click", () => setScope(a.dataset.scope));
+	}
+	$("country").addEventListener("change", (e) => { prefs.country = e.target.value; savePrefs(); render(); });
 	for (const a of document.querySelectorAll("nav.menu a[data-goto]")) {
 		a.addEventListener("click", () => setView(a.dataset.goto));
 	}
