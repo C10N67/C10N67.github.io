@@ -1,5 +1,5 @@
 <a href="https://c10n67.github.io">
-  <img src="https://c10n67.github.io/images/og-preview.jpg" alt="Daniel Carballo Reyes · Ingeniero de Telecomunicación · 5G · Kubernetes · Cloud Native" width="100%">
+  <img src="assets/banner.png" alt="Daniel Carballo Reyes · Ingeniero de Telecomunicación · 5G · Kubernetes · Cloud Native" width="100%">
 </a>
 
 <p align="center">
