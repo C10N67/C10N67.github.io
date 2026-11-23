@@ -539,7 +539,8 @@
 				<div class="if-on">
 					<p class="runstatus" id="runStatus" aria-live="polite"><span class="dot"></span><span>Consultando la última búsqueda…</span></p>
 					<div class="row">
-						<button class="btn primary sm" id="runBtn" type="button">Buscar ahora</button>
+						<button class="btn primary sm" id="runEsBtn" type="button" data-alcance="espana">Solo España</button>
+						<button class="btn sm" id="runBtn" type="button" data-alcance="todo">España + extranjero</button>
 						<label class="chk" title="Abrir el issue y enviar el email con las ofertas nuevas"><input type="checkbox" id="notify" /> Enviar avisos</label>
 					</div>
 				</div>
@@ -1012,24 +1013,35 @@
 		else if (isRunning(w)) {
 			dot = "run";
 			text = w.status === "in_progress"
-				? [el("b", {}, "Buscando ofertas…"), ` ${elapsed(w.run_started_at || w.created_at)}`]
+				? [el("b", {}, whereOf(w) ? `Buscando ofertas (${whereOf(w)})…` : "Buscando ofertas…"), ` ${elapsed(w.run_started_at || w.created_at)}`]
 				: [el("b", {}, "En cola…"), " esperando a GitHub"];
 			link = w.html_url;
 		} else {
 			const ok = w.conclusion === "success";
 			dot = ok ? "ok" : "bad";
-			const how = w.event === "schedule" ? "automática" : "manual";
+			const how = w.event === "schedule" ? "automática · solo España" : `manual${whereOf(w) ? " · " + whereOf(w) : ""}`;
 			text = [ok ? "Última búsqueda " : "La última búsqueda falló ", el("b", {}, ago(w.updated_at || w.created_at)), ` · ${how}`];
 			link = w.html_url;
 		}
 		$("runStatus").replaceChildren(el("span", { class: "dot " + dot }), el("span", {}, ...text),
 			...(link ? [el("a", { href: safeUrl(link), target: "_blank", rel: "noopener noreferrer" }, "Ver registro ↗")] : []));
 		const busy = run.waitingSince || isRunning(w);
-		const btn = $("runBtn");
-		btn.disabled = !!busy;
-		btn.textContent = busy ? "Buscando…" : "Buscar ahora";
-		btn.title = busy ? "Ya hay una búsqueda en marcha" : "Ejecuta ahora el workflow «Buscar empleo» en GitHub Actions";
+		// Qué búsqueda está en marcha: la que acabas de lanzar o la que dice el título de la ejecución
+		const active = run.waitingSince ? run.alcance : /todo|extranjero/i.test(whereOf(w)) ? "todo" : "espana";
+		for (const b of RUN_BTNS()) {
+			b.disabled = !!busy;
+			b.textContent = busy && b.dataset.alcance === active ? "Buscando…" : RUN_LABELS[b.dataset.alcance];
+			b.title = busy ? "Ya hay una búsqueda en marcha" : RUN_TITLES[b.dataset.alcance];
+		}
 	}
+	const RUN_BTNS = () => [$("runEsBtn"), $("runBtn")];
+	const RUN_LABELS = { espana: "Solo España", todo: "España + extranjero" };
+	const RUN_TITLES = {
+		espana: "Busca ahora solo en España (1–2 min). Las búsquedas automáticas también son solo de España.",
+		todo: "Busca ahora en España y en los países del apartado Internacional. Va despacio para que LinkedIn no la corte: unos 25 min.",
+	};
+	/* Dónde buscó una ejecución: va en su título («Buscar empleo · solo España») */
+	const whereOf = (w) => ((w && w.display_title) || "").split(" · ")[1] || "";
 	function schedulePoll(ms) {
 		clearTimeout(run.timer);
 		run.timer = setTimeout(pollRun, ms);
@@ -1073,15 +1085,16 @@
 			} catch (e) { toast(e.message, true); }
 		}
 	}
-	async function launch() {
-		const btn = $("runBtn");
-		btn.disabled = true;
+	/* alcance: «espana» (búsqueda rápida, solo España) o «todo» (también el extranjero, ≈ 25 min) */
+	async function launch(alcance) {
+		for (const b of RUN_BTNS()) b.disabled = true;
+		run.alcance = alcance;
 		run.error = "";
 		run.baseline = run.last ? run.last.id : 0;
 		try {
 			const r = await fetch(`${WF_API}/dispatches`, {
 				method: "POST", headers: headers({ "Content-Type": "application/json" }),
-				body: JSON.stringify({ ref: BRANCH, inputs: { notify: String(!!prefs.notify) } }),
+				body: JSON.stringify({ ref: BRANCH, inputs: { notify: String(!!prefs.notify), alcance } }),
 			});
 			if (!r.ok) throw new Error(explainActions(r.status, await r.json().catch(() => null)));
 		} catch (e) {
@@ -1090,7 +1103,8 @@
 		}
 		run.waitingSince = Date.now();
 		renderRun();
-		toast("Búsqueda lanzada en GitHub Actions");
+		toast(alcance === "espana" ? "Búsqueda en España lanzada en GitHub Actions"
+			: "Búsqueda en España y el extranjero lanzada · tarda unos 25 min");
 		schedulePoll(2500);
 	}
 
@@ -1684,7 +1698,7 @@
 	$("q").addEventListener("input", render);
 	$("notify").checked = !!prefs.notify;
 	$("notify").addEventListener("change", (e) => { prefs.notify = e.target.checked; savePrefs(); });
-	$("runBtn").addEventListener("click", launch);
+	for (const b of RUN_BTNS()) b.addEventListener("click", () => launch(b.dataset.alcance));
 	// Al volver a la pestaña, refrescar el estado si no hay nada en seguimiento.
 	document.addEventListener("visibilitychange", () => {
 		if (!document.hidden && token && !run.tracking && !run.waitingSince) pollRun();
