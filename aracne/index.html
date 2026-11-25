@@ -248,6 +248,12 @@
 		.seg .c { font: 11.5px var(--mono); margin-left: 5px; opacity: .75; }
 		.filters select { border-radius: 999px; padding-inline: 14px; font-size: 14px; }
 		.count { color: var(--text-muted); font-size: 13px; margin-left: auto; }
+		/* Especializada / Recién graduado */
+		.profiles { display: flex; flex-wrap: wrap; gap: 10px 14px; align-items: center; margin: -6px 0 14px; }
+		.profiles .seg button { font-size: 18px; }
+		.profiles .hint { font-size: 13px; color: var(--text-muted); }
+		.tune-profile { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; margin: 0 0 14px; }
+		.tune-profile select { border-radius: 999px; padding-inline: 14px; }
 		/* España / Internacional */
 		.scopes { display: flex; flex-wrap: wrap; gap: 10px 14px; align-items: center; margin: -6px 0 16px; }
 		.scopes .seg button { font-size: 17.5px; }
@@ -495,6 +501,7 @@
 			<a href="#ofertas" data-goto="pending">Ofertas</a>
 			<a href="#ofertas" data-goto="applied">Candidaturas</a>
 			<a href="#ofertas" data-scope="intl">Internacional</a>
+			<a href="#ofertas" data-perfil="graduado">Recién graduado</a>
 			<a href="#ajustes" data-tune>Ajustes</a>
 			<a href="https://github.com/C10N67/aracne/blob/main/reports/latest.md" target="_blank" rel="noopener">Último informe</a>
 		</nav>
@@ -541,6 +548,11 @@
 					<div class="row">
 						<button class="btn primary sm" id="runEsBtn" type="button" data-alcance="espana">Solo España</button>
 						<button class="btn sm" id="runBtn" type="button" data-alcance="todo">España + extranjero</button>
+						<select id="runPerfil" aria-label="Qué búsqueda lanzar" title="Las dos búsquedas van por separado: cada una con sus términos y su apartado">
+							<option value="ambas">Las dos búsquedas</option>
+							<option value="especializada">🎯 Especializada</option>
+							<option value="graduado">🎓 Recién graduado</option>
+						</select>
 						<label class="chk" title="Abrir el issue y enviar el email con las ofertas nuevas"><input type="checkbox" id="notify" /> Enviar avisos</label>
 					</div>
 				</div>
@@ -595,7 +607,15 @@
 			<button class="more" id="seeAll" type="button">Ver todas <svg class="i"><use href="#i-arrow" /></svg></button>
 		</div>
 
-		<div class="scopes">
+		<div class="profiles">
+			<div class="seg" role="group" aria-label="Búsqueda" id="profileSeg">
+				<button type="button" data-perfil="especializada" aria-pressed="true" title="Kubernetes, 5G, cloud… (búsqueda especializada)">🎯 Especializada<span class="c"></span></button>
+				<button type="button" data-perfil="graduado" aria-pressed="false" title="Búsqueda generalista para recién graduados en Ingeniería de Tecnologías de Telecomunicación">🎓 Recién graduado<span class="c"></span></button>
+			</div>
+			<span class="hint" id="profileHint" hidden>Generalista · Ingeniería de Tecnologías de Telecomunicación · solo España</span>
+		</div>
+
+		<div class="scopes" id="scopes">
 			<div class="seg" role="group" aria-label="Dónde" id="scopeSeg">
 				<button type="button" data-scope="es" aria-pressed="true">🇪🇸 España<span class="c"></span></button>
 				<button type="button" data-scope="intl" aria-pressed="false">🌍 Internacional<span class="c"></span></button>
@@ -645,6 +665,15 @@
 		</div>
 		<div class="dlg-body">
 			<p class="note">Se guarda en <code class="mono">config.yaml</code> y se aplica en la próxima búsqueda. Las ofertas ya guardadas conservan su puntuación.</p>
+			<div class="tune-profile">
+				<label>Búsqueda que ajustas:
+					<select id="tProfile" aria-label="Búsqueda que ajustas">
+						<option value="especializada">🎯 Especializada</option>
+						<option value="graduado">🎓 Recién graduado</option>
+					</select>
+				</label>
+				<span class="note" id="tProfileNote"></span>
+			</div>
 			<div class="tune-grid">
 				<label>Puntuación mínima para avisarte<input type="number" id="tMin" step="0.5" /></label>
 				<label>Antigüedad máxima de las ofertas (días)<input type="number" id="tMaxAge" step="1" min="1" /></label>
@@ -723,7 +752,7 @@
 	let token = store.get(TOKEN_KEY);
 	let header = [], rows = [], sha = null;
 	let canWrite = true;
-	const prefs = Object.assign({ view: "pending", sort: "score", source: "", remote: false, notify: false, scope: "es", country: "" },
+	const prefs = Object.assign({ view: "pending", sort: "score", source: "", remote: false, notify: false, scope: "es", country: "", perfil: "especializada", runPerfil: "ambas" },
 		(() => { try { return JSON.parse(store.get(PREFS_KEY) || "{}"); } catch { return {}; } })());
 
 	/* ---------- CSV (compatible con el módulo csv de Python) ---------- */
@@ -1028,6 +1057,7 @@
 		const busy = run.waitingSince || isRunning(w);
 		// Qué búsqueda está en marcha: la que acabas de lanzar o la que dice el título de la ejecución
 		const active = run.waitingSince ? run.alcance : /todo|extranjero/i.test(whereOf(w)) ? "todo" : "espana";
+		$("runBtn").hidden = prefs.runPerfil === "graduado";   // la de recién graduado es solo en España
 		for (const b of RUN_BTNS()) {
 			b.disabled = !!busy;
 			b.textContent = busy && b.dataset.alcance === active ? "Buscando…" : RUN_LABELS[b.dataset.alcance];
@@ -1037,11 +1067,11 @@
 	const RUN_BTNS = () => [$("runEsBtn"), $("runBtn")];
 	const RUN_LABELS = { espana: "Solo España", todo: "España + extranjero" };
 	const RUN_TITLES = {
-		espana: "Busca ahora solo en España (1–2 min). Las búsquedas automáticas también son solo de España.",
+		espana: "Busca ahora solo en España (unos minutos). Las búsquedas automáticas también son solo de España.",
 		todo: "Busca ahora en España y en los países del apartado Internacional. Va despacio para que LinkedIn no la corte: unos 25 min.",
 	};
 	/* Dónde buscó una ejecución: va en su título («Buscar empleo · solo España») */
-	const whereOf = (w) => ((w && w.display_title) || "").split(" · ")[1] || "";
+	const whereOf = (w) => ((w && w.display_title) || "").split(" · ").slice(1).join(" · ");
 	function schedulePoll(ms) {
 		clearTimeout(run.timer);
 		run.timer = setTimeout(pollRun, ms);
@@ -1094,7 +1124,7 @@
 		try {
 			const r = await fetch(`${WF_API}/dispatches`, {
 				method: "POST", headers: headers({ "Content-Type": "application/json" }),
-				body: JSON.stringify({ ref: BRANCH, inputs: { notify: String(!!prefs.notify), alcance } }),
+				body: JSON.stringify({ ref: BRANCH, inputs: { notify: String(!!prefs.notify), alcance, perfil: prefs.runPerfil || "ambas" } }),
 			});
 			if (!r.ok) throw new Error(explainActions(r.status, await r.json().catch(() => null)));
 		} catch (e) {
@@ -1103,8 +1133,9 @@
 		}
 		run.waitingSince = Date.now();
 		renderRun();
-		toast(alcance === "espana" ? "Búsqueda en España lanzada en GitHub Actions"
-			: "Búsqueda en España y el extranjero lanzada · tarda unos 25 min");
+		const what = { ambas: "las dos búsquedas", especializada: "búsqueda especializada", graduado: "búsqueda de recién graduado" }[prefs.runPerfil || "ambas"];
+		toast(alcance === "espana" ? `Lanzada en GitHub Actions: ${what}, solo España`
+			: `Lanzada en GitHub Actions: ${what}, España y extranjero · tarda unos 25 min`);
 		schedulePoll(2500);
 	}
 
@@ -1144,28 +1175,48 @@
 					onclick: () => { tune.neg.splice(tune.neg.indexOf(k), 1); renderTune(); } }, "×"));
 		}) : [el("div", { class: "kw-empty" }, "Ninguna palabra resta puntos.")]));
 	}
+	/* Dónde guarda cada búsqueda sus ajustes en config.yaml: [sección, clave] */
+	function tuneKeys() {
+		const g = $("tProfile").value === "graduado";
+		return {
+			min: g ? ["graduado", "min_score"] : ["search", "min_score"],
+			kw: [g ? "graduado" : "scoring", "keywords"], neg: [g ? "graduado" : "scoring", "negative_keywords"],
+			req: [g ? "graduado" : "scoring", "required_keywords"], mode: [g ? "graduado" : "scoring", "required_mode"],
+		};
+	}
+	function loadTuneProfile() {
+		const t = tune.text, k = tuneKeys();
+		const required = readList(t, ...k.req);
+		const reqSet = new Set(required.map(fold));
+		tune.kw = readMap(t, ...k.kw).map(([term, w]) => ({ term, w, req: reqSet.has(fold(term)) }));
+		const known = new Set(tune.kw.map((x) => fold(x.term)));
+		tune.kw.unshift(...required.filter((r) => !known.has(fold(r))).map((r) => ({ term: r, w: 0, req: true })));
+		tune.reqOrder = required;
+		tune.neg = readMap(t, ...k.neg).map(([term, w]) => ({ term, w: Math.abs(w) }));
+		$("tMin").value = readScalar(t, ...k.min) ?? readScalar(t, "search", "min_score") ?? "";
+		$("tMode").value = readScalar(t, ...k.mode) === "any" ? "any" : "all";
+		$("tProfileNote").textContent = $("tProfile").value === "graduado"
+			? "Sus palabras son solo suyas. Antigüedad, multiplicador y puntos extra son comunes a las dos."
+			: "Antigüedad, multiplicador y puntos extra son comunes a las dos búsquedas.";
+		tune.profile = $("tProfile").value;
+	}
 	async function openTune() {
 		const dlg = $("tune");
+		$("tProfile").value = prefs.perfil;
 		$("kwFilter").value = "";
 		$("tRun").checked = false;
 		try {
 			const f = await getFile(CFG_API);
 			tune.text = f.text.replace(/\r\n/g, "\n"); tune.sha = f.sha;
 			const t = tune.text;
-			const required = readList(t, "scoring", "required_keywords");
-			const reqSet = new Set(required.map(fold));
-			tune.kw = readMap(t, "scoring", "keywords").map(([term, w]) => ({ term, w, req: reqSet.has(fold(term)) }));
-			const known = new Set(tune.kw.map((k) => fold(k.term)));
-			for (const r of required) if (!known.has(fold(r))) tune.kw.unshift({ term: r, w: 0, req: true });
-			tune.neg = readMap(t, "scoring", "negative_keywords").map(([term, w]) => ({ term, w: Math.abs(w) }));
-			$("tMin").value = readScalar(t, "search", "min_score") ?? "";
+			loadTuneProfile();
 			$("tMaxAge").value = readScalar(t, "search", "max_age_days") ?? String(maxAgeDays);
 			$("tMult").value = readScalar(t, "scoring", "title_multiplier") ?? "";
 			$("tRemote").value = readScalar(t, "scoring", "remote_bonus") ?? "";
 			$("tFresh").value = readScalar(t, "scoring", "fresh_bonus") ?? "0";
-			$("tMode").value = readScalar(t, "scoring", "required_mode") === "any" ? "any" : "all";
 		} catch (e) { return toast("No se pudo leer config.yaml: " + e.message, true); }
 		renderTune();
+		try { tune.baseline = buildConfig(); } catch { tune.baseline = null; }   // para saber si has cambiado algo
 		if (!dlg.open) dlg.showModal();
 	}
 	function addWord(listName, termId, weightId, reqId) {
@@ -1191,16 +1242,25 @@
 		};
 		for (const k of [...tune.kw, ...tune.neg]) if (!isFinite(Number(k.w)) || String(k.w).trim() === "") throw new Error(`Los puntos de «${k.term}» tienen que ser un número.`);
 		let t = tune.text;
-		t = writeScalar(t, "search", "min_score", num("tMin", "Puntuación mínima"));
+		const k = tuneKeys();
+		t = writeScalar(t, ...k.min, num("tMin", "Puntuación mínima"));
 		t = writeScalar(t, "search", "max_age_days", num("tMaxAge", "Antigüedad máxima"));
 		t = writeScalar(t, "scoring", "title_multiplier", num("tMult", "Multiplicador"));
 		t = writeScalar(t, "scoring", "remote_bonus", num("tRemote", "Puntos extra si es remoto"));
 		t = writeScalar(t, "scoring", "fresh_bonus", num("tFresh", "Puntos extra si es reciente"));
-		t = writeMap(t, "scoring", "keywords", tune.kw.filter((k) => Number(k.w) !== 0).map((k) => [k.term, k.w]));
-		t = writeList(t, "scoring", "required_keywords", tune.kw.filter((k) => k.req).map((k) => k.term));
-		t = writeScalar(t, "scoring", "required_mode", $("tMode").value);
-		t = writeMap(t, "scoring", "negative_keywords", tune.neg.filter((k) => Number(k.w) !== 0).map((k) => [k.term, Math.abs(k.w)]));
+		t = writeMap(t, ...k.kw, tune.kw.filter((x) => Number(x.w) !== 0).map((x) => [x.term, x.w]));
+		// Las obligatorias, en el orden que tenían en config.yaml (y las nuevas al final)
+		const req = tune.kw.filter((x) => x.req).map((x) => x.term);
+		const orig = (tune.reqOrder || []).filter((o) => req.some((r) => fold(r) === fold(o)));
+		t = writeList(t, ...k.req, [...orig, ...req.filter((r) => !orig.some((o) => fold(o) === fold(r)))]);
+		t = writeScalar(t, ...k.mode, $("tMode").value);
+		t = writeMap(t, ...k.neg, tune.neg.filter((x) => Number(x.w) !== 0).map((x) => [x.term, Math.abs(x.w)]));
 		return t;
+	}
+	function buildConfigFor(profile) {
+		const cur = $("tProfile").value;
+		$("tProfile").value = profile;
+		try { return buildConfig(); } finally { $("tProfile").value = cur; }
 	}
 	async function saveTune(e) {
 		e.preventDefault();
@@ -1212,12 +1272,16 @@
 		tune.busy = true; $("tSave").disabled = true; $("tSave").textContent = "Guardando…";
 		try {
 			tune.sha = await putFile(CFG_API, next, tune.sha,
-				"Ajustes de búsqueda desde el panel" + (req.length ? ` (obligatorias: ${req.join(", ")})` : ""));
+				`Ajustes de búsqueda${tune.profile === "graduado" ? " (recién graduado)" : ""} desde el panel` + (req.length ? ` (obligatorias: ${req.join(", ")})` : ""));
 			tune.text = next;
 			maxAgeDays = Number(readScalar(next, "search", "max_age_days")) || maxAgeDays;
 			render();
 			$("tune").close();
-			if ($("tRun").checked && !(run.waitingSince || isRunning(run.last))) { toast("Ajustes guardados"); launch(); }
+			if ($("tRun").checked && !(run.waitingSince || isRunning(run.last))) {
+				toast("Ajustes guardados");
+				prefs.runPerfil = tune.profile; $("runPerfil").value = tune.profile; savePrefs();
+				launch("espana");
+			}
 			else toast("Ajustes guardados. Se aplicarán en la próxima búsqueda.");
 		} catch (err) {
 			if (err.status === 409 || err.status === 422) {
@@ -1323,7 +1387,12 @@
 	/* País de la oferta (columnas pais / codigo_pais). Sin código o «ES» = España. */
 	const countryCode = (o) => (o.codigo_pais || "").trim().toUpperCase();
 	const isIntl = (o) => !["", "ES"].includes(countryCode(o));
-	const inScope = (o) => prefs.scope === "all" || (prefs.scope === "intl") === isIntl(o);
+	/* Búsqueda que encontró la oferta (columna busqueda); vacía = especializada */
+	const profileOf = (o) => (o.busqueda || "").trim().toLowerCase() === "graduado" ? "graduado" : "especializada";
+	const isGrad = () => prefs.perfil === "graduado";
+	// La oferta está en el apartado elegido: su búsqueda y, en la especializada, España / Internacional / país
+	const inScope = (o) => profileOf(o) === prefs.perfil && (isGrad() || prefs.scope === "all" || (prefs.scope === "intl") === isIntl(o));
+	const countryOk = (o) => isGrad() || prefs.scope === "es" || !prefs.country || countryCode(o) === prefs.country;
 	const flag = (code) => /^[A-Z]{2}$/.test(code || "") ? String.fromCodePoint(...[...code].map((c) => 0x1F1A5 + c.charCodeAt(0))) : "";
 	const countryLabel = (o) => (o.pais || "").trim() || countryCode(o) || (isIntl(o) ? "" : "España");
 	const safeUrl = (u) => (/^https?:\/\//i.test(u || "") ? u : "#");
@@ -1361,7 +1430,7 @@
 	function matches(o) {
 		if (tooOld(o)) return false;
 		if (!inScope(o)) return false;
-		if (prefs.scope !== "es" && prefs.country && countryCode(o) !== prefs.country) return false;
+		if (!countryOk(o)) return false;
 		if (prefs.view === "pending" && (applied(o) || discarded(o) || rejected(o))) return false;
 		if (prefs.view === "applied" && (!applied(o) || rejected(o))) return false;
 		if (prefs.view === "rejected" && !rejected(o)) return false;
@@ -1401,13 +1470,20 @@
 			b(inProcess.length), " en proceso · ", b(nRejected), nRejected === 1 ? " rechazada" : " rechazadas");
 
 		// Los contadores de estado, del apartado elegido (España / Internacional / Todo)
-		const sc = rows.filter((o) => inScope(o) && (prefs.scope === "es" || !prefs.country || countryCode(o) === prefs.country));
+		const sc = rows.filter((o) => inScope(o) && countryOk(o));
 		const counts = { pending: sc.filter((o) => !applied(o) && !discarded(o) && !rejected(o) && !tooOld(o)).length,
 			applied: sc.filter((o) => applied(o) && !rejected(o)).length, rejected: sc.filter(rejected).length,
 			discarded: sc.filter((o) => discarded(o) && !rejected(o)).length, all: sc.filter((o) => !tooOld(o)).length };
 		const live = (o) => !applied(o) && !discarded(o) && !rejected(o) && !tooOld(o);
-		const scopeCounts = { es: rows.filter((o) => !isIntl(o) && live(o)).length, intl: rows.filter((o) => isIntl(o) && live(o)).length,
-			all: rows.filter(live).length };
+		const spec = rows.filter((o) => profileOf(o) === "especializada");
+		const scopeCounts = { es: spec.filter((o) => !isIntl(o) && live(o)).length, intl: spec.filter((o) => isIntl(o) && live(o)).length,
+			all: spec.filter(live).length };
+		for (const btn of $("profileSeg").querySelectorAll("button")) {
+			btn.setAttribute("aria-pressed", String(btn.dataset.perfil === prefs.perfil));
+			btn.querySelector(".c").textContent = rows.filter((o) => profileOf(o) === btn.dataset.perfil && live(o)).length;
+		}
+		$("profileHint").hidden = !isGrad();
+		$("scopes").hidden = isGrad();
 		for (const btn of $("scopeSeg").querySelectorAll("button")) {
 			btn.setAttribute("aria-pressed", String(btn.dataset.scope === prefs.scope));
 			btn.querySelector(".c").textContent = scopeCounts[btn.dataset.scope];
@@ -1419,9 +1495,10 @@
 			btn.setAttribute("aria-pressed", String(btn.dataset.view === prefs.view));
 			btn.querySelector(".c").textContent = counts[btn.dataset.view];
 		}
-		$("listTitle").textContent = (VIEW_TITLES[prefs.view] || VIEW_TITLES.all) +
-			(prefs.scope === "intl" ? (prefs.country ? ` · ${flag(prefs.country)} ${countryNames()[prefs.country] || prefs.country}` : " en el extranjero")
+		$("listTitle").textContent = (VIEW_TITLES[prefs.view] || VIEW_TITLES.all) + (isGrad() ? " · recién graduado" :
+			prefs.scope === "intl" ? (prefs.country ? ` · ${flag(prefs.country)} ${countryNames()[prefs.country] || prefs.country}` : " en el extranjero")
 				: prefs.scope === "es" ? " en España" : "");
+		$("ofertas").dataset.perfil = prefs.perfil;
 		$("seeAll").hidden = prefs.view === "all";
 		const maxDate = rows.reduce((m, o) => (o.encontrada > m ? o.encontrada : m), "");
 		$("stamp").textContent = maxDate ? `· datos hasta ${maxDate}` : "";
@@ -1596,7 +1673,9 @@
 		const list = $("list");
 		if (!rows.length) {
 			list.replaceChildren(el("p", { class: "empty" }, "Todavía no hay ofertas en ofertas.csv. Aparecerán tras la próxima búsqueda."));
-		} else if (prefs.scope === "intl" && !rows.some(isIntl)) {
+		} else if (isGrad() && !rows.some((o) => profileOf(o) === "graduado")) {
+			list.replaceChildren(el("p", { class: "empty" }, "Todavía no hay ofertas de la búsqueda para recién graduados. Aparecerán tras la próxima búsqueda."));
+		} else if (!isGrad() && prefs.scope === "intl" && !rows.some(isIntl)) {
 			list.replaceChildren(el("p", { class: "empty" }, "Todavía no hay ofertas del extranjero. Aparecerán tras la próxima búsqueda (la internacional se hace una vez al día, o al pulsar Buscar ahora)."));
 		} else if (!visible.length) {
 			list.replaceChildren(el("p", { class: "empty" }, prefs.view === "pending"
@@ -1672,7 +1751,17 @@
 		if (b) setView(b.dataset.view);
 	});
 	$("seeAll").addEventListener("click", () => setView("all"));
-	function setScope(sc) { prefs.scope = sc; savePrefs(); renderSources(); render(); }
+	function setScope(sc) { prefs.scope = sc; prefs.perfil = "especializada"; savePrefs(); renderSources(); render(); }
+	function setPerfil(pf) { prefs.perfil = pf; savePrefs(); renderSources(); render(); }
+	$("profileSeg").addEventListener("click", (e) => {
+		const b = e.target.closest("button[data-perfil]");
+		if (b) setPerfil(b.dataset.perfil);
+	});
+	for (const a of document.querySelectorAll("nav.menu a[data-perfil]")) {
+		a.addEventListener("click", () => setPerfil(a.dataset.perfil));
+	}
+	$("runPerfil").value = prefs.runPerfil;
+	$("runPerfil").addEventListener("change", (e) => { prefs.runPerfil = e.target.value; savePrefs(); renderRun(); });
 	$("scopeSeg").addEventListener("click", (e) => {
 		const b = e.target.closest("button[data-scope]");
 		if (b) setScope(b.dataset.scope);
@@ -1709,6 +1798,18 @@
 	$("tune").addEventListener("click", (e) => { if (e.target === e.currentTarget) e.currentTarget.close(); });
 	$("tuneForm").addEventListener("submit", saveTune);
 	$("kwFilter").addEventListener("input", renderTune);
+	// Cambiar de búsqueda en el diálogo: si ya habías tocado algo, se pierde (se avisa)
+	$("tProfile").addEventListener("change", () => {
+		const before = tune.profile;
+		let dirty = false;
+		try { dirty = buildConfigFor(before) !== tune.baseline; } catch { dirty = true; }
+		if (dirty && !confirm("Has cambiado ajustes de esta búsqueda sin guardar. ¿Cambiar de búsqueda y descartarlos?")) {
+			$("tProfile").value = before; return;
+		}
+		$("kwFilter").value = "";
+		loadTuneProfile(); renderTune();
+		try { tune.baseline = buildConfig(); } catch { tune.baseline = null; }
+	});
 	$("tMode").addEventListener("change", renderTune);
 	$("kwAdd").addEventListener("click", () => addWord("kw", "kwNew", "kwNewW", "kwNewReq"));
 	$("negAdd").addEventListener("click", () => addWord("neg", "negNew", "negNewW"));
